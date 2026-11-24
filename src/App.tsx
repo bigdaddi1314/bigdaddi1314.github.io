@@ -622,12 +622,12 @@ export function App() {
 
             <a
               href="/manage/index.html"
-              title="Atelier Inventory & Orders Management (Password Protected)"
-              aria-label="Open Atelier Management Console"
-              className="min-h-[40px] px-3 py-1.5 rounded-full border border-white/15 bg-white/6 hover:bg-white/15 hover:border-[#F5B96B] text-xs font-semibold text-slate-200 hover:text-white inline-flex items-center gap-1.5 transition-colors whitespace-nowrap"
+              title="Inventory, Custom Orders & Print Queue Management (Password Protected)"
+              aria-label="Open Inventory Management Page"
+              className="min-h-[40px] px-3.5 py-1.5 rounded-full border border-[#F5B96B]/40 bg-[#F5B96B]/12 hover:bg-[#F5B96B]/22 hover:border-[#F5B96B] text-xs font-bold text-[#FDE68A] hover:text-white inline-flex items-center gap-1.5 transition-colors whitespace-nowrap"
             >
-              <Lock className="w-3.5 h-3.5 text-[#FDE68A]" />
-              <span className="hidden lg:inline">Manage</span>
+              <Lock className="w-3.5 h-3.5 text-[#F5B96B]" />
+              <span>Inventory</span>
             </a>
 
             <button
@@ -1051,7 +1051,7 @@ export function App() {
               className="text-[#FDE68A] hover:text-white inline-flex items-center gap-1.5 font-semibold"
             >
               <Lock className="w-3.5 h-3.5" />
-              <span>Atelier Manage</span>
+              <span>Inventory</span>
             </a>
             <PWAInstallButton variant="footer" onToast={showToast} />
           </div>
