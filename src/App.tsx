@@ -4,6 +4,7 @@ import {
   Compass,
   Home,
   Layers,
+  Lock,
   ShoppingBag,
   Sparkles,
   Store,
@@ -18,6 +19,7 @@ import {
   calculatePursePrice,
 } from './config/storefrontConfig';
 import { loadWorkshopCatalog } from './services/catalogLoader';
+import { recordBoutiqueOrder, recordCustomRequest } from './services/managementStore';
 import type {
   AccessoryConfig,
   BagItem,
@@ -345,15 +347,63 @@ export function App() {
     saveLocalDesign({ kind: 'accessory', name: cfg.productName, price, config: cfg }, cfg.productName);
   };
 
-  // Static guest order reservation (no Firebase / no server required)
-  const handlePlaceOrder = async (): Promise<string> => {
+  // Record boutique checkout order (localStorage + live server sync -> visible in /manage/)
+  const handlePlaceOrder = async (payload: {
+    customerName: string;
+    customerEmail: string;
+    customerPhone: string;
+    fulfillment: 'pickup' | 'shipping';
+    subtotal: number;
+    shipping: number;
+    total: number;
+  }): Promise<string> => {
     const orderNum = `M704-${Math.floor(100000 + Math.random() * 900000)}`;
+    await recordBoutiqueOrder({
+      orderNumber: orderNum,
+      createdAt: new Date().toISOString(),
+      status: 'new',
+      customerName: payload.customerName,
+      customerEmail: payload.customerEmail,
+      customerPhone: payload.customerPhone,
+      fulfillment: payload.fulfillment,
+      subtotal: payload.subtotal,
+      shipping: payload.shipping,
+      total: payload.total,
+      items: bagItems.map((b) => ({ ...b })),
+    });
     showToast(`Order #${orderNum} reserved!`);
     return orderNum;
   };
 
-  const handleSubmitBespokeLocal = async () => {
-    // Saved & handled statically via downloadable Concept Brief PNG + mailto
+  // Record bespoke custom design request (localStorage + live server sync -> visible in /manage/)
+  const handleSubmitBespokeLocal = async (payload: {
+    referenceId: string;
+    category: string;
+    neededByDate: string;
+    notes: string;
+    engravingIdea: string;
+    primaryHex: string;
+    accentHex: string;
+    referenceFileName: string;
+    customerName: string;
+    customerEmail: string;
+    instagramHandle: string;
+  }) => {
+    await recordCustomRequest({
+      referenceId: payload.referenceId,
+      createdAt: new Date().toISOString(),
+      status: 'new',
+      category: payload.category,
+      neededByDate: payload.neededByDate,
+      notes: payload.notes,
+      engravingIdea: payload.engravingIdea,
+      primaryHex: payload.primaryHex,
+      accentHex: payload.accentHex,
+      referenceFileName: payload.referenceFileName,
+      customerName: payload.customerName,
+      customerEmail: payload.customerEmail,
+      instagramHandle: payload.instagramHandle,
+    });
   };
 
   const bagCount = bagItems.reduce((sum, item) => sum + item.qty, 0);
@@ -451,6 +501,16 @@ export function App() {
             >
               <Sparkles className="w-3.5 h-3.5 text-[#FDE68A]" />
               <span>Purse Studio</span>
+            </a>
+
+            <a
+              href="/manage/index.html"
+              title="Atelier Inventory & Orders Management (Password Protected)"
+              aria-label="Open Atelier Management Console"
+              className="min-h-[40px] px-3 py-1.5 rounded-full border border-white/15 bg-white/6 hover:bg-white/15 hover:border-[#F5B96B] text-xs font-semibold text-slate-200 hover:text-white inline-flex items-center gap-1.5 transition-colors whitespace-nowrap"
+            >
+              <Lock className="w-3.5 h-3.5 text-[#FDE68A]" />
+              <span className="hidden lg:inline">Manage</span>
             </a>
 
             <button
@@ -870,6 +930,13 @@ export function App() {
             >
               Custom Requests
             </button>
+            <a
+              href="/manage/index.html"
+              className="text-[#FDE68A] hover:text-white inline-flex items-center gap-1.5 font-semibold"
+            >
+              <Lock className="w-3.5 h-3.5" />
+              <span>Atelier Manage</span>
+            </a>
             <PWAInstallButton variant="footer" onToast={showToast} />
           </div>
         </div>

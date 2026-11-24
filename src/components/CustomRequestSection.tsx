@@ -15,9 +15,13 @@ interface CustomRequestSectionProps {
   userEmail?: string | null;
   userName?: string | null;
   onSubmitToCloud: (payload: {
+    referenceId: string;
     category: string;
     neededByDate: string;
     notes: string;
+    engravingIdea: string;
+    primaryHex: string;
+    accentHex: string;
     referenceFileName: string;
     customerName: string;
     customerEmail: string;
@@ -211,9 +215,13 @@ export const CustomRequestSection: React.FC<CustomRequestSectionProps> = ({
 
     try {
       await onSubmitToCloud({
+        referenceId,
         category,
         neededByDate,
         notes: combinedNotes,
+        engravingIdea: engravingIdea.trim(),
+        primaryHex,
+        accentHex,
         referenceFileName: refNames,
         customerName: customerName.trim(),
         customerEmail: customerEmail.trim(),

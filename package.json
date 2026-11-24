@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host 127.0.0.1 --port 5173",
-    "start": "vite preview --host 127.0.0.1 --port 5173",
+    "start": "node server/boutique-server.mjs",
+    "serve": "node server/boutique-server.mjs",
     "build": "vite build",
     "preview": "vite preview --host 127.0.0.1 --port 5173",
     "clean": "rm -rf dist",
