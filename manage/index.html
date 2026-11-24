@@ -1,0 +1,1599 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Maison 704 — Atelier Inventory &amp; Orders Management</title>
+<meta name="robots" content="noindex,nofollow">
+<style>
+:root{
+  color-scheme:dark;
+  --bg:#070a13;
+  --panel:#0e1422;
+  --panel2:#131b2e;
+  --card:#111828;
+  --line:rgba(255,255,255,.11);
+  --line2:rgba(255,255,255,.18);
+  --text:#f1f5f9;
+  --muted:#94a3b8;
+  --gold:#f5b96b;
+  --gold2:#fde68a;
+  --teal:#5eead4;
+  --blue:#7dd3fc;
+  --rose:#fb7185;
+  --green:#4ade80;
+  --amber:#fbbf24;
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:radial-gradient(circle at 20% 0%,#16213a 0%,#070a13 55%);color:var(--text);font:14px/1.5 Inter,system-ui,-apple-system,"Segoe UI",sans-serif}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+a{color:inherit}
+.hidden{display:none!important}
+
+/* Lock Screen */
+.lock-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+.lock-card{width:min(440px,100%);background:rgba(14,20,34,.9);backdrop-filter:blur(18px);border:1px solid var(--line2);border-radius:24px;padding:32px 28px;box-shadow:0 30px 90px rgba(0,0,0,.6)}
+.lock-hairline{height:3px;border-radius:99px;background:linear-gradient(90deg,#f59e0b,#ec4899,#0085ca);margin-bottom:22px}
+.lock-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 11px;border-radius:999px;background:rgba(245,185,107,.14);border:1px solid rgba(245,185,107,.35);color:var(--gold2);font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase}
+.lock-title{font-family:Georgia,"Times New Roman",serif;font-size:28px;font-weight:700;margin:12px 0 6px;letter-spacing:.02em}
+.lock-sub{color:var(--muted);font-size:13px;margin:0 0 20px}
+.field-label{display:block;font-size:11px;font-weight:600;color:#cbd5e1;margin-bottom:6px;letter-spacing:.03em}
+.pass-wrap{position:relative;display:flex;align-items:center}
+.input{width:100%;min-height:44px;padding:10px 14px;border-radius:12px;background:rgba(7,10,19,.85);border:1px solid var(--line2);color:#fff;font-size:14px;outline:none;transition:.15s}
+.input:focus{border-color:var(--gold)}
+.pass-toggle{position:absolute;right:10px;background:transparent;border:0;color:var(--muted);font-size:12px;padding:6px 8px;border-radius:8px}
+.pass-toggle:hover{color:#fff;background:rgba(255,255,255,.08)}
+.lock-error{margin-top:10px;padding:9px 12px;border-radius:10px;background:rgba(251,113,133,.12);border:1px solid rgba(251,113,133,.4);color:#fecdd3;font-size:12px;font-weight:600}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:40px;padding:8px 15px;border-radius:999px;border:1px solid var(--line2);background:rgba(255,255,255,.08);color:#fff;font-size:12px;font-weight:650;text-decoration:none;transition:.15s;white-space:nowrap}
+.btn:hover{background:rgba(255,255,255,.15);border-color:var(--gold)}
+.btn.primary{background:linear-gradient(135deg,#f5b96b,#e59a45);border-color:transparent;color:#0b101c;font-weight:750}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.teal{background:rgba(94,234,212,.14);border-color:rgba(94,234,212,.4);color:var(--teal)}
+.btn.teal:hover{background:rgba(94,234,212,.22);color:#fff}
+.btn.danger{background:rgba(251,113,133,.12);border-color:rgba(251,113,133,.35);color:#fda4af}
+.btn.sm{min-height:32px;padding:5px 11px;font-size:11px}
+.btn.full{width:100%}
+.lock-foot{margin-top:18px;display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:12px;color:var(--muted)}
+.lock-foot a{color:var(--gold2);text-decoration:none;font-weight:600}
+.lock-foot a:hover{text-decoration:underline}
+
+/* App Shell */
+.hairline{height:3px;width:100%;background:linear-gradient(90deg,#f59e0b,#ec4899,#0085ca)}
+header.topbar{position:sticky;top:0;z-index:30;background:rgba(9,13,24,.88);backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
+.topbar-inner{max-width:1440px;margin:0 auto;padding:12px 18px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px}
+.brand{display:flex;align-items:center;gap:12px}
+.brand-mark{width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,#f5b96b,#e08a3c);color:#0b101c;display:grid;place-items:center;font-weight:900;font-family:Georgia,serif;font-size:16px}
+.brand h1{margin:0;font-family:Georgia,serif;font-size:19px;letter-spacing:.08em}
+.brand p{margin:0;font-size:11px;color:var(--muted)}
+.top-actions{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.sync-pill{display:inline-flex;align-items:center;gap:6px;padding:5px 11px;border-radius:999px;font-size:11px;font-weight:650;border:1px solid var(--line);background:rgba(255,255,255,.05);color:#cbd5e1}
+.sync-dot{width:7px;height:7px;border-radius:50%;background:var(--amber)}
+.sync-pill.live .sync-dot{background:var(--green);box-shadow:0 0 8px var(--green)}
+
+.container{max-width:1440px;margin:0 auto;padding:20px 18px 60px}
+
+/* KPI Row */
+.kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin-bottom:18px}
+.kpi{background:rgba(17,24,40,.84);border:1px solid var(--line);border-radius:18px;padding:15px 16px}
+.kpi-label{font-size:10px;text-transform:uppercase;letter-spacing:.13em;color:var(--muted);font-weight:700}
+.kpi-val{font-family:Georgia,serif;font-size:28px;font-weight:700;margin-top:4px;line-height:1.1}
+.kpi-sub{font-size:11px;color:var(--muted);margin-top:4px}
+.kpi.gold .kpi-val{color:var(--gold2)}
+.kpi.teal .kpi-val{color:var(--teal)}
+.kpi.blue .kpi-val{color:var(--blue)}
+.kpi.rose .kpi-val{color:var(--rose)}
+
+/* Tabs */
+.tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px;border-bottom:1px solid var(--line);padding-bottom:12px}
+.tab-btn{min-height:40px;padding:8px 16px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.04);color:#cbd5e1;font-size:12px;font-weight:650;display:inline-flex;align-items:center;gap:8px;transition:.15s}
+.tab-btn:hover{border-color:var(--gold);color:#fff}
+.tab-btn.active{background:linear-gradient(135deg,#f5b96b,#e59a45);border-color:transparent;color:#0b101c;font-weight:750}
+.badge-count{padding:2px 7px;border-radius:999px;font-size:10px;font-weight:800;background:rgba(0,0,0,.22)}
+.tab-btn:not(.active) .badge-count{background:rgba(94,234,212,.16);color:var(--teal)}
+
+/* Panel & Toolbar */
+.panel{background:rgba(17,24,40,.85);border:1px solid var(--line);border-radius:20px;padding:18px;margin-bottom:16px}
+.toolbar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}
+.toolbar-left{display:flex;flex-wrap:wrap;align-items:center;gap:8px;flex:1}
+.search{min-width:220px;max-width:340px;flex:1}
+select.input-sm,input.input-sm{min-height:36px;padding:6px 10px;border-radius:10px;background:#090d18;border:1px solid var(--line2);color:#fff;font-size:12px;outline:none}
+select.input-sm:focus,input.input-sm:focus{border-color:var(--gold)}
+
+/* Tables & Cards */
+.table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:14px}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{text-align:left;padding:10px 12px;background:#0b101d;color:#94a3b8;font-size:10.5px;text-transform:uppercase;letter-spacing:.09em;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.06);vertical-align:middle}
+tr:last-child td{border-bottom:0}
+tr:hover td{background:rgba(255,255,255,.025)}
+.thumb{width:42px;height:42px;border-radius:10px;object-fit:cover;background:#090d18;border:1px solid var(--line);flex-shrink:0}
+.item-cell{display:flex;align-items:center;gap:10px;min-width:200px}
+.item-title{font-weight:700;color:#fff;line-height:1.25}
+.item-sub{font-size:11px;color:var(--muted)}
+.qty-box{display:inline-flex;align-items:center;gap:4px}
+.qty-btn{width:26px;height:26px;border-radius:7px;border:1px solid var(--line2);background:#0b101d;color:#fff;font-weight:700}
+.qty-btn:hover{border-color:var(--gold);color:var(--gold2)}
+.qty-input{width:48px;text-align:center;min-height:28px;padding:2px 4px;border-radius:7px;background:#090d18;border:1px solid var(--line2);color:#fff;font-weight:700}
+.price-input{width:70px;min-height:30px;padding:3px 7px;border-radius:8px;background:#090d18;border:1px solid var(--line2);color:var(--gold2);font-weight:700}
+
+.pill{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:999px;font-size:10.5px;font-weight:700;white-space:nowrap}
+.pill.new{background:rgba(251,113,133,.16);color:#fda4af;border:1px solid rgba(251,113,133,.35)}
+.pill.ok{background:rgba(74,222,128,.14);color:#86efac;border:1px solid rgba(74,222,128,.32)}
+.pill.warn{background:rgba(251,191,36,.14);color:#fde68a;border:1px solid rgba(251,191,36,.32)}
+.pill.info{background:rgba(125,211,252,.14);color:#bae6fd;border:1px solid rgba(125,211,252,.32)}
+.pill.muted{background:rgba(148,163,184,.14);color:#cbd5e1;border:1px solid rgba(148,163,184,.25)}
+
+/* Order Cards Grid */
+.order-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:14px}
+.order-card{background:#0c1220;border:1px solid var(--line);border-radius:16px;padding:15px;display:flex;flex-direction:column;gap:10px}
+.order-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.order-id{font-family:ui-monospace,Consolas,monospace;font-size:11.5px;font-weight:700;color:var(--gold2)}
+.order-name{font-size:15px;font-weight:750;margin-top:2px}
+.order-meta{font-size:11.5px;color:var(--muted)}
+.swatch-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:11px;color:#cbd5e1}
+.swatch-dot{width:14px;height:14px;border-radius:50%;border:1px solid rgba(255,255,255,.5);display:inline-block}
+.order-items{background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:10px;padding:8px 10px;display:grid;gap:6px;font-size:12px}
+.order-item-row{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
+.order-actions{display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding-top:6px;border-top:1px solid var(--line)}
+.note-box{width:100%;min-height:54px;padding:7px 9px;border-radius:9px;background:#070a13;border:1px solid var(--line);font-size:12px;resize:vertical}
+
+/* Fleet Grid */
+.fleet-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;margin-bottom:16px}
+.fleet-card{background:#0c1220;border:1px solid var(--line);border-radius:14px;padding:13px}
+.fleet-card h3{margin:0 0 4px;font-size:14px}
+
+/* Modal */
+.modal-bg{position:fixed;inset:0;z-index:50;background:rgba(4,7,14,.78);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:16px}
+.modal{width:min(520px,100%);max-height:92vh;overflow:auto;background:#111828;border:1px solid var(--line2);border-radius:20px;padding:22px}
+.modal h2{margin:0 0 12px;font-family:Georgia,serif;font-size:21px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.form-row{margin-bottom:10px}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:60;background:#0b111d;border:1px solid var(--gold);color:#fff;padding:10px 18px;border-radius:999px;font-size:12px;font-weight:700;box-shadow:0 12px 32px rgba(0,0,0,.6);opacity:0;pointer-events:none;transition:.2s}
+.toast.show{opacity:1}
+
+@media(max-width:980px){
+  .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:640px){
+  .order-grid{grid-template-columns:1fr}
+  .form-grid{grid-template-columns:1fr}
+  .topbar-inner{padding:10px 12px}
+  .container{padding:14px 12px 60px}
+}
+</style>
+</head>
+<body>
+<div class="hairline"></div>
+
+<!-- PASSWORD LOCK SCREEN -->
+<main id="lockScreen" class="lock-screen">
+  <div class="lock-card">
+    <div class="lock-hairline"></div>
+    <span class="lock-badge">🔒 Owner Access Only</span>
+    <h1 class="lock-title">Maison 704 Management</h1>
+    <p class="lock-sub">Enter your atelier passcode to manage boutique inventory, review customer custom orders, and control your 3D workshop print queue.</p>
+
+    <form id="unlockForm" autocomplete="off">
+      <label class="field-label" for="passInput">Atelier Passcode</label>
+      <div class="pass-wrap">
+        <input id="passInput" type="password" class="input" placeholder="Enter owner passcode" required autofocus>
+        <button type="button" id="togglePassBtn" class="pass-toggle" aria-label="Toggle passcode visibility">Show</button>
+      </div>
+      <div id="lockError" class="lock-error hidden">Incorrect passcode. Please try again.</div>
+      <button type="submit" class="btn primary full" style="margin-top:14px;min-height:46px">Unlock Management Console</button>
+    </form>
+
+    <div class="lock-foot">
+      <a href="/">← Back to Boutique Storefront</a>
+      <span>SHA-256 Protected</span>
+    </div>
+  </div>
+</main>
+
+<!-- AUTHENTICATED MANAGEMENT DASHBOARD -->
+<div id="dashboardShell" class="hidden">
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <div class="brand-mark">M</div>
+        <div>
+          <h1>MAISON 704 · ATELIER MANAGE</h1>
+          <p>Inventory, Custom Orders &amp; 3D Print Workshop Control</p>
+        </div>
+      </div>
+      <div class="top-actions">
+        <span id="syncPill" class="sync-pill" title="Live cross-device sync status">
+          <span class="sync-dot"></span>
+          <span id="syncLabel">Checking sync…</span>
+        </span>
+        <a href="/" class="btn sm">← Boutique</a>
+        <a href="/purse-studio/index.html?from=gallery" class="btn sm">✨ Purse Studio</a>
+        <a href="/?studio=monogram" class="btn sm teal">◈ Pattern Studio</a>
+        <button type="button" id="refreshBtn" class="btn sm">↻ Refresh</button>
+        <button type="button" id="lockBtn" class="btn sm danger">🔒 Lock</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="container">
+    <!-- KPI Cards -->
+    <section class="kpis" aria-label="Atelier summary metrics">
+      <div class="kpi rose">
+        <div class="kpi-label">Custom Orders &amp; Requests</div>
+        <div class="kpi-val" id="kpiOrders">0</div>
+        <div class="kpi-sub" id="kpiOrdersSub">0 new awaiting review</div>
+      </div>
+      <div class="kpi gold">
+        <div class="kpi-label">Boutique Catalog SKUs</div>
+        <div class="kpi-val" id="kpiSkus">0</div>
+        <div class="kpi-sub" id="kpiSkusSub">0 units ready in stock</div>
+      </div>
+      <div class="kpi teal">
+        <div class="kpi-label">Active Print Queue</div>
+        <div class="kpi-val" id="kpiQueue">0</div>
+        <div class="kpi-sub" id="kpiQueueSub">Synced from 3d-print-workshop</div>
+      </div>
+      <div class="kpi blue">
+        <div class="kpi-label">Workshop 3D Models</div>
+        <div class="kpi-val" id="kpiModels">0</div>
+        <div class="kpi-sub" id="kpiModelsSub">Visual catalog + .3mf files</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Estimated Order Value</div>
+        <div class="kpi-val" id="kpiRevenue">$0</div>
+        <div class="kpi-sub" id="kpiRevenueSub">From recorded bag checkouts</div>
+      </div>
+    </section>
+
+    <!-- Primary Tabs -->
+    <nav class="tabs" role="tablist" aria-label="Management sections">
+      <button type="button" class="tab-btn active" data-tab="orders" role="tab">
+        <span>Custom Orders &amp; Requests</span>
+        <span class="badge-count" id="tabBadgeOrders">0</span>
+      </button>
+      <button type="button" class="tab-btn" data-tab="inventory" role="tab">
+        <span>Boutique Inventory</span>
+        <span class="badge-count" id="tabBadgeInv">0</span>
+      </button>
+      <button type="button" class="tab-btn" data-tab="queue" role="tab">
+        <span>Print Queue &amp; Fleet</span>
+        <span class="badge-count" id="tabBadgeQueue">0</span>
+      </button>
+      <button type="button" class="tab-btn" data-tab="library" role="tab">
+        <span>3D Model Library</span>
+        <span class="badge-count" id="tabBadgeLib">0</span>
+      </button>
+      <button type="button" class="tab-btn" data-tab="settings" role="tab">
+        <span>Tools, Backup &amp; Security</span>
+      </button>
+    </nav>
+
+    <!-- TAB 1: CUSTOM ORDERS & REQUESTS -->
+    <section id="tab-orders" class="tab-pane">
+      <div class="panel">
+        <div class="toolbar">
+          <div class="toolbar-left">
+            <input id="orderSearch" type="search" class="input-sm search" placeholder="Search customer, order #, product, monogram, email…">
+            <select id="orderTypeFilter" class="input-sm">
+              <option value="all">All Types</option>
+              <option value="order">Bag Checkouts</option>
+              <option value="request">Custom Design Requests</option>
+            </select>
+            <select id="orderStatusFilter" class="input-sm">
+              <option value="all">All Statuses</option>
+              <option value="new">New</option>
+              <option value="quoted">Quoted</option>
+              <option value="in_queue">In Print Queue</option>
+              <option value="ready">Ready / Shipped</option>
+              <option value="completed">Completed</option>
+              <option value="archived">Archived</option>
+            </select>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button type="button" id="addManualOrderBtn" class="btn primary sm">+ Log Custom Order</button>
+            <button type="button" id="exportOrdersCsvBtn" class="btn sm">↓ Export Orders CSV</button>
+          </div>
+        </div>
+        <div id="ordersList" class="order-grid"></div>
+      </div>
+    </section>
+
+    <!-- TAB 2: BOUTIQUE INVENTORY -->
+    <section id="tab-inventory" class="tab-pane hidden">
+      <div class="panel">
+        <div class="toolbar">
+          <div class="toolbar-left">
+            <input id="invSearch" type="search" class="input-sm search" placeholder="Search SKU, name, dimensions, printer…">
+            <select id="invCatFilter" class="input-sm">
+              <option value="all">All Categories</option>
+            </select>
+            <select id="invStatusFilter" class="input-sm">
+              <option value="all">All Stock States</option>
+              <option value="in_stock">In Stock</option>
+              <option value="low_stock">Low Stock</option>
+              <option value="made_to_order">Made to Order</option>
+              <option value="paused">Paused</option>
+            </select>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button type="button" id="addInvItemBtn" class="btn primary sm">+ Add Product</button>
+            <button type="button" id="exportInvCsvBtn" class="btn sm">↓ Export Inventory CSV</button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Piece</th>
+                <th>Category</th>
+                <th>Price ($)</th>
+                <th>On-Hand Qty</th>
+                <th>Status</th>
+                <th>Default Printer</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="inventoryTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: PRINT QUEUE & FLEET -->
+    <section id="tab-queue" class="tab-pane hidden">
+      <div class="fleet-grid" id="fleetGrid"></div>
+      <div class="panel">
+        <div class="toolbar">
+          <div class="toolbar-left">
+            <h2 style="margin:0;font-family:Georgia,serif;font-size:19px">Workshop Print Queue</h2>
+            <select id="queueStatusFilter" class="input-sm">
+              <option value="all">All Queue States</option>
+              <option value="needs_review">Needs Review</option>
+              <option value="ready_to_print">Ready to Print</option>
+              <option value="printing">Printing</option>
+              <option value="printed">Printed</option>
+            </select>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button type="button" id="addQueueJobBtn" class="btn primary sm">+ Add Print Job</button>
+            <button type="button" id="exportQueueCsvBtn" class="btn sm teal">↓ Export queue.csv</button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Job ID / Project</th>
+                <th>Printer</th>
+                <th>Material &amp; Profile</th>
+                <th>Qty / Priority</th>
+                <th>Order Ref</th>
+                <th>Status</th>
+                <th>Notes</th>
+              </tr>
+            </thead>
+            <tbody id="queueTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3 style="margin:0 0 10px;font-family:Georgia,serif;font-size:17px">Recent Print History (from print_history.py)</h3>
+        <div id="printHistoryBox" style="font-size:12.5px;color:#cbd5e1"></div>
+      </div>
+    </section>
+
+    <!-- TAB 4: WORKSHOP 3D MODEL LIBRARY -->
+    <section id="tab-library" class="tab-pane hidden">
+      <div class="panel">
+        <div class="toolbar">
+          <div class="toolbar-left">
+            <input id="libSearch" type="search" class="input-sm search" placeholder="Search 450+ cataloged 3D models & .3mf files…">
+            <select id="libFilter" class="input-sm">
+              <option value="all">All Models</option>
+              <option value="workshop">Tracked .3mf Inventory Files</option>
+              <option value="in_inventory">In Inventory</option>
+              <option value="in_queue">In Print Queue</option>
+            </select>
+          </div>
+          <span id="libCountLabel" style="font-size:12px;color:var(--muted)">0 models</span>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Model / Design</th>
+                <th>Source / Category</th>
+                <th>Printers</th>
+                <th>Versions / Size</th>
+                <th>Flags</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="libraryTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 5: TOOLS, BACKUP & SECURITY -->
+    <section id="tab-settings" class="tab-pane hidden">
+      <div class="order-grid">
+        <div class="panel" style="margin:0">
+          <h2 style="margin:0 0 8px;font-family:Georgia,serif;font-size:19px">Change Atelier Passcode</h2>
+          <p style="font-size:12px;color:var(--muted);margin-top:0">Passcodes are hashed locally with salted SHA-256. Updating your passcode secures this browser and (when connected to your live local server) syncs to your PC immediately.</p>
+          <form id="changePassForm">
+            <div class="form-row">
+              <label class="field-label" for="newPass1">New Passcode (min 6 characters)</label>
+              <input id="newPass1" type="password" class="input" minlength="6" required>
+            </div>
+            <div class="form-row">
+              <label class="field-label" for="newPass2">Confirm New Passcode</label>
+              <input id="newPass2" type="password" class="input" minlength="6" required>
+            </div>
+            <button type="submit" class="btn primary sm">Update Passcode</button>
+          </form>
+          <div id="newHashReadout" class="hidden" style="margin-top:12px;padding:10px;border-radius:10px;background:#070a13;border:1px solid var(--line);font-size:11px;word-break:break-all;color:var(--teal)"></div>
+        </div>
+
+        <div class="panel" style="margin:0">
+          <h2 style="margin:0 0 8px;font-family:Georgia,serif;font-size:19px">Workshop Sync &amp; Data Backup</h2>
+          <p style="font-size:12px;color:var(--muted);margin-top:0">Your inventory, orders, and print queue automatically persist locally and sync to your PC server whenever accessed over your live tunnel or LAN. You can also export full JSON or CSV backups anytime.</p>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px">
+            <button type="button" id="exportBackupBtn" class="btn primary sm">↓ Export Full Backup JSON</button>
+            <label class="btn sm" style="cursor:pointer">
+              ↑ Import Backup JSON
+              <input id="importBackupInput" type="file" accept="application/json,.json" class="hidden">
+            </label>
+            <button type="button" id="exportCatalogJsonBtn" class="btn sm teal">↓ Export Updated products-catalog.json</button>
+          </div>
+          <div style="margin-top:14px;padding:10px 12px;border-radius:12px;background:#070a13;border:1px solid var(--line);font-size:11.5px;color:#cbd5e1;line-height:1.6">
+            <strong style="color:var(--gold2)">Refresh from 3d-print-workshop CLI:</strong><br>
+            Run <code>python tools/sync_boutique_manage.py</code> inside <code>3d-print-workshop</code> to pull fresh <code>inventory.csv</code>, <code>queue.csv</code>, <code>catalog_data.json</code>, and <code>print_history_summary.json</code> into this console.
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<!-- MODAL FOR ADDING MANUAL ORDER / INVENTORY ITEM / QUEUE JOB -->
+<div id="modalBg" class="modal-bg hidden" role="dialog" aria-modal="true">
+  <div class="modal">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <h2 id="modalTitle" style="margin:0">Add Entry</h2>
+      <button type="button" id="modalCloseBtn" class="btn sm">✕</button>
+    </div>
+    <div id="modalBody"></div>
+  </div>
+</div>
+
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+  'use strict';
+
+  var SALT = 'maison704-atelier-v1::';
+  // Default salted SHA-256 hash (no plaintext stored)
+  var DEFAULT_PASS_HASH = '3c381a46fd55d95fc6fff6efb79356a1d9f0a2a0d587152a8968e12586646804';
+  var PASS_HASH_KEY = 'maison704_manage_pass_hash_v1';
+  var SESSION_AUTH_KEY = 'maison704_manage_session_hash_v1';
+  var ORDERS_KEY = 'maison704_orders_v1';
+  var REQUESTS_KEY = 'maison704_custom_requests_v1';
+  var INV_OVERRIDES_KEY = 'maison704_inventory_overrides_v1';
+  var QUEUE_OVERRIDES_KEY = 'maison704_queue_overrides_v1';
+
+  var PRICE_DEFAULTS = {
+    'carryall-tote':96,'barrel-duffel':98,'envelope-clutch':78,'pill-clutch':76,'half-moon-clutch':78,
+    'art-deco-clutch':82,'structured-tote':88,'mini-backpack':94,'saddle-bag':84,'drum-crossbody':82,
+    'heart-clutch':78,'5-point-star-clutch':76,'6-point-star-clutch':76,'octagon-clutch':74,'hexagon-clutch':74,
+    'pentagon-clutch':74,'diamond-clutch':78,'triangle-clutch':74,'coffin-clutch':78,'teardrop-clutch':76,
+    'scallop-cloud-clutch':78,'erotic-label-purse':110,'silk-bag-erotic-label':98,'erotic-label-ashtray-cup':42,
+    'erotic-label-ashtray':36,'herb-grinder':34,'lips-floating-shelf':58,'rolling-tray':44,'keychains-and-charms':22,
+    'tactical-grip-lighter-case':24,'elglock-bic-sleeve':26,'lightbox':64,'wall-logo':68,'cashapp-pay-wand':28,
+    'ritual-tray':46,'blank-book-cover':48,'canvas-frame':38,'dollar-sign-model':32,'cash-app-keychain':20,
+    'mm-hairpin':22,'lithophanes':45,'grinch-fishing-grip':38,'lulabu-duck':28,'reebok-pump-shoes':30,'ice-cube':34
+  };
+
+  var PRINTER_OPTIONS = [
+    'flashforge-creator-5',
+    'bambu-p1s',
+    'anycubic-kobra-x',
+    'centauri-carbon-1',
+    'unassigned'
+  ];
+
+  // Pure-JS SHA-256 (works on HTTPS, localhost, AND plain HTTP LAN IP where crypto.subtle is unavailable)
+  function sha256HexSync(ascii){
+    function rightRotate(v, a){ return (v >>> a) | (v << (32 - a)); }
+    var maxWord = Math.pow(2, 32);
+    var i, j, result = '';
+    var words = [], asciiBitLength = ascii.length * 8;
+    var hash = sha256HexSync.h = sha256HexSync.h || [];
+    var k = sha256HexSync.k = sha256HexSync.k || [];
+    var primeCounter = k.length;
+    var isComposite = {};
+    for(var candidate = 2; primeCounter < 64; candidate++){
+      if(!isComposite[candidate]){
+        for(i = 0; i < 313; i += candidate) isComposite[i] = candidate;
+        hash[primeCounter] = (Math.pow(candidate, 0.5) * maxWord) | 0;
+        k[primeCounter++] = (Math.pow(candidate, 1 / 3) * maxWord) | 0;
+      }
+    }
+    ascii += '\x80';
+    while(ascii.length % 64 - 56) ascii += '\x00';
+    for(i = 0; i < ascii.length; i++){
+      j = ascii.charCodeAt(i);
+      words[i >> 2] |= j << ((3 - i) % 4) * 8;
+    }
+    words[words.length] = ((asciiBitLength / maxWord) | 0);
+    words[words.length] = (asciiBitLength);
+    var h = hash.slice(0, 8);
+    for(j = 0; j < words.length;){
+      var w = words.slice(j, j += 16);
+      var oldH = h.slice(0);
+      for(i = 0; i < 64; i++){
+        var w15 = w[i - 15], w2 = w[i - 2];
+        var a = h[0], e = h[4];
+        var temp1 = h[7]
+          + (rightRotate(e, 6) ^ rightRotate(e, 11) ^ rightRotate(e, 25))
+          + ((e & h[5]) ^ ((~e) & h[6]))
+          + k[i]
+          + (w[i] = (i < 16) ? w[i] : (
+              w[i - 16]
+              + (rightRotate(w15, 7) ^ rightRotate(w15, 18) ^ (w15 >>> 3))
+              + w[i - 7]
+              + (rightRotate(w2, 17) ^ rightRotate(w2, 19) ^ (w2 >>> 10))
+            ) | 0);
+        var temp2 = (rightRotate(a, 2) ^ rightRotate(a, 13) ^ rightRotate(a, 22))
+          + ((a & h[1]) ^ (a & h[2]) ^ (h[1] & h[2]));
+        h = [(temp1 + temp2) | 0].concat(h);
+        h[4] = (h[4] + temp1) | 0;
+        h.pop();
+      }
+      for(i = 0; i < 8; i++) h[i] = (h[i] + oldH[i]) | 0;
+    }
+    for(i = 0; i < 8; i++){
+      for(j = 3; j + 1; j--){
+        var b = (h[i] >> (j * 8)) & 255;
+        result += ((b < 16) ? '0' : '') + b.toString(16);
+      }
+    }
+    return result;
+  }
+
+  async function hashPasscode(raw){
+    var msg = SALT + raw;
+    if(window.crypto && window.crypto.subtle){
+      try{
+        var enc = new TextEncoder().encode(msg);
+        var buf = await window.crypto.subtle.digest('SHA-256', enc);
+        return Array.from(new Uint8Array(buf)).map(function(b){ return b.toString(16).padStart(2, '0'); }).join('');
+      }catch(_){}
+    }
+    return sha256HexSync(unescape(encodeURIComponent(msg)));
+  }
+
+  function getStoredPassHash(){
+    try{ return localStorage.getItem(PASS_HASH_KEY) || DEFAULT_PASS_HASH; }catch(_){ return DEFAULT_PASS_HASH; }
+  }
+
+  function readJsonLS(key, fallback){
+    try{
+      var raw = localStorage.getItem(key);
+      return raw ? JSON.parse(raw) : fallback;
+    }catch(_){ return fallback; }
+  }
+  function writeJsonLS(key, value){
+    try{ localStorage.setItem(key, JSON.stringify(value)); }catch(_){}
+  }
+
+  var state = {
+    authHash: null,
+    liveSync: false,
+    catalogRaw: null,
+    catalogItems: [],
+    invOverrides: readJsonLS(INV_OVERRIDES_KEY, { items: {}, customProducts: [] }),
+    orders: readJsonLS(ORDERS_KEY, []),
+    requests: readJsonLS(REQUESTS_KEY, []),
+    snapshot: { fleet: [], queue: [], inventoryFiles: [], visualDesigns: [], printAttempts: [], printerStats: [] },
+    queueOverrides: readJsonLS(QUEUE_OVERRIDES_KEY, { updates: {}, added: [] }),
+    activeTab: 'orders'
+  };
+
+  var toastTimer;
+  function toast(msg){
+    var el = document.getElementById('toast');
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ el.classList.remove('show'); }, 2800);
+  }
+
+  function esc(str){
+    return String(str == null ? '' : str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function mergeById(listA, listB, idField){
+    var map = Object.create(null);
+    var out = [];
+    (listA || []).concat(listB || []).forEach(function(item){
+      if(!item) return;
+      var k = item[idField] || JSON.stringify(item);
+      if(!map[k]){ map[k] = item; out.push(item); }
+      else {
+        // Prefer more recently updated record
+        var existingTs = Date.parse(map[k].updatedAt || map[k].createdAt || 0) || 0;
+        var nextTs = Date.parse(item.updatedAt || item.createdAt || 0) || 0;
+        if(nextTs >= existingTs){
+          Object.assign(map[k], item);
+        }
+      }
+    });
+    out.sort(function(a, b){
+      return (Date.parse(b.createdAt || 0) || 0) - (Date.parse(a.createdAt || 0) || 0);
+    });
+    return out;
+  }
+
+  async function syncSaveToServer(){
+    writeJsonLS(ORDERS_KEY, state.orders);
+    writeJsonLS(REQUESTS_KEY, state.requests);
+    writeJsonLS(INV_OVERRIDES_KEY, state.invOverrides);
+    writeJsonLS(QUEUE_OVERRIDES_KEY, state.queueOverrides);
+
+    if(!state.liveSync || !state.authHash) return;
+    try{
+      await fetch('/api/manage/state', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Manage-Auth': state.authHash },
+        body: JSON.stringify({
+          orders: state.orders,
+          requests: state.requests,
+          invOverrides: state.invOverrides,
+          queueOverrides: state.queueOverrides,
+          passHash: getStoredPassHash()
+        })
+      });
+    }catch(_){}
+  }
+
+  async function loadAllData(){
+    // 1. Load products-catalog.json
+    try{
+      var rCat = await fetch('/products-catalog.json', { cache: 'no-store' });
+      if(rCat.ok){
+        state.catalogRaw = await rCat.json();
+        state.catalogItems = Array.isArray(state.catalogRaw.products) ? state.catalogRaw.products : [];
+      }
+    }catch(_){}
+
+    // 2. Load workshop-snapshot.json (generated from 3d-print-workshop tools)
+    try{
+      var rSnap = await fetch('/manage/workshop-snapshot.json', { cache: 'no-store' });
+      if(rSnap.ok){
+        state.snapshot = await rSnap.json();
+      }
+    }catch(_){}
+
+    // 3. Reload localStorage (in case storefront placed an order in another tab)
+    state.orders = readJsonLS(ORDERS_KEY, state.orders);
+    state.requests = readJsonLS(REQUESTS_KEY, state.requests);
+    state.invOverrides = readJsonLS(INV_OVERRIDES_KEY, state.invOverrides);
+    state.queueOverrides = readJsonLS(QUEUE_OVERRIDES_KEY, state.queueOverrides);
+
+    // 4. Probe live server API (when served via boutique-server.mjs / Cloudflare Tunnel / LAN)
+    var syncPill = document.getElementById('syncPill');
+    var syncLabel = document.getElementById('syncLabel');
+    state.liveSync = false;
+    try{
+      var rSrv = await fetch('/api/manage/state', {
+        headers: { 'X-Manage-Auth': state.authHash || '' },
+        cache: 'no-store'
+      });
+      if(rSrv.ok){
+        var srvData = await rSrv.json();
+        state.liveSync = true;
+        state.orders = mergeById(srvData.orders || [], state.orders, 'orderNumber');
+        state.requests = mergeById(srvData.requests || [], state.requests, 'referenceId');
+        if(srvData.invOverrides && srvData.invOverrides.items){
+          state.invOverrides = {
+            items: Object.assign({}, srvData.invOverrides.items, state.invOverrides.items || {}),
+            customProducts: mergeById(srvData.invOverrides.customProducts || [], state.invOverrides.customProducts || [], 'id')
+          };
+        }
+        if(srvData.queueOverrides){
+          state.queueOverrides = {
+            updates: Object.assign({}, srvData.queueOverrides.updates || {}, state.queueOverrides.updates || {}),
+            added: mergeById(srvData.queueOverrides.added || [], state.queueOverrides.added || [], 'job_id')
+          };
+        }
+        writeJsonLS(ORDERS_KEY, state.orders);
+        writeJsonLS(REQUESTS_KEY, state.requests);
+        syncPill.classList.add('live');
+        syncLabel.textContent = 'Live Server Sync';
+      } else {
+        syncPill.classList.remove('live');
+        syncLabel.textContent = 'Static Browser Mode';
+      }
+    }catch(_){
+      syncPill.classList.remove('live');
+      syncLabel.textContent = 'Static Browser Mode';
+    }
+
+    populateCategoryFilter();
+    renderAll();
+  }
+
+  function getMergedInventory(){
+    var base = (state.catalogItems || []).concat(state.invOverrides.customProducts || []);
+    return base.map(function(p){
+      var ov = (state.invOverrides.items && state.invOverrides.items[p.id]) || {};
+      var defaultPrice = PRICE_DEFAULTS[p.id] || p.price || 48;
+      var qty = typeof ov.qty === 'number' ? ov.qty : (p.featured ? 2 : 0);
+      var status = ov.status || (qty > 2 ? 'in_stock' : (qty > 0 ? 'low_stock' : 'made_to_order'));
+      return {
+        id: p.id,
+        name: p.name,
+        category: p.category || 'custom-studio',
+        categoryLabel: p.categoryLabel || p.category || 'Custom Studio',
+        image: p.image ? ('/' + String(p.image).replace(/^\/+/, '')) : '',
+        dimensions: p.dimensions || '',
+        inventoryRef: p.inventoryRef || p.sku || p.id,
+        studioPreset: p.studioPreset || 'carryall',
+        price: typeof ov.price === 'number' ? ov.price : defaultPrice,
+        qty: qty,
+        status: status,
+        printer: ov.printer || (p.category === 'erotic-label' ? 'bambu-p1s' : 'flashforge-creator-5')
+      };
+    });
+  }
+
+  function getMergedQueue(){
+    var base = (state.snapshot.queue || []).map(function(j){
+      var u = (state.queueOverrides.updates && state.queueOverrides.updates[j.job_id]) || {};
+      return Object.assign({}, j, u);
+    });
+    var added = (state.queueOverrides.added || []).map(function(j){
+      var u = (state.queueOverrides.updates && state.queueOverrides.updates[j.job_id]) || {};
+      return Object.assign({}, j, u);
+    });
+    return added.concat(base);
+  }
+
+  function populateCategoryFilter(){
+    var sel = document.getElementById('invCatFilter');
+    var current = sel.value;
+    var cats = {};
+    getMergedInventory().forEach(function(it){ cats[it.category] = it.categoryLabel; });
+    sel.innerHTML = '<option value="all">All Categories</option>' +
+      Object.keys(cats).map(function(k){ return '<option value="' + esc(k) + '">' + esc(cats[k]) + '</option>'; }).join('');
+    sel.value = current || 'all';
+  }
+
+  function renderKPIs(){
+    var inv = getMergedInventory();
+    var queue = getMergedQueue();
+    var totalStock = inv.reduce(function(s, i){ return s + (Number(i.qty) || 0); }, 0);
+    var totalOrders = state.orders.length + state.requests.length;
+    var newOrders = state.orders.filter(function(o){ return (o.status || 'new') === 'new'; }).length
+      + state.requests.filter(function(r){ return (r.status || 'new') === 'new'; }).length;
+    var revenue = state.orders.reduce(function(s, o){ return s + (Number(o.total) || 0); }, 0);
+    var activeQueue = queue.filter(function(j){ return j.status !== 'printed'; }).length;
+    var libTotal = (state.snapshot.visualDesigns || []).length + (state.snapshot.inventoryFiles || []).length;
+
+    document.getElementById('kpiOrders').textContent = String(totalOrders);
+    document.getElementById('kpiOrdersSub').textContent = newOrders + ' new awaiting review';
+    document.getElementById('kpiSkus').textContent = String(inv.length);
+    document.getElementById('kpiSkusSub').textContent = totalStock + ' units ready in stock';
+    document.getElementById('kpiQueue').textContent = String(activeQueue);
+    document.getElementById('kpiQueueSub').textContent = queue.length + ' total jobs tracked';
+    document.getElementById('kpiModels').textContent = String(libTotal);
+    document.getElementById('kpiModelsSub').textContent = (state.snapshot.visualDesigns || []).length + ' catalog + ' + (state.snapshot.inventoryFiles || []).length + ' .3mf';
+    document.getElementById('kpiRevenue').textContent = '$' + revenue.toFixed(0);
+    document.getElementById('kpiRevenueSub').textContent = state.orders.length + ' checkout order' + (state.orders.length === 1 ? '' : 's');
+
+    document.getElementById('tabBadgeOrders').textContent = String(totalOrders);
+    document.getElementById('tabBadgeInv').textContent = String(inv.length);
+    document.getElementById('tabBadgeQueue').textContent = String(activeQueue);
+    document.getElementById('tabBadgeLib').textContent = String(libTotal);
+  }
+
+  function statusPill(st){
+    var map = {
+      new: ['new', 'New'],
+      quoted: ['warn', 'Quoted'],
+      in_queue: ['info', 'In Print Queue'],
+      ready: ['ok', 'Ready / Shipped'],
+      completed: ['ok', 'Completed'],
+      archived: ['muted', 'Archived']
+    };
+    var pair = map[st] || ['muted', st || 'New'];
+    return '<span class="pill ' + pair[0] + '">' + esc(pair[1]) + '</span>';
+  }
+
+  function renderOrders(){
+    var q = (document.getElementById('orderSearch').value || '').trim().toLowerCase();
+    var typeF = document.getElementById('orderTypeFilter').value;
+    var statusF = document.getElementById('orderStatusFilter').value;
+
+    var combined = [];
+    state.orders.forEach(function(o){ combined.push({ _type: 'order', id: o.orderNumber, createdAt: o.createdAt, status: o.status || 'new', raw: o }); });
+    state.requests.forEach(function(r){ combined.push({ _type: 'request', id: r.referenceId, createdAt: r.createdAt, status: r.status || 'new', raw: r }); });
+    combined.sort(function(a, b){ return (Date.parse(b.createdAt || 0) || 0) - (Date.parse(a.createdAt || 0) || 0); });
+
+    var filtered = combined.filter(function(entry){
+      if(typeF !== 'all' && entry._type !== typeF) return false;
+      if(statusF !== 'all' && entry.status !== statusF) return false;
+      if(!q) return true;
+      return JSON.stringify(entry.raw).toLowerCase().indexOf(q) >= 0;
+    });
+
+    var container = document.getElementById('ordersList');
+    if(!filtered.length){
+      container.innerHTML = '<div style="grid-column:1/-1;padding:34px;text-align:center;color:var(--muted);border:1px dashed var(--line2);border-radius:16px">' +
+        '<div style="font-size:15px;font-weight:700;color:#fff;margin-bottom:6px">No custom orders or requests yet</div>' +
+        '<div>Orders placed in the Boutique Bag and inquiries submitted in the Custom Request section appear here automatically. You can also click <strong>+ Log Custom Order</strong> above.</div></div>';
+      return;
+    }
+
+    container.innerHTML = filtered.map(function(entry){
+      var d = entry.raw;
+      var dateStr = d.createdAt ? new Date(d.createdAt).toLocaleString() : 'Just now';
+      if(entry._type === 'order'){
+        var itemsHtml = (d.items || []).map(function(it, idx){
+          var pers = it.personalization;
+          var svgBlock = '';
+          if(pers && pers.customSvg){
+            svgBlock = '<div style="margin-top:6px;display:flex;align-items:center;gap:8px;padding:6px;border-radius:8px;background:#070a13;border:1px solid rgba(94,234,212,.3)">' +
+              (pers.previewDataUrl ? '<img src="' + esc(pers.previewDataUrl) + '" alt="Customer SVG" style="width:48px;height:48px;object-fit:contain;border-radius:6px;background:#0e1422;padding:3px">' : '') +
+              '<div style="flex:1;min-width:0;font-size:11px">' +
+                '<div style="color:var(--teal);font-weight:700">✓ Converted Print-Ready SVG</div>' +
+                '<div class="item-sub">' + esc(pers.sourceFileName || 'Vector graphic') + ' · ' + esc(pers.reliefStyle || 'emboss') + '</div>' +
+              '</div>' +
+              '<button type="button" class="btn sm teal" data-dl-svg="' + esc(d.orderNumber) + ':' + idx + '">↓ SVG</button>' +
+            '</div>';
+          }
+          return '<div class="order-item-row">' +
+            '<div style="flex:1;min-width:0"><span class="swatch-dot" style="background:' + esc(it.primaryHex || '#0085CA') + '"></span> ' +
+            '<span class="swatch-dot" style="background:' + esc(it.secondaryHex || '#009CA6') + '"></span> ' +
+            '<strong>' + esc(it.qty || 1) + '× ' + esc(it.name) + '</strong>' +
+            '<div class="item-sub">' + esc(it.details || '') + '</div>' + svgBlock + '</div>' +
+            '<strong style="color:var(--gold2)">$' + ((Number(it.price) || 0) * (Number(it.qty) || 1)).toFixed(0) + '</strong>' +
+          '</div>';
+        }).join('');
+        return '<article class="order-card" data-kind="order" data-id="' + esc(d.orderNumber) + '">' +
+          '<div class="order-head">' +
+            '<div><div class="order-id">BAG ORDER · ' + esc(d.orderNumber) + '</div>' +
+            '<div class="order-name">' + esc(d.customerName || 'Guest') + '</div>' +
+            '<div class="order-meta">' + esc(d.customerEmail || '') + (d.customerPhone ? ' · ' + esc(d.customerPhone) : '') + ' · ' + esc(dateStr) + '</div></div>' +
+            statusPill(entry.status) +
+          '</div>' +
+          '<div class="swatch-row"><span class="pill info">' + (d.fulfillment === 'shipping' ? 'Shipping' : 'Charlotte Pickup') + '</span>' +
+          '<span>Total: <strong style="color:var(--gold2)">$' + (Number(d.total) || 0).toFixed(2) + '</strong></span></div>' +
+          '<div class="order-items">' + (itemsHtml || '<div class="item-sub">Custom order</div>') + '</div>' +
+          '<textarea class="note-box" data-note-for="order:' + esc(d.orderNumber) + '" placeholder="Internal atelier notes (filament slot, pickup time, tracking #)…">' + esc(d.ownerNotes || '') + '</textarea>' +
+          '<div class="order-actions">' +
+            '<select class="input-sm" data-status-for="order:' + esc(d.orderNumber) + '">' +
+              ['new','quoted','in_queue','ready','completed','archived'].map(function(s){
+                return '<option value="' + s + '"' + (entry.status === s ? ' selected' : '') + '>' + s.replace('_', ' ') + '</option>';
+              }).join('') +
+            '</select>' +
+            '<button type="button" class="btn sm teal" data-promote="order:' + esc(d.orderNumber) + '">→ Print Queue</button>' +
+            (d.customerEmail ? '<a class="btn sm" href="mailto:' + encodeURIComponent(d.customerEmail) + '?subject=' + encodeURIComponent('Maison 704 Order ' + d.orderNumber) + '">✉ Email</a>' : '') +
+            '<button type="button" class="btn sm danger" data-delete="order:' + esc(d.orderNumber) + '">Delete</button>' +
+          '</div>' +
+        '</article>';
+      } else {
+        return '<article class="order-card" data-kind="request" data-id="' + esc(d.referenceId) + '">' +
+          '<div class="order-head">' +
+            '<div><div class="order-id" style="color:var(--teal)">CUSTOM REQUEST · ' + esc(d.referenceId) + '</div>' +
+            '<div class="order-name">' + esc(d.customerName || 'Shopper') + '</div>' +
+            '<div class="order-meta">' + esc(d.customerEmail || '') + (d.instagramHandle ? ' · IG ' + esc(d.instagramHandle) : '') + ' · ' + esc(dateStr) + '</div></div>' +
+            statusPill(entry.status) +
+          '</div>' +
+          '<div class="swatch-row">' +
+            '<span class="pill warn">' + esc(d.category || 'Bespoke') + '</span>' +
+            (d.neededByDate ? '<span class="pill muted">Need by: ' + esc(d.neededByDate) + '</span>' : '') +
+            (d.primaryHex ? '<span><i class="swatch-dot" style="background:' + esc(d.primaryHex) + '"></i> ' + esc(d.primaryHex) + '</span>' : '') +
+            (d.accentHex ? '<span><i class="swatch-dot" style="background:' + esc(d.accentHex) + '"></i> ' + esc(d.accentHex) + '</span>' : '') +
+          '</div>' +
+          '<div class="order-items">' +
+            (d.engravingIdea ? '<div><strong>Engraving:</strong> “' + esc(d.engravingIdea) + '”</div>' : '') +
+            '<div>' + esc(d.notes || '') + '</div>' +
+            (d.referenceFileName ? '<div class="item-sub">Reference files: ' + esc(d.referenceFileName) + '</div>' : '') +
+          '</div>' +
+          '<textarea class="note-box" data-note-for="request:' + esc(d.referenceId) + '" placeholder="Quote price, filament match, follow-up notes…">' + esc(d.ownerNotes || '') + '</textarea>' +
+          '<div class="order-actions">' +
+            '<select class="input-sm" data-status-for="request:' + esc(d.referenceId) + '">' +
+              ['new','quoted','in_queue','ready','completed','archived'].map(function(s){
+                return '<option value="' + s + '"' + (entry.status === s ? ' selected' : '') + '>' + s.replace('_', ' ') + '</option>';
+              }).join('') +
+            '</select>' +
+            '<button type="button" class="btn sm teal" data-promote="request:' + esc(d.referenceId) + '">→ Print Queue</button>' +
+            (d.customerEmail ? '<a class="btn sm" href="mailto:' + encodeURIComponent(d.customerEmail) + '?subject=' + encodeURIComponent('Maison 704 Custom Request ' + d.referenceId) + '">✉ Email</a>' : '') +
+            '<button type="button" class="btn sm danger" data-delete="request:' + esc(d.referenceId) + '">Delete</button>' +
+          '</div>' +
+        '</article>';
+      }
+    }).join('');
+  }
+
+  function renderInventory(){
+    var q = (document.getElementById('invSearch').value || '').trim().toLowerCase();
+    var catF = document.getElementById('invCatFilter').value;
+    var stF = document.getElementById('invStatusFilter').value;
+    var items = getMergedInventory().filter(function(it){
+      if(catF !== 'all' && it.category !== catF) return false;
+      if(stF !== 'all' && it.status !== stF) return false;
+      if(!q) return true;
+      return (it.name + ' ' + it.id + ' ' + it.inventoryRef + ' ' + it.dimensions + ' ' + it.printer).toLowerCase().indexOf(q) >= 0;
+    });
+
+    var tbody = document.getElementById('inventoryTableBody');
+    tbody.innerHTML = items.map(function(it){
+      return '<tr data-inv-id="' + esc(it.id) + '">' +
+        '<td><div class="item-cell">' +
+          (it.image ? '<img class="thumb" src="' + esc(it.image) + '" alt="" loading="lazy">' : '<div class="thumb"></div>') +
+          '<div><div class="item-title">' + esc(it.name) + '</div>' +
+          '<div class="item-sub">' + esc(it.inventoryRef) + (it.dimensions ? ' · ' + esc(it.dimensions) : '') + '</div></div>' +
+        '</div></td>' +
+        '<td><span class="pill muted">' + esc(it.categoryLabel) + '</span></td>' +
+        '<td><input type="number" class="price-input" min="1" step="1" data-inv-price="' + esc(it.id) + '" value="' + esc(it.price) + '"></td>' +
+        '<td><div class="qty-box">' +
+          '<button type="button" class="qty-btn" data-qty-delta="-1" data-qty-id="' + esc(it.id) + '">−</button>' +
+          '<input type="number" class="qty-input" min="0" step="1" data-inv-qty="' + esc(it.id) + '" value="' + esc(it.qty) + '">' +
+          '<button type="button" class="qty-btn" data-qty-delta="1" data-qty-id="' + esc(it.id) + '">+</button>' +
+        '</div></td>' +
+        '<td><select class="input-sm" data-inv-status="' + esc(it.id) + '">' +
+          [['in_stock','In Stock'],['low_stock','Low Stock'],['made_to_order','Made to Order'],['paused','Paused']].map(function(pair){
+            return '<option value="' + pair[0] + '"' + (it.status === pair[0] ? ' selected' : '') + '>' + pair[1] + '</option>';
+          }).join('') +
+        '</select></td>' +
+        '<td><select class="input-sm" data-inv-printer="' + esc(it.id) + '">' +
+          PRINTER_OPTIONS.map(function(pr){
+            return '<option value="' + pr + '"' + (it.printer === pr ? ' selected' : '') + '>' + pr + '</option>';
+          }).join('') +
+        '</select></td>' +
+        '<td><div style="display:flex;gap:5px;flex-wrap:nowrap">' +
+          '<button type="button" class="btn sm teal" data-queue-inv="' + esc(it.id) + '">+ Queue</button>' +
+          '<a class="btn sm" href="/purse-studio/index.html?preset=' + encodeURIComponent(it.studioPreset) + '&from=gallery">3D</a>' +
+        '</div></td>' +
+      '</tr>';
+    }).join('');
+  }
+
+  function renderQueueAndFleet(){
+    var queue = getMergedQueue();
+    var fleet = state.snapshot.fleet || [];
+    document.getElementById('fleetGrid').innerHTML = fleet.map(function(p){
+      var count = queue.filter(function(j){ return j.printer === p.id && j.status !== 'printed'; }).length;
+      var activeCls = /inactive|blocked/i.test(p.status) ? 'muted' : 'ok';
+      return '<div class="fleet-card">' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px">' +
+          '<h3>' + esc(p.name) + '</h3>' +
+          '<span class="pill ' + activeCls + '">' + esc(p.status) + '</span>' +
+        '</div>' +
+        '<div class="item-sub">' + esc(p.nozzle) + ' · ' + esc(p.notes) + '</div>' +
+        '<div style="margin-top:8px;font-size:12px;color:var(--teal);font-weight:700">' + count + ' active job' + (count === 1 ? '' : 's') + ' assigned</div>' +
+      '</div>';
+    }).join('');
+
+    var qFilter = document.getElementById('queueStatusFilter').value;
+    var rows = queue.filter(function(j){ return qFilter === 'all' || j.status === qFilter; });
+    document.getElementById('queueTableBody').innerHTML = rows.map(function(j){
+      return '<tr>' +
+        '<td><div class="item-title">' + esc(j.project_name) + '</div><div class="item-sub">' + esc(j.job_id) + (j.source_relative_path ? ' · ' + esc(j.source_relative_path) : '') + '</div></td>' +
+        '<td><select class="input-sm" data-q-printer="' + esc(j.job_id) + '">' +
+          PRINTER_OPTIONS.map(function(pr){ return '<option value="' + pr + '"' + (j.printer === pr ? ' selected' : '') + '>' + pr + '</option>'; }).join('') +
+        '</select></td>' +
+        '<td><div>' + esc(j.material || 'PLA') + ' (' + esc(j.nozzle_mm || '0.4') + 'mm)</div><div class="item-sub">' + esc(j.profile || j.slicer || '') + '</div></td>' +
+        '<td><strong>' + esc(j.quantity || 1) + '×</strong> · <span class="pill ' + (j.priority === 'high' ? 'new' : 'muted') + '">' + esc(j.priority || 'normal') + '</span></td>' +
+        '<td>' + (j.order_ref ? '<span class="pill info">' + esc(j.order_ref) + '</span>' : '<span class="item-sub">—</span>') + '</td>' +
+        '<td><select class="input-sm" data-q-status="' + esc(j.job_id) + '">' +
+          ['needs_review','ready_to_print','printing','printed'].map(function(st){
+            return '<option value="' + st + '"' + (j.status === st ? ' selected' : '') + '>' + st.replace(/_/g, ' ') + '</option>';
+          }).join('') +
+        '</select></td>' +
+        '<td style="max-width:260px"><div class="item-sub">' + esc(j.notes || '') + '</div></td>' +
+      '</tr>';
+    }).join('');
+
+    var attempts = state.snapshot.printAttempts || [];
+    document.getElementById('printHistoryBox').innerHTML = attempts.length
+      ? attempts.map(function(a){
+          return '<div style="padding:8px 10px;border-radius:10px;background:#0c1220;border:1px solid var(--line);margin-bottom:6px;display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px">' +
+            '<div><strong>' + esc(a.project_name) + '</strong> (' + esc(a.job_id) + ') · ' + esc(a.printer) + ' · ' + esc(a.material) + '</div>' +
+            '<div style="color:var(--gold2)">' + esc(a.estimates && a.estimates.print_time_str ? a.estimates.print_time_str : '') +
+              (a.estimates && a.estimates.total_filament_g ? ' · ' + a.estimates.total_filament_g + 'g' : '') +
+              ' · <span class="pill info">' + esc(a.outcome) + '</span></div>' +
+          '</div>';
+        }).join('')
+      : 'No recorded print attempts yet.';
+  }
+
+  function renderLibrary(){
+    var q = (document.getElementById('libSearch').value || '').trim().toLowerCase();
+    var f = document.getElementById('libFilter').value;
+    var list = [];
+
+    if(f === 'all' || f === 'workshop'){
+      (state.snapshot.inventoryFiles || []).forEach(function(file){
+        list.push({
+          title: file.filename,
+          source: 'Workshop .3mf · ' + file.relative_path,
+          printers: 'Multi-printer',
+          meta: file.size_mb + ' MB',
+          flags: '<span class="pill ok">Tracked .3mf</span>',
+          path: file.relative_path
+        });
+      });
+    }
+    if(f !== 'workshop'){
+      (state.snapshot.visualDesigns || []).forEach(function(d){
+        if(f === 'in_inventory' && !d.in_inventory) return;
+        if(f === 'in_queue' && !d.in_queue) return;
+        var flags = '';
+        if(d.in_inventory) flags += '<span class="pill ok">In Inventory</span> ';
+        if(d.in_queue) flags += '<span class="pill info">In Queue</span> ';
+        if(d.recently_printed) flags += '<span class="pill warn">Printed</span>';
+        list.push({
+          title: d.title,
+          source: (d.source_root || '') + ' / ' + (d.category || ''),
+          printers: (d.printers || []).join(', ') || 'Any',
+          meta: (d.version_count || 1) + ' ver · ' + (d.size_mb || 0) + ' MB',
+          flags: flags || '<span class="pill muted">Cataloged</span>',
+          path: d.latest_file || d.title
+        });
+      });
+    }
+
+    var filtered = list.filter(function(row){
+      if(!q) return true;
+      return (row.title + ' ' + row.source + ' ' + row.printers + ' ' + row.path).toLowerCase().indexOf(q) >= 0;
+    });
+    document.getElementById('libCountLabel').textContent = filtered.length + ' model' + (filtered.length === 1 ? '' : 's') + (filtered.length > 120 ? ' (showing first 120)' : '');
+
+    document.getElementById('libraryTableBody').innerHTML = filtered.slice(0, 120).map(function(row){
+      return '<tr>' +
+        '<td><div class="item-title">' + esc(row.title) + '</div></td>' +
+        '<td><div class="item-sub">' + esc(row.source) + '</div></td>' +
+        '<td>' + esc(row.printers) + '</td>' +
+        '<td>' + esc(row.meta) + '</td>' +
+        '<td>' + row.flags + '</td>' +
+        '<td><button type="button" class="btn sm teal" data-queue-lib="' + esc(row.title) + '" data-queue-path="' + esc(row.path) + '">+ Queue</button></td>' +
+      '</tr>';
+    }).join('');
+  }
+
+  function renderAll(){
+    renderKPIs();
+    renderOrders();
+    renderInventory();
+    renderQueueAndFleet();
+    renderLibrary();
+  }
+
+  function updateInvField(id, patch){
+    if(!state.invOverrides.items) state.invOverrides.items = {};
+    state.invOverrides.items[id] = Object.assign({}, state.invOverrides.items[id] || {}, patch);
+    syncSaveToServer();
+    renderKPIs();
+  }
+
+  function addJobToQueue(job){
+    if(!state.queueOverrides.added) state.queueOverrides.added = [];
+    state.queueOverrides.added.unshift(job);
+    syncSaveToServer();
+    renderAll();
+    toast('Added "' + job.project_name + '" to Print Queue');
+  }
+
+  function downloadFile(name, content, type){
+    var b = new Blob([content], { type: type });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(b);
+    a.download = name;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(function(){ URL.revokeObjectURL(a.href); }, 1000);
+  }
+
+  function csvCell(v){
+    var s = String(v == null ? '' : v);
+    if(/[",\n\r]/.test(s)) return '"' + s.replace(/"/g, '""') + '"';
+    return s;
+  }
+
+  // Event delegation for interactive controls
+  document.getElementById('ordersList').addEventListener('change', function(e){
+    var t = e.target;
+    if(t.dataset.statusFor){
+      var parts = t.dataset.statusFor.split(':');
+      var list = parts[0] === 'order' ? state.orders : state.requests;
+      var key = parts[0] === 'order' ? 'orderNumber' : 'referenceId';
+      var item = list.find(function(x){ return x[key] === parts[1]; });
+      if(item){
+        item.status = t.value;
+        item.updatedAt = new Date().toISOString();
+        syncSaveToServer();
+        renderAll();
+        toast('Updated ' + parts[1] + ' → ' + t.value.replace('_', ' '));
+      }
+    }
+  });
+
+  document.getElementById('ordersList').addEventListener('blur', function(e){
+    var t = e.target;
+    if(t.dataset && t.dataset.noteFor){
+      var parts = t.dataset.noteFor.split(':');
+      var list = parts[0] === 'order' ? state.orders : state.requests;
+      var key = parts[0] === 'order' ? 'orderNumber' : 'referenceId';
+      var item = list.find(function(x){ return x[key] === parts[1]; });
+      if(item && item.ownerNotes !== t.value){
+        item.ownerNotes = t.value;
+        item.updatedAt = new Date().toISOString();
+        syncSaveToServer();
+        toast('Saved notes for ' + parts[1]);
+      }
+    }
+  }, true);
+
+  document.getElementById('ordersList').addEventListener('click', function(e){
+    var btn = e.target.closest('button');
+    if(!btn) return;
+    if(btn.dataset.dlSvg){
+      var sp = btn.dataset.dlSvg.split(':');
+      var ord = state.orders.find(function(x){ return x.orderNumber === sp[0]; });
+      var item = ord && ord.items && ord.items[Number(sp[1])];
+      if(item && item.personalization && item.personalization.customSvg){
+        downloadFile(sp[0] + '-' + (item.productId || 'custom') + '.svg', item.personalization.customSvg, 'image/svg+xml;charset=utf-8');
+        toast('Downloaded customer slicer-ready SVG');
+      }
+      return;
+    }
+    if(btn.dataset.promote){
+      var parts = btn.dataset.promote.split(':');
+      var list = parts[0] === 'order' ? state.orders : state.requests;
+      var key = parts[0] === 'order' ? 'orderNumber' : 'referenceId';
+      var rec = list.find(function(x){ return x[key] === parts[1]; });
+      if(!rec) return;
+      rec.status = 'in_queue';
+      rec.updatedAt = new Date().toISOString();
+      var title = parts[0] === 'order'
+        ? ((rec.items && rec.items[0] ? rec.items[0].name : 'Custom Order') + ' (' + (rec.customerName || 'Guest') + ')')
+        : ((rec.category || 'Custom Request') + ' (' + (rec.customerName || 'Shopper') + ')');
+      addJobToQueue({
+        job_id: 'ORD-' + parts[1],
+        project_name: title,
+        source_relative_path: rec.referenceFileName || '',
+        printer: 'flashforge-creator-5',
+        material: 'PLA',
+        nozzle_mm: '0.4',
+        slicer: 'OrcaSlicer',
+        profile: '0.20mm Standard',
+        status: 'needs_review',
+        priority: 'high',
+        quantity: parts[0] === 'order' ? ((rec.items || []).reduce(function(s, i){ return s + (i.qty || 1); }, 0) || 1) : 1,
+        due_date: rec.neededByDate || '',
+        order_ref: parts[1],
+        notes: rec.notes || ((rec.items || []).map(function(i){ return i.qty + 'x ' + i.name + ' (' + i.details + ')'; }).join('; '))
+      });
+    } else if(btn.dataset.delete){
+      var dp = btn.dataset.delete.split(':');
+      if(dp[0] === 'order') state.orders = state.orders.filter(function(x){ return x.orderNumber !== dp[1]; });
+      else state.requests = state.requests.filter(function(x){ return x.referenceId !== dp[1]; });
+      syncSaveToServer();
+      renderAll();
+      toast('Removed ' + dp[1]);
+    }
+  });
+
+  document.getElementById('inventoryTableBody').addEventListener('click', function(e){
+    var btn = e.target.closest('button');
+    if(!btn) return;
+    if(btn.dataset.qtyId){
+      var id = btn.dataset.qtyId;
+      var delta = Number(btn.dataset.qtyDelta) || 0;
+      var cur = getMergedInventory().find(function(x){ return x.id === id; });
+      if(!cur) return;
+      var nextQty = Math.max(0, (Number(cur.qty) || 0) + delta);
+      var nextStatus = nextQty === 0 ? 'made_to_order' : (nextQty <= 2 ? 'low_stock' : 'in_stock');
+      updateInvField(id, { qty: nextQty, status: nextStatus });
+      renderInventory();
+    } else if(btn.dataset.queueInv){
+      var item = getMergedInventory().find(function(x){ return x.id === btn.dataset.queueInv; });
+      if(!item) return;
+      addJobToQueue({
+        job_id: 'STK-' + Date.now().toString(36).toUpperCase().slice(-5),
+        project_name: item.name,
+        source_relative_path: item.inventoryRef,
+        printer: item.printer,
+        material: 'PLA',
+        nozzle_mm: '0.4',
+        slicer: 'OrcaSlicer',
+        profile: '0.20mm Standard',
+        status: 'ready_to_print',
+        priority: 'normal',
+        quantity: 1,
+        due_date: '',
+        order_ref: 'RESTOCK',
+        notes: 'Stock replenishment (' + item.dimensions + ')'
+      });
+    }
+  });
+
+  document.getElementById('inventoryTableBody').addEventListener('change', function(e){
+    var t = e.target;
+    if(t.dataset.invQty) updateInvField(t.dataset.invQty, { qty: Math.max(0, parseInt(t.value, 10) || 0) });
+    if(t.dataset.invPrice) updateInvField(t.dataset.invPrice, { price: Math.max(1, parseFloat(t.value) || 1) });
+    if(t.dataset.invStatus) updateInvField(t.dataset.invStatus, { status: t.value });
+    if(t.dataset.invPrinter) updateInvField(t.dataset.invPrinter, { printer: t.value });
+  });
+
+  document.getElementById('queueTableBody').addEventListener('change', function(e){
+    var t = e.target;
+    if(!state.queueOverrides.updates) state.queueOverrides.updates = {};
+    if(t.dataset.qStatus){
+      var id = t.dataset.qStatus;
+      state.queueOverrides.updates[id] = Object.assign({}, state.queueOverrides.updates[id] || {}, { status: t.value });
+      syncSaveToServer();
+      renderKPIs();
+      renderQueueAndFleet();
+      toast('Job ' + id + ' → ' + t.value.replace(/_/g, ' '));
+    }
+    if(t.dataset.qPrinter){
+      var pid = t.dataset.qPrinter;
+      state.queueOverrides.updates[pid] = Object.assign({}, state.queueOverrides.updates[pid] || {}, { printer: t.value });
+      syncSaveToServer();
+      renderQueueAndFleet();
+      toast('Assigned ' + pid + ' to ' + t.value);
+    }
+  });
+
+  document.getElementById('libraryTableBody').addEventListener('click', function(e){
+    var btn = e.target.closest('button[data-queue-lib]');
+    if(!btn) return;
+    addJobToQueue({
+      job_id: 'LIB-' + Date.now().toString(36).toUpperCase().slice(-5),
+      project_name: btn.dataset.queueLib,
+      source_relative_path: btn.dataset.queuePath || '',
+      printer: 'flashforge-creator-5',
+      material: 'PLA',
+      nozzle_mm: '0.4',
+      slicer: 'OrcaSlicer',
+      profile: '0.20mm Standard',
+      status: 'needs_review',
+      priority: 'normal',
+      quantity: 1,
+      due_date: '',
+      order_ref: '',
+      notes: 'Queued from Workshop 3D Library'
+    });
+  });
+
+  // Modal helpers
+  var modalBg = document.getElementById('modalBg');
+  function openModal(title, html){
+    document.getElementById('modalTitle').textContent = title;
+    document.getElementById('modalBody').innerHTML = html;
+    modalBg.classList.remove('hidden');
+  }
+  function closeModal(){ modalBg.classList.add('hidden'); }
+  document.getElementById('modalCloseBtn').onclick = closeModal;
+  modalBg.onclick = function(e){ if(e.target === modalBg) closeModal(); };
+
+  document.getElementById('addManualOrderBtn').onclick = function(){
+    openModal('Log Manual / Custom Order',
+      '<form id="manualOrderForm">' +
+      '<div class="form-grid">' +
+        '<div class="form-row"><label class="field-label">Customer Name</label><input name="name" class="input" required placeholder="e.g. Maya Brooks"></div>' +
+        '<div class="form-row"><label class="field-label">Email or IG Handle</label><input name="email" class="input" placeholder="maya@email.com"></div>' +
+      '</div>' +
+      '<div class="form-grid">' +
+        '<div class="form-row"><label class="field-label">Piece / Product</label><input name="piece" class="input" required placeholder="Custom Carryall Tote"></div>' +
+        '<div class="form-row"><label class="field-label">Total Price ($)</label><input name="total" type="number" class="input" value="96" min="1"></div>' +
+      '</div>' +
+      '<div class="form-grid">' +
+        '<div class="form-row"><label class="field-label">Fulfillment</label><select name="fulfillment" class="input"><option value="pickup">Charlotte Pickup</option><option value="shipping">Shipping</option></select></div>' +
+        '<div class="form-row"><label class="field-label">Colors &amp; Monogram</label><input name="details" class="input" placeholder="Electric Blue + Teal · Monogram M704"></div>' +
+      '</div>' +
+      '<button type="submit" class="btn primary full" style="margin-top:8px">Save Custom Order</button>' +
+      '</form>'
+    );
+    document.getElementById('manualOrderForm').onsubmit = function(ev){
+      ev.preventDefault();
+      var fd = new FormData(ev.target);
+      var num = 'M704-' + Math.floor(100000 + Math.random() * 900000);
+      state.orders.unshift({
+        orderNumber: num,
+        createdAt: new Date().toISOString(),
+        status: 'new',
+        customerName: fd.get('name'),
+        customerEmail: fd.get('email'),
+        customerPhone: '',
+        fulfillment: fd.get('fulfillment'),
+        subtotal: Number(fd.get('total')) || 0,
+        shipping: 0,
+        total: Number(fd.get('total')) || 0,
+        items: [{ name: fd.get('piece'), qty: 1, price: Number(fd.get('total')) || 0, details: fd.get('details') || 'Manual order', primaryHex: '#0085CA', secondaryHex: '#009CA6' }]
+      });
+      syncSaveToServer();
+      renderAll();
+      closeModal();
+      toast('Logged order ' + num);
+    };
+  };
+
+  document.getElementById('addInvItemBtn').onclick = function(){
+    openModal('Add Inventory Product',
+      '<form id="addInvForm">' +
+      '<div class="form-grid">' +
+        '<div class="form-row"><label class="field-label">Product Name</label><input name="name" class="input" required placeholder="Sculpted Mini Clutch"></div>' +
+        '<div class="form-row"><label class="field-label">Category</label><select name="category" class="input"><option value="signature-41">Signature 4.1</option><option value="bags-crossbodies">Bags &amp; Crossbodies</option><option value="sculptural-clutches">Sculptural Clutches</option><option value="erotic-label">Erotic Label</option><option value="custom-studio">Custom Studio</option></select></div>' +
+      '</div>' +
+      '<div class="form-grid">' +
+        '<div class="form-row"><label class="field-label">Price ($)</label><input name="price" type="number" class="input" value="78" min="1"></div>' +
+        '<div class="form-row"><label class="field-label">On-Hand Qty</label><input name="qty" type="number" class="input" value="1" min="0"></div>' +
+      '</div>' +
+      '<div class="form-row"><label class="field-label">Dimensions / Notes</label><input name="dims" class="input" placeholder="200 × 85 × 125 mm"></div>' +
+      '<button type="submit" class="btn primary full" style="margin-top:8px">Add to Inventory</button>' +
+      '</form>'
+    );
+    document.getElementById('addInvForm').onsubmit = function(ev){
+      ev.preventDefault();
+      var fd = new FormData(ev.target);
+      var name = String(fd.get('name') || '').trim();
+      var id = name.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + Date.now().toString(36).slice(-4);
+      if(!state.invOverrides.customProducts) state.invOverrides.customProducts = [];
+      state.invOverrides.customProducts.unshift({
+        id: id,
+        name: name,
+        category: fd.get('category'),
+        categoryLabel: String(fd.get('category')).replace(/-/g, ' '),
+        dimensions: fd.get('dims') || '',
+        inventoryRef: 'Custom SKU · ' + id,
+        price: Number(fd.get('price')) || 48
+      });
+      updateInvField(id, { price: Number(fd.get('price')) || 48, qty: Number(fd.get('qty')) || 0, status: Number(fd.get('qty')) > 0 ? 'in_stock' : 'made_to_order' });
+      populateCategoryFilter();
+      renderAll();
+      closeModal();
+      toast('Added ' + name + ' to inventory');
+    };
+  };
+
+  document.getElementById('addQueueJobBtn').onclick = function(){
+    openModal('Add Print Queue Job',
+      '<form id="addQueueForm">' +
+      '<div class="form-grid">' +
+        '<div class="form-row"><label class="field-label">Project Name</label><input name="project" class="input" required placeholder="Carryall Tote — Mint & Gold"></div>' +
+        '<div class="form-row"><label class="field-label">Printer</label><select name="printer" class="input">' +
+          PRINTER_OPTIONS.map(function(p){ return '<option value="' + p + '">' + p + '</option>'; }).join('') +
+        '</select></div>' +
+      '</div>' +
+      '<div class="form-grid">' +
+        '<div class="form-row"><label class="field-label">Material</label><input name="material" class="input" value="PLA Silk"></div>' +
+        '<div class="form-row"><label class="field-label">Priority</label><select name="priority" class="input"><option value="normal">Normal</option><option value="high">High</option><option value="low">Low</option></select></div>' +
+      '</div>' +
+      '<div class="form-row"><label class="field-label">Notes / Order Ref</label><input name="notes" class="input" placeholder="Slot 1 Mint, Slot 2 Gold"></div>' +
+      '<button type="submit" class="btn primary full" style="margin-top:8px">Add Print Job</button>' +
+      '</form>'
+    );
+    document.getElementById('addQueueForm').onsubmit = function(ev){
+      ev.preventDefault();
+      var fd = new FormData(ev.target);
+      addJobToQueue({
+        job_id: 'JOB-' + Date.now().toString(36).toUpperCase().slice(-5),
+        project_name: fd.get('project'),
+        source_relative_path: '',
+        printer: fd.get('printer'),
+        material: fd.get('material'),
+        nozzle_mm: '0.4',
+        slicer: 'OrcaSlicer',
+        profile: '0.20mm Standard',
+        status: 'needs_review',
+        priority: fd.get('priority'),
+        quantity: 1,
+        due_date: '',
+        order_ref: '',
+        notes: fd.get('notes') || ''
+      });
+      closeModal();
+    };
+  };
+
+  // Exports
+  document.getElementById('exportQueueCsvBtn').onclick = function(){
+    var headers = ['job_id','project_name','source_relative_path','printer','material','nozzle_mm','slicer','profile','status','notes','priority','quantity','due_date','order_ref'];
+    var lines = [headers.join(',')].concat(getMergedQueue().map(function(j){
+      return headers.map(function(h){ return csvCell(j[h]); }).join(',');
+    }));
+    downloadFile('queue.csv', lines.join('\r\n'), 'text/csv;charset=utf-8');
+    toast('Downloaded queue.csv for 3d-print-workshop');
+  };
+
+  document.getElementById('exportInvCsvBtn').onclick = function(){
+    var headers = ['id','name','category','price','qty','status','printer','dimensions','inventoryRef'];
+    var lines = [headers.join(',')].concat(getMergedInventory().map(function(it){
+      return headers.map(function(h){ return csvCell(it[h]); }).join(',');
+    }));
+    downloadFile('maison704-inventory.csv', lines.join('\r\n'), 'text/csv;charset=utf-8');
+    toast('Downloaded maison704-inventory.csv');
+  };
+
+  document.getElementById('exportOrdersCsvBtn').onclick = function(){
+    var headers = ['type','id','createdAt','status','customerName','customerEmail','total','summary','ownerNotes'];
+    var rows = [];
+    state.orders.forEach(function(o){
+      rows.push(['Bag Order', o.orderNumber, o.createdAt, o.status || 'new', o.customerName, o.customerEmail, o.total, (o.items || []).map(function(i){ return i.qty + 'x ' + i.name; }).join('; '), o.ownerNotes || '']);
+    });
+    state.requests.forEach(function(r){
+      rows.push(['Custom Request', r.referenceId, r.createdAt, r.status || 'new', r.customerName, r.customerEmail, '', (r.category || '') + ': ' + (r.notes || ''), r.ownerNotes || '']);
+    });
+    var lines = [headers.join(',')].concat(rows.map(function(r){ return r.map(csvCell).join(','); }));
+    downloadFile('maison704-orders.csv', lines.join('\r\n'), 'text/csv;charset=utf-8');
+    toast('Downloaded maison704-orders.csv');
+  };
+
+  document.getElementById('exportBackupBtn').onclick = function(){
+    downloadFile('maison704-management-backup.json', JSON.stringify({
+      exportedAt: new Date().toISOString(),
+      orders: state.orders,
+      requests: state.requests,
+      invOverrides: state.invOverrides,
+      queueOverrides: state.queueOverrides
+    }, null, 2), 'application/json');
+    toast('Exported full management backup JSON');
+  };
+
+  document.getElementById('importBackupInput').onchange = function(){
+    var f = this.files && this.files[0];
+    this.value = '';
+    if(!f) return;
+    var r = new FileReader();
+    r.onload = function(){
+      try{
+        var data = JSON.parse(r.result);
+        if(Array.isArray(data.orders)) state.orders = mergeById(data.orders, state.orders, 'orderNumber');
+        if(Array.isArray(data.requests)) state.requests = mergeById(data.requests, state.requests, 'referenceId');
+        if(data.invOverrides) state.invOverrides = data.invOverrides;
+        if(data.queueOverrides) state.queueOverrides = data.queueOverrides;
+        syncSaveToServer();
+        renderAll();
+        toast('Imported backup JSON cleanly');
+      }catch(_){
+        toast('Invalid backup JSON file');
+      }
+    };
+    r.readAsText(f);
+  };
+
+  document.getElementById('exportCatalogJsonBtn').onclick = function(){
+    var merged = getMergedInventory();
+    var out = Object.assign({}, state.catalogRaw || {}, {
+      updatedAt: new Date().toISOString().slice(0, 10),
+      products: merged
+    });
+    downloadFile('products-catalog.json', JSON.stringify(out, null, 2), 'application/json');
+    toast('Exported updated products-catalog.json');
+  };
+
+  // Change Passcode
+  document.getElementById('changePassForm').onsubmit = async function(ev){
+    ev.preventDefault();
+    var p1 = document.getElementById('newPass1').value;
+    var p2 = document.getElementById('newPass2').value;
+    if(p1.length < 6){ toast('Passcode must be at least 6 characters'); return; }
+    if(p1 !== p2){ toast('Passcodes do not match'); return; }
+    var nextHash = await hashPasscode(p1);
+    localStorage.setItem(PASS_HASH_KEY, nextHash);
+    sessionStorage.setItem(SESSION_AUTH_KEY, nextHash);
+    state.authHash = nextHash;
+    await syncSaveToServer();
+    document.getElementById('newPass1').value = '';
+    document.getElementById('newPass2').value = '';
+    var box = document.getElementById('newHashReadout');
+    box.classList.remove('hidden');
+    box.textContent = 'Passcode updated! New SHA-256 hash: ' + nextHash;
+    toast('Atelier passcode updated');
+  };
+
+  // Filters & Tab Switching
+  ['orderSearch','orderTypeFilter','orderStatusFilter'].forEach(function(id){
+    document.getElementById(id).addEventListener('input', renderOrders);
+    document.getElementById(id).addEventListener('change', renderOrders);
+  });
+  ['invSearch','invCatFilter','invStatusFilter'].forEach(function(id){
+    document.getElementById(id).addEventListener('input', renderInventory);
+    document.getElementById(id).addEventListener('change', renderInventory);
+  });
+  document.getElementById('queueStatusFilter').addEventListener('change', renderQueueAndFleet);
+  ['libSearch','libFilter'].forEach(function(id){
+    document.getElementById(id).addEventListener('input', renderLibrary);
+    document.getElementById(id).addEventListener('change', renderLibrary);
+  });
+
+  document.querySelectorAll('.tab-btn').forEach(function(btn){
+    btn.onclick = function(){
+      state.activeTab = btn.dataset.tab;
+      document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.toggle('active', b === btn); });
+      document.querySelectorAll('.tab-pane').forEach(function(p){ p.classList.toggle('hidden', p.id !== 'tab-' + state.activeTab); });
+    };
+  });
+
+  document.getElementById('refreshBtn').onclick = function(){
+    loadAllData().then(function(){ toast('Refreshed inventory & custom orders'); });
+  };
+
+  // Auth Gate
+  function enterDashboard(hash){
+    state.authHash = hash;
+    sessionStorage.setItem(SESSION_AUTH_KEY, hash);
+    document.getElementById('lockScreen').classList.add('hidden');
+    document.getElementById('dashboardShell').classList.remove('hidden');
+    loadAllData();
+  }
+
+  document.getElementById('lockBtn').onclick = function(){
+    sessionStorage.removeItem(SESSION_AUTH_KEY);
+    state.authHash = null;
+    document.getElementById('dashboardShell').classList.add('hidden');
+    document.getElementById('lockScreen').classList.remove('hidden');
+    document.getElementById('passInput').value = '';
+    document.getElementById('lockError').classList.add('hidden');
+  };
+
+  document.getElementById('togglePassBtn').onclick = function(){
+    var inp = document.getElementById('passInput');
+    var show = inp.type === 'password';
+    inp.type = show ? 'text' : 'password';
+    this.textContent = show ? 'Hide' : 'Show';
+  };
+
+  document.getElementById('unlockForm').onsubmit = async function(ev){
+    ev.preventDefault();
+    var raw = document.getElementById('passInput').value;
+    var errEl = document.getElementById('lockError');
+    errEl.classList.add('hidden');
+    var hash = await hashPasscode(raw);
+    var expected = getStoredPassHash();
+
+    // Also verify against live server if running behind boutique-server.mjs
+    var serverAccepted = false;
+    try{
+      var r = await fetch('/api/manage/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ hash: hash })
+      });
+      if(r.ok){
+        var j = await r.json();
+        serverAccepted = !!j.ok;
+      }
+    }catch(_){}
+
+    if(hash === expected || serverAccepted){
+      enterDashboard(hash);
+    } else {
+      errEl.classList.remove('hidden');
+      document.getElementById('passInput').select();
+    }
+  };
+
+  // Auto-unlock if already unlocked in this browser tab session
+  var savedSession = sessionStorage.getItem(SESSION_AUTH_KEY);
+  if(savedSession && savedSession === getStoredPassHash()){
+    enterDashboard(savedSession);
+  }
+})();
+</script>
+</body>
+</html>

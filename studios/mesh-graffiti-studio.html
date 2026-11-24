@@ -1,0 +1,2943 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mesh Graffiti Studio — Creative Pattern & Surface Engine</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" crossorigin="anonymous"></script>
+<style>
+:root{
+  color-scheme:dark;
+  --bg:#111411;
+  --panel:#191d19;
+  --panel2:#202620;
+  --line:#303730;
+  --muted:#8d978d;
+  --text:#eef2eb;
+  --green:#b8f36b;
+  --orange:#ff8057;
+  --blue:#86baff;
+  --purple:#bba2ff;
+  --ivory:#f3ede1;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:14px/1.45 Inter,system-ui,-apple-system,"Segoe UI",sans-serif;overflow-x:hidden}
+button,input,select{font:inherit}
+button{color:inherit;cursor:pointer}
+.app{min-height:100vh;display:flex;flex-direction:column}
+
+header{height:66px;background:#151815;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:23px;padding:0 22px}
+.brand{display:flex;align-items:center;gap:10px;min-width:240px}
+.mark{background:var(--green);color:#111;border-radius:9px;width:32px;height:32px;display:grid;place-items:center;font-weight:900}
+.brand-title{font-size:13px;font-weight:800;letter-spacing:.04em}
+.brand-sub{font-size:10px;color:var(--muted)}
+.filename{display:flex;align-items:center;gap:9px;min-width:0;flex:1;font-size:12px}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 10px #b8f36b88}
+.filename span:nth-child(2){overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.saved{color:var(--muted);font-size:10px;white-space:nowrap}
+.top-actions{display:flex;gap:7px}
+
+.btn{border:1px solid var(--line);background:#202520;border-radius:8px;padding:9px 12px;font-size:11px;font-weight:680;display:inline-flex;gap:7px;align-items:center;justify-content:center;transition:.15s}
+.btn:hover:not(:disabled){border-color:#596453;background:#262d26}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.primary{background:var(--green);border-color:var(--green);color:#14200c}
+.btn.primary:hover:not(:disabled){background:#ccfb8f}
+.btn.ghost{background:transparent;border-color:transparent;color:#b0b8af}
+.btn.ghost:hover{background:#242a24;border-color:#303730}
+.key{border:1px solid #444b44;padding:0 4px;border-radius:4px;color:#858d83;font-size:9px}
+
+main{flex:1;display:grid;grid-template-columns:305px minmax(420px,1fr) 290px;min-height:calc(100vh - 66px)}
+aside{background:var(--panel);min-width:0;overflow-y:auto;max-height:calc(100vh - 66px)}
+.left{border-right:1px solid var(--line)}
+.right{border-left:1px solid var(--line)}
+.section-head{padding:17px 17px 13px;border-bottom:1px solid var(--line)}
+.eyebrow{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:#92a08d;font-weight:750}
+.heading{font-size:17px;font-weight:730;letter-spacing:-.02em;margin-top:4px}
+.sub{color:var(--muted);font-size:10px;margin-top:3px}
+
+.upload{padding:12px 14px}
+.drop{width:100%;border:1px dashed #4b5949;background:#1d231c;border-radius:10px;padding:12px 10px;text-align:center;transition:.16s}
+.drop:hover,.drop.dragover{border-color:var(--green);background:#222b1d}
+.drop-icon{margin:0 auto 6px;width:30px;height:30px;border:1px solid #46513f;border-radius:9px;color:var(--green);display:grid;place-items:center;font-size:15px}
+.drop strong{font-size:11px;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.drop p{font-size:9px;color:var(--muted);margin:3px 0}
+.filetypes{color:#707a70;font-size:9px;letter-spacing:.06em}
+.hidden{position:absolute;left:-10000px;width:1px;height:1px}
+
+.tabs{display:flex;gap:4px;padding:0 13px 11px}
+.tab{flex:1;border:1px solid transparent;background:transparent;color:#899189;border-radius:7px;padding:8px 3px;font-size:10px;font-weight:700}
+.tab.active{background:#2a3029;border-color:#3b4539;color:var(--green)}
+.tab:hover{background:#222722;color:white}
+
+.content{padding:0 15px 18px}
+.pane[hidden]{display:none}
+.content h2{font-size:12px;margin:8px 0 3px;display:flex;align-items:center;justify-content:space-between}
+.copy{font-size:10px;line-height:1.5;color:var(--muted);margin-bottom:11px}
+.field{margin:11px 0}
+.field-row{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:5px}
+.label{font-size:10px;font-weight:640;color:#c4cbc2;display:inline-flex;align-items:center;gap:5px}
+.value{font-size:10px;color:var(--green);font-variant-numeric:tabular-nums}
+.field input[type=text],select{width:100%;height:33px;background:#111511;border:1px solid #373e36;border-radius:7px;color:var(--text);padding:0 9px;font-size:11px}
+.field input[type=range]{width:100%;accent-color:var(--green);margin:0;cursor:pointer}
+
+.colors{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.swatch{width:22px;height:22px;padding:0;border:2px solid transparent;border-radius:50%;transition:.12s}
+.swatch[data-color="#b8f36b"]{background:#b8f36b}
+.swatch[data-color="#ff8057"]{background:#ff8057}
+.swatch[data-color="#86baff"]{background:#86baff}
+.swatch[data-color="#bba2ff"]{background:#bba2ff}
+.swatch[data-color="#f3ede1"]{background:#f3ede1}
+.swatch.selected{outline:2px solid var(--green);outline-offset:2px;transform:scale(1.06)}
+
+.two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.three{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}
+.preset-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:8px 0 12px}
+.preset-card{border:1px solid #333b33;background:#161a16;border-radius:8px;padding:7px 4px;text-align:center;font-size:9px;color:#aeb7ad;display:flex;flex-direction:column;align-items:center;gap:4px;transition:.14s}
+.preset-card svg{width:20px;height:20px;fill:currentColor}
+.preset-card:hover{border-color:#53614e;color:#fff;background:#1f251f}
+.preset-card.active{border-color:var(--green);background:#252f21;color:var(--green)}
+
+.pattern-modes{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-top:5px}
+.pmode{border:1px solid #343c34;background:#151915;border-radius:7px;padding:7px 4px;font-size:9.5px;font-weight:650;color:#9ea89d;text-align:center;transition:.14s}
+.pmode:hover{background:#202620;color:#fff}
+.pmode.active{border-color:var(--green);background:#263121;color:var(--green)}
+
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-top:1px solid #2d332d}
+.toggle{width:32px;height:18px;border:0;border-radius:12px;background:#4a534a;padding:2px;position:relative}
+.toggle:after{content:"";display:block;width:14px;height:14px;border-radius:50%;background:#d7ded4;transition:.14s}
+.toggle.on{background:#608832}
+.toggle.on:after{transform:translateX(14px);background:white}
+
+.help-q{display:inline-grid;place-items:center;width:14px;height:14px;border-radius:50%;background:#2b332b;border:1px solid #434e42;color:#9eac9c;font-size:9px;font-weight:700;cursor:help;position:relative}
+.help-q:hover::after{content:attr(data-tip);position:fixed;left:295px;z-index:99;width:210px;background:#141814;border:1px solid var(--green);color:#dfe7dc;padding:8px 10px;border-radius:8px;font-size:9.5px;font-weight:500;line-height:1.45;box-shadow:0 12px 28px #000b;pointer-events:none}
+
+.prototype-note{border-left:2px solid var(--green);padding:8px 9px;background:#242a22;color:#aab5a6;border-radius:0 5px 5px 0;font-size:9px;line-height:1.55;margin:11px 0 3px}
+.full{width:100%;margin-top:7px}
+
+.center{min-width:0;display:flex;flex-direction:column;background:#111411}
+.toolbar{height:48px;display:flex;align-items:center;justify-content:space-between;padding:0 15px;border-bottom:1px solid var(--line);background:#151815}
+.file-chip{font-size:10px;color:#c1c9bf}
+.stats{font-size:9px;color:#7f887e;margin-left:8px}
+.toolbar-right{display:flex;align-items:center;gap:5px}
+.mode{border:1px solid #303830;background:#202620;border-radius:6px;color:#aab4a8;padding:5px 8px;font-size:9px;margin-right:5px}
+.mode i{color:var(--green);font-style:normal;margin-right:4px}
+.icon-btn{width:29px;height:28px;border:1px solid transparent;border-radius:6px;background:transparent;color:#a4ada2}
+.icon-btn:hover,.icon-btn.active{background:#293029;border-color:#3a4537;color:var(--green)}
+
+.canvas{position:relative;flex:1;min-height:470px;overflow:hidden;background:radial-gradient(ellipse at 50% 48%,#293027 0%,#1a1e1a 55%,#141714 100%)}
+.canvas:before{content:"";position:absolute;inset:0;background-image:linear-gradient(#a0b89209 1px,transparent 1px),linear-gradient(90deg,#a0b89209 1px,transparent 1px);background-size:40px 40px;mask-image:radial-gradient(ellipse at center,#000 0%,transparent 73%);pointer-events:none}
+.canvas.no-grid:before{display:none}
+.live{position:absolute;left:16px;top:15px;border:1px solid #364034;background:#171c17cc;color:#9ca996;font-size:8px;letter-spacing:.11em;padding:6px 8px;border-radius:5px;z-index:2}
+.live b{color:var(--green)}
+.canvas-tools{position:absolute;left:15px;top:50%;transform:translateY(-50%);z-index:3;display:flex;flex-direction:column;gap:3px;background:#202520;border:1px solid #3a4239;border-radius:9px;padding:5px;box-shadow:0 10px 28px #0006}
+.ctool{width:32px;height:32px;border:0;border-radius:6px;background:transparent;color:#a4ada2;font-weight:700}
+.ctool.active{background:#3a4b2e;color:var(--green)}
+.ctool:hover{background:#303730}
+.tip{position:absolute;right:17px;top:15px;z-index:2;background:#171b17aa;color:#899389;padding:6px 9px;border-radius:5px;font-size:9px;border:1px solid #2b322b}
+
+.orbit-hud{position:absolute;right:17px;bottom:52px;z-index:3;background:#191e19dd;border:1px solid #374037;border-radius:10px;padding:8px 10px;display:flex;flex-direction:column;gap:5px;font-size:9px;color:#aeb7ad;box-shadow:0 8px 24px #0008;backdrop-filter:blur(4px)}
+.orbit-hud-row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.orbit-angles{color:var(--green);font-variant-numeric:tabular-nums;font-weight:700}
+
+.stage{width:min(100%,880px);height:100%;min-height:470px;position:relative;margin:auto;display:flex;align-items:center;justify-content:center;padding:30px 54px 50px}
+svg#model{width:100%;height:100%;max-height:620px;position:relative;z-index:1;overflow:visible;touch-action:none;user-select:none}
+#model.orbiting{cursor:grab}
+#model.orbiting:active{cursor:grabbing}
+#model.painting{cursor:crosshair}
+#model.placing{cursor:copy}
+.meshline{stroke:#ffffff19;stroke-width:1;fill:none}
+#marks g.mark-layer{cursor:grab;transition:filter .15s}
+#marks g.mark-layer:active{cursor:grabbing}
+#marks g.mark-layer.selected-mark{filter:drop-shadow(0 0 6px rgba(184,243,107,0.75))}
+
+.canvas-foot{position:absolute;z-index:2;bottom:13px;left:17px;right:17px;display:flex;align-items:center;justify-content:space-between;color:#899189;font-size:9px;flex-wrap:wrap;gap:8px}
+.view-buttons{display:flex;gap:4px;flex-wrap:wrap}
+.view-buttons button{background:#191e19;border:1px solid #374037;color:#b6beb4;border-radius:5px;padding:5px 7px;font-size:9px}
+.view-buttons button:hover,.view-buttons button.active{color:var(--green);border-color:#63784f;background:#222920}
+
+.right .section-head{padding-bottom:13px}
+.prop{padding:14px 16px;border-bottom:1px solid var(--line)}
+.prop-title{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;font-size:11px;font-weight:720}
+.count{font-size:9px;color:#818a80;font-weight:500}
+.layers{display:flex;flex-direction:column;gap:4px;max-height:200px;overflow-y:auto}
+.layer{display:flex;align-items:center;gap:8px;padding:7px 7px;border:1px solid transparent;border-radius:7px;cursor:pointer}
+.layer:hover{background:#222722}
+.layer.active{background:#252d22;border-color:#394734}
+.layer-color{width:10px;height:10px;border-radius:3px;flex:none}
+.layer-text{min-width:0;flex:1}
+.layer-name{font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600}
+.layer-sub{font-size:8px;color:#7e887d;margin-top:2px}
+.layer-vis{color:#838c82;font-size:11px;background:transparent;border:0;padding:2px 4px;border-radius:4px}
+.layer-vis:hover{color:#fff;background:#303830}
+
+.hint{font-size:9px;color:#7e887d;line-height:1.5;margin-top:8px}
+.material{display:flex;justify-content:space-between;padding:4px 0;color:#c5cdc3;font-size:10px}
+.material em{font-style:normal;color:#798278}
+.mdot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:7px}
+
+.status{height:40px;display:flex;align-items:center;justify-content:space-between;padding:0 14px;background:#151815;border-top:1px solid var(--line);color:#7e887d;font-size:9px}
+.status-left,.status-right{display:flex;align-items:center;gap:13px}
+.ok{color:#a9dd6a}
+
+.toast{position:fixed;left:50%;bottom:22px;transform:translate(-50%,15px);opacity:0;pointer-events:none;z-index:30;background:#e5f4d3;color:#1a2413;border-radius:8px;padding:10px 15px;font-size:11px;font-weight:700;box-shadow:0 10px 30px #0005;transition:.2s}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+.modal-bg{display:none;position:fixed;inset:0;z-index:20;background:#0009;align-items:center;justify-content:center;padding:18px}
+.modal-bg.open{display:flex}
+.modal{width:min(460px,100%);background:#1b201b;border:1px solid #384138;border-radius:14px;padding:21px;box-shadow:0 24px 70px #000a}
+.modal h2{font-size:15px;margin:0}
+.modal p{color:#a4aea2;font-size:11px;line-height:1.6}
+.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:17px;flex-wrap:wrap}
+
+@media(max-width:1080px){
+  main{grid-template-columns:280px minmax(360px,1fr)}
+  .right{grid-column:1/-1;border-left:0;border-top:1px solid var(--line);display:grid;grid-template-columns:1fr 1fr;max-height:none}
+  .right .section-head{grid-column:1/-1}
+  .right .prop{border-right:1px solid var(--line)}
+}
+@media(max-width:700px){
+  header{height:auto;min-height:60px;padding:10px 12px;gap:8px;flex-wrap:wrap}
+  .brand{min-width:0}
+  .filename{order:3;flex-basis:100%}
+  .top-actions{margin-left:auto}
+  .top-actions .ghost{display:none}
+  main{display:flex;flex-direction:column}
+  aside{max-height:none}
+  .left{border-right:0;border-bottom:1px solid var(--line)}
+  .canvas{min-height:440px}
+  .stage{min-height:440px;padding:35px 26px 55px}
+  .canvas-tools{left:7px}
+  .right{display:flex;flex-direction:column}
+  .status{height:auto;min-height:40px;flex-wrap:wrap;padding:9px}
+  .saved{display:none}
+}
+</style>
+</head>
+<body>
+<div class="app">
+<header>
+  <div class="brand">
+    <div class="mark">M/</div>
+    <div>
+      <div class="brand-title">MESH GRAFFITI</div>
+      <div class="brand-sub">Surface &amp; Pattern Studio <span style="color:#778174">/</span> v2.0</div>
+    </div>
+  </div>
+  <div class="filename">
+    <i class="dot"></i>
+    <span id="topName">Orbit case · demo mesh</span>
+    <span id="saved" class="saved">Saved locally</span>
+  </div>
+  <div class="top-actions">
+    <button class="btn ghost" id="undo"><span>↶</span>Undo <span class="key">⌘ Z</span></button>
+    <button class="btn ghost" id="redo">↷ Redo</button>
+    <button class="btn" id="save">▣ Save draft</button>
+    <button class="btn primary" id="export">⇧ Export</button>
+  </div>
+</header>
+
+<main>
+<aside class="left">
+  <div class="section-head">
+    <div class="eyebrow">Project</div>
+    <div class="heading">Make it yours</div>
+    <div class="sub">Wrap SVG logos, patterns &amp; reliefs onto any 3D surface.</div>
+  </div>
+  <div class="upload">
+    <button class="drop" id="modelDrop">
+      <div class="drop-icon">↥</div>
+      <strong id="dropTitle">Import a 3D model</strong>
+      <p id="dropCopy">Drop a file here or <span style="color:var(--green)">browse</span></p>
+      <span class="filetypes" id="filetypes">STL · 3MF · OBJ</span>
+    </button>
+    <input id="modelFile" class="hidden" type="file" accept=".stl,.3mf,.obj">
+  </div>
+
+  <div class="tabs" role="tablist" aria-label="Surface tools">
+    <button class="tab" data-mode="image" role="tab" aria-selected="false">Logo &amp; Pattern</button>
+    <button class="tab active" data-mode="paint" role="tab" aria-selected="true">Paint</button>
+    <button class="tab" data-mode="text" role="tab" aria-selected="false">Text</button>
+  </div>
+
+  <div class="content">
+    <!-- LOGO & PATTERN PANE -->
+    <section class="pane" data-pane="image" hidden>
+      <h2>
+        <span>SVG / Image Pattern Generator</span>
+        <span class="help-q" data-tip="Upload any SVG, PNG, or JPG—or pick a starter vector below—and repeat it across the 3D surface in a luxury brick, diamond, radial, or scatter pattern.">?</span>
+      </h2>
+      <div class="copy">Upload a custom SVG/image or choose a vector preset to stamp or tile across the print surface.</div>
+
+      <input id="imageFile" class="hidden" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml,.svg,.png,.jpg,.jpeg,.webp">
+      <button class="drop" id="imageDrop" style="width:100%">
+        <div class="drop-icon">▧</div>
+        <strong id="imageTitle">Upload photo, PNG, JPG, or SVG</strong>
+        <p id="imageCopy">PNG/JPG photos auto-convert to 3D vector SVG</p>
+      </button>
+
+      <div class="toggle-row" style="margin-top:8px">
+        <span class="label">Auto-convert PNG/JPG → 3D Vector SVG</span>
+        <button type="button" class="toggle on" id="autoVectorizeToggle" aria-label="Auto convert PNG or JPG to vector SVG"></button>
+      </div>
+
+      <div class="field">
+        <div class="field-row">
+          <span class="label">Built-in vector stamps</span>
+          <span class="value" id="activePresetName">Crown Emblem</span>
+        </div>
+        <div class="preset-grid" id="presetGrid">
+          <button class="preset-card active" data-preset="crown" data-label="Crown Emblem">
+            <svg viewBox="0 0 24 24"><path d="M3 18h18v2H3v-2zm0-2l2-9 5 4 2-6 2 6 5-4 2 9H3z"/></svg>
+            <span>Crown</span>
+          </button>
+          <button class="preset-card" data-preset="star" data-label="4-Point Monogram">
+            <svg viewBox="0 0 24 24"><path d="M12 2L14.8 9.2 22 12l-7.2 2.8L12 22l-2.8-7.2L2 12l7.2-2.8L12 2z"/></svg>
+            <span>Monogram</span>
+          </button>
+          <button class="preset-card" data-preset="hex" data-label="Cyber Hex">
+            <svg viewBox="0 0 24 24"><path d="M12 2l8.66 5v10L12 22l-8.66-5V7L12 2zm0 3.2L6.1 8.6v6.8L12 18.8l5.9-3.4V8.6L12 5.2z"/></svg>
+            <span>Hexagon</span>
+          </button>
+          <button class="preset-card" data-preset="bolt" data-label="Voltage Bolt">
+            <svg viewBox="0 0 24 24"><path d="M13 2L4 14h7l-2 8 11-12h-7l2-8z"/></svg>
+            <span>Bolt</span>
+          </button>
+          <button class="preset-card" data-preset="heart" data-label="Sculpted Heart">
+            <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+            <span>Heart</span>
+          </button>
+          <button class="preset-card" data-preset="fleur" data-label="Royal Crest">
+            <svg viewBox="0 0 24 24"><path d="M12 2c2 3 3 6 1.5 9 2.5-1.5 5.5-1 7.5 1-2.5 1-4.5 2.5-5.5 5H18v2h-4.5l-.5 3h-2l-.5-3H6v-2h2.5c-1-2.5-3-4-5.5-5 2-2 5-2.5 7.5-1C9 8 10 5 12 2z"/></svg>
+            <span>Crest</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="field">
+        <div class="field-row">
+          <span class="label">Pattern layout mode <span class="help-q" data-tip="Choose how your logo repeats across the 3D surface: Single Stamp, Grid, Half-Drop Brick (LV/Gucci monogram style), Radial Sunburst, Spiral, or Random Scatter.">?</span></span>
+        </div>
+        <div class="pattern-modes" id="patternModes">
+          <button class="pmode" data-pmode="single">Single</button>
+          <button class="pmode" data-pmode="grid">Grid</button>
+          <button class="pmode active" data-pmode="brick">Brick / LV</button>
+          <button class="pmode" data-pmode="radial">Radial</button>
+          <button class="pmode" data-pmode="spiral">Spiral</button>
+          <button class="pmode" data-pmode="scatter">Scatter</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <div class="field-row">
+          <span class="label">Logo tint / filament color</span>
+          <span class="value" id="imgColorName">Mint green</span>
+        </div>
+        <div class="colors">
+          <button class="swatch selected" data-color="#b8f36b" data-name="Mint green"></button>
+          <button class="swatch" data-color="#ff8057" data-name="Coral red"></button>
+          <button class="swatch" data-color="#86baff" data-name="Sky blue"></button>
+          <button class="swatch" data-color="#bba2ff" data-name="Lavender"></button>
+          <button class="swatch" data-color="#f3ede1" data-name="Ivory"></button>
+        </div>
+      </div>
+
+      <div class="two">
+        <div class="field">
+          <div class="field-row"><label class="label" for="imageSize">Logo size</label><output class="value" id="imageSizeOut">28 mm</output></div>
+          <input type="range" min="10" max="80" value="28" id="imageSize">
+        </div>
+        <div class="field">
+          <div class="field-row"><label class="label" for="patternSpacing">Spacing</label><output class="value" id="patternSpacingOut">54 mm</output></div>
+          <input type="range" min="24" max="120" value="54" id="patternSpacing">
+        </div>
+      </div>
+
+      <div class="two">
+        <div class="field">
+          <div class="field-row"><label class="label" for="patternDensity">Repeat count</label><output class="value" id="patternDensityOut">4 × 4</output></div>
+          <input type="range" min="2" max="8" value="4" id="patternDensity">
+        </div>
+        <div class="field">
+          <div class="field-row"><label class="label" for="patternAngle">Logo angle</label><output class="value" id="patternAngleOut">-8°</output></div>
+          <input type="range" min="-180" max="180" value="-8" id="patternAngle">
+        </div>
+      </div>
+
+      <div class="field">
+        <div class="field-row">
+          <label class="label" for="reliefMode">3D Slicer Integration <span class="help-q" data-tip="Choose whether this pattern prints flush with multi-color filament, raises outward (Emboss), cuts inward (Deboss), or triggers a Fuzzy Skin modifier.">?</span></label>
+        </div>
+        <select id="reliefMode">
+          <option value="flush">Flush Multi-Color Inlay (0.0 mm)</option>
+          <option value="emboss" selected>Raised Emboss Relief (+0.8 mm)</option>
+          <option value="deboss">Engraved Deboss Cutout (-0.6 mm)</option>
+          <option value="fuzzy">Fuzzy Skin Texture Modifier (0.3 mm)</option>
+        </select>
+      </div>
+
+      <div class="toggle-row">
+        <span class="label">Alternate row rotation (Monogram)</span>
+        <button class="toggle on" id="altRotateToggle" aria-label="Alternate row rotation"></button>
+      </div>
+      <div class="toggle-row">
+        <span class="label">Clip artwork to top surface</span>
+        <button class="toggle on" id="curveWrapToggle" aria-label="Follow surface curvature"></button>
+      </div>
+
+      <button class="btn primary full" id="addImage">Apply pattern to surface ↗</button>
+    </section>
+
+    <!-- PAINT PANE -->
+    <section class="pane" data-pane="paint">
+      <h2>Color brush</h2>
+      <div class="copy">Paint directly on the mesh. Switch to the <b>Logo &amp; Pattern</b> tab to tile SVGs and logos across your print.</div>
+      <div class="field">
+        <div class="field-row"><span class="label">Filament color</span><span class="value" id="colorName">Mint green</span></div>
+        <div class="colors">
+          <button class="swatch selected" data-color="#b8f36b" data-name="Mint green" aria-label="Mint green"></button>
+          <button class="swatch" data-color="#ff8057" data-name="Coral red" aria-label="Coral red"></button>
+          <button class="swatch" data-color="#86baff" data-name="Sky blue" aria-label="Sky blue"></button>
+          <button class="swatch" data-color="#bba2ff" data-name="Lavender" aria-label="Lavender"></button>
+          <button class="swatch" data-color="#f3ede1" data-name="Ivory" aria-label="Ivory"></button>
+        </div>
+      </div>
+      <div class="field">
+        <div class="field-row"><label class="label" for="brush">Brush size</label><output class="value" id="brushOut">18 px</output></div>
+        <input type="range" min="6" max="52" value="18" id="brush">
+      </div>
+      <div class="toggle-row">
+        <span class="label">Smooth edges</span>
+        <button class="toggle on" id="smoothEdgesToggle" aria-label="Smooth edges"></button>
+      </div>
+      <button class="btn primary full" id="paintMode">Start painting <span class="key">B</span></button>
+    </section>
+
+    <!-- TEXT PANE -->
+    <section class="pane" data-pane="text" hidden>
+      <h2>Text &amp; Monogram Stamp</h2>
+      <div class="copy">Map lettering or repeating text banners onto curves and raised surfaces.</div>
+      <div class="field">
+        <div class="field-row"><label class="label" for="text">Your text</label><span class="value" id="charOut">4 / 24</span></div>
+        <input type="text" id="text" value="MAYA" maxlength="24" placeholder="Type something">
+      </div>
+      <div class="two">
+        <div class="field">
+          <label class="label" for="font">Typeface</label>
+          <select id="font"><option>Modern Sans</option><option>Rounded</option><option>Mono</option><option>Serif</option></select>
+        </div>
+        <div class="field">
+          <label class="label" for="weight">Style</label>
+          <select id="weight"><option>Bold</option><option>Regular</option><option>Light</option></select>
+        </div>
+      </div>
+      <div class="field">
+        <div class="field-row"><label class="label" for="textSize">Letter size</label><output class="value" id="textSizeOut">34 mm</output></div>
+        <input type="range" min="14" max="64" value="34" id="textSize">
+      </div>
+      <div class="toggle-row">
+        <span class="label">Repeat text as diagonal pattern</span>
+        <button class="toggle" id="textRepeatToggle" aria-label="Repeat text as pattern"></button>
+      </div>
+      <div class="field">
+        <div class="field-row"><span class="label">Stamp color</span><span class="value" id="textColorName">Mint green</span></div>
+        <div class="colors">
+          <button class="swatch selected" data-color="#b8f36b" data-name="Mint green"></button>
+          <button class="swatch" data-color="#ff8057" data-name="Coral red"></button>
+          <button class="swatch" data-color="#86baff" data-name="Sky blue"></button>
+          <button class="swatch" data-color="#bba2ff" data-name="Lavender"></button>
+          <button class="swatch" data-color="#f3ede1" data-name="Ivory"></button>
+        </div>
+      </div>
+      <button class="btn primary full" id="addText">Place text on model ↗</button>
+    </section>
+
+    <div class="prototype-note">Tip: Drag any placed pattern or text directly on the 3D surface to reposition it, or adjust live sliders in the Inspector.</div>
+  </div>
+</aside>
+
+<section class="center" aria-label="Model workspace">
+  <div class="toolbar">
+    <div>
+      <span class="file-chip" id="viewName">◈ &nbsp;orbit_case_demo.3mf</span>
+      <span class="stats">82.4k triangles · Manifold OK</span>
+    </div>
+    <div class="toolbar-right">
+      <span class="mode"><i>●</i><span id="modeLabel">Paint mode</span></span>
+      <button class="icon-btn" id="demoPatternBtn" title="Generate instant demo pattern" style="width:auto;padding:0 8px;font-size:10px;border-color:#3a4537;color:var(--green)">✦ Demo Pattern</button>
+      <button class="icon-btn" id="fit" aria-label="Fit model" title="Fit model">⌗</button>
+      <button class="icon-btn active" id="gridBtn" aria-label="Toggle grid" aria-pressed="true" title="Toggle grid">▦</button>
+      <button class="icon-btn" id="full" aria-label="Toggle fullscreen" title="Fullscreen">⛶</button>
+    </div>
+  </div>
+
+  <div class="canvas" id="canvas">
+    <div class="live"><b>LIVE 3D ORBIT</b> <span style="color:#556053">/</span> 360° Surface &amp; Pattern Projection</div>
+    <div class="canvas-tools" role="toolbar" aria-label="Canvas tools">
+      <button class="ctool active" data-cmode="orbit" aria-label="3D Rotate / Orbit View" title="3D Rotate / Orbit View (Drag to rotate)">⟳</button>
+      <button class="ctool" data-cmode="image" aria-label="Logo & Pattern" title="Logo & Pattern">▧</button>
+      <button class="ctool" data-cmode="paint" aria-label="Paint" title="Paint Brush">✳</button>
+      <button class="ctool" data-cmode="text" aria-label="Text" title="Text Stamp">T</button>
+      <span style="height:1px;background:#3b433a;margin:2px 4px"></span>
+      <button class="ctool" id="erase" aria-label="Erase selected layer" title="Delete Selected Layer">⌫</button>
+    </div>
+    <div class="tip" id="canvasTip">Drag anywhere (or Right-Click drag) to rotate 3D view · Scroll to zoom</div>
+
+    <div class="orbit-hud">
+      <div class="orbit-hud-row">
+        <span>3D Camera Angle</span>
+        <span class="orbit-angles" id="orbitReadout">Yaw -24° · Pitch 32°</span>
+      </div>
+      <div class="orbit-hud-row" style="color:#7e887d">
+        <span>Drag background or Right-Click</span>
+        <span>360° Free Orbit</span>
+      </div>
+    </div>
+
+    <div class="stage">
+      <svg id="model" viewBox="0 0 900 610" role="img" aria-label="Interactive 3D mesh with 360 degree orbit">
+        <defs>
+          <linearGradient id="topGrad" x1="0" y1="0" x2="1" y2="1">
+            <stop stop-color="#929d92"/>
+            <stop offset=".52" stop-color="#626d63"/>
+            <stop offset="1" stop-color="#414b42"/>
+          </linearGradient>
+          <linearGradient id="sideGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop stop-color="#4e594f"/>
+            <stop offset="1" stop-color="#2d352f"/>
+          </linearGradient>
+          <linearGradient id="leftGrad" x1="0" y1="0" x2="1" y2="1">
+            <stop stop-color="#616c62"/>
+            <stop offset="1" stop-color="#363e38"/>
+          </linearGradient>
+          <filter id="embossFilter" x="-25%" y="-25%" width="150%" height="150%">
+            <feDropShadow dx="1.6" dy="2.4" stdDeviation="1.2" flood-color="#000000" flood-opacity="0.7"/>
+            <feDropShadow dx="-1" dy="-1" stdDeviation="0.6" flood-color="#ffffff" flood-opacity="0.38"/>
+          </filter>
+          <filter id="debossFilter" x="-25%" y="-25%" width="150%" height="150%">
+            <feDropShadow dx="-1.5" dy="-2" stdDeviation="1.1" flood-color="#000000" flood-opacity="0.78"/>
+            <feDropShadow dx="1.1" dy="1.3" stdDeviation="0.7" flood-color="#ffffff" flood-opacity="0.3"/>
+          </filter>
+          <filter id="fuzzyFilter" x="-25%" y="-25%" width="150%" height="150%">
+            <feTurbulence type="fractalNoise" baseFrequency="0.45" numOctaves="2" result="noise"/>
+            <feDisplacementMap in="SourceGraphic" in2="noise" scale="2.4" xChannelSelector="R" yChannelSelector="G"/>
+          </filter>
+          <clipPath id="surfaceClip">
+            <path id="clipPathShape" d="M243 219 L563 142 L680 294 L395 385 Z"/>
+          </clipPath>
+        </defs>
+
+        <ellipse id="groundShadow" cx="463" cy="442" rx="235" ry="38" fill="#000" opacity=".28"/>
+        <g id="modelArt">
+          <!-- Dynamically shaded 3D mesh triangles -->
+          <g id="importedMeshGroup"></g>
+          <!-- Legacy fallback paths kept hidden when real 3D mesh is active -->
+          <path id="meshSide" d="" fill="url(#sideGrad)" stroke="none"/>
+          <path id="meshLeft" d="" fill="url(#leftGrad)" stroke="none"/>
+          <path id="meshTop" d="" fill="none" stroke="#c9d2c8" stroke-opacity=".45" stroke-width="1.2"/>
+          <path id="meshRim" d="" fill="none" stroke="#d6dfd5" stroke-opacity=".2"/>
+
+          <g class="mesh-lines" opacity=".32" pointer-events="none" style="display:none">
+            <path id="wireframePath" class="meshline" d=""/>
+          </g>
+
+          <!-- Surface Marks & Patterns Layer projected with live 3D camera matrix -->
+          <g id="marks" clip-path="url(#surfaceClip)">
+            <g id="marksPlane"></g>
+          </g>
+
+          <!-- 3D Orientation Gizmo in Top-Left of Stage -->
+          <g id="axisGizmo" transform="translate(95, 420)" pointer-events="none"></g>
+          <g id="demoAccents" style="display:none"></g>
+        </g>
+        <text id="meshCaption" x="463" y="512" text-anchor="middle" fill="#a2aaa0" font-size="10" letter-spacing="1.2">ORBIT CASE / INTERACTIVE 3D MESH</text>
+      </svg>
+    </div>
+
+    <div class="canvas-foot">
+      <span><b>Orbit:</b> Left-drag background (or Right-click drag anywhere) · <b>Move Layer:</b> Drag pattern</span>
+      <span class="view-buttons">
+        <button id="isoView">3D Iso</button>
+        <button id="front">Front</button>
+        <button id="backView">Back</button>
+        <button id="leftView">Left</button>
+        <button id="rightView">Right</button>
+        <button id="top">Top</button>
+        <button id="bottomView">Bottom</button>
+        <button id="reset">Reset</button>
+      </span>
+    </div>
+  </div>
+
+  <div class="status">
+    <div class="status-left">
+      <span><b class="ok">●</b> Ready for Anycubic Slicer Next / 3MF</span>
+      <span id="layerStatus">0 surface edits</span>
+      <span id="brushStatus">Mode: Pattern</span>
+    </div>
+    <div class="status-right">
+      <span>Manifold Watertight</span>
+      <span id="zoomStatus">100%</span>
+    </div>
+  </div>
+</section>
+
+<aside class="right">
+  <div class="section-head">
+    <div class="eyebrow">Inspector</div>
+    <div class="heading">Your design</div>
+    <div class="sub">Edit active pattern layers &amp; 3D relief depth.</div>
+  </div>
+
+  <section class="prop">
+    <div class="prop-title">
+      <span>Surface Layers</span>
+      <span class="count" id="layerCount">0 layers</span>
+    </div>
+    <div class="layers" id="layers"></div>
+    <div class="hint">Click a layer to adjust its scale, rotation, or spacing live.</div>
+  </section>
+
+  <!-- Live Selected Layer Transform Controls -->
+  <section class="prop" id="selectedInspector" style="display:none">
+    <div class="prop-title">
+      <span>Selected Layer Controls</span>
+      <span class="count" id="selKindBadge">Pattern</span>
+    </div>
+    <div class="two">
+      <div class="field" style="margin:4px 0">
+        <div class="field-row"><label class="label" for="selOffsetX">Offset X</label><output class="value" id="selOffsetXOut">0</output></div>
+        <input type="range" min="-220" max="220" value="0" id="selOffsetX">
+      </div>
+      <div class="field" style="margin:4px 0">
+        <div class="field-row"><label class="label" for="selOffsetY">Offset Y</label><output class="value" id="selOffsetYOut">0</output></div>
+        <input type="range" min="-160" max="160" value="0" id="selOffsetY">
+      </div>
+    </div>
+    <div id="imageResizeControls" style="display:none;margin:8px 0">
+      <div class="prop-title">Resize uploaded graphic <span class="count">SVG / image</span></div>
+      <div class="two">
+        <div class="field" style="margin:4px 0">
+          <div class="field-row"><label class="label" for="selWidth">Width</label><output class="value" id="selWidthOut">52 mm</output></div>
+          <input type="range" min="4" max="240" value="52" id="selWidth">
+        </div>
+        <div class="field" style="margin:4px 0">
+          <div class="field-row"><label class="label" for="selHeight">Height</label><output class="value" id="selHeightOut">52 mm</output></div>
+          <input type="range" min="4" max="240" value="52" id="selHeight">
+        </div>
+      </div>
+      <div class="toggle-row">
+        <span class="label">Keep original proportions</span>
+        <button class="toggle on" id="aspectLock" aria-label="Keep original proportions"></button>
+      </div>
+    </div>
+    <div class="two">
+      <div class="field" style="margin:4px 0">
+        <div class="field-row"><label class="label" for="selScale">Layer scale</label><output class="value" id="selScaleOut">100%</output></div>
+        <input type="range" min="35" max="240" value="100" id="selScale">
+      </div>
+      <div class="field" style="margin:4px 0">
+        <div class="field-row"><label class="label" for="selRot">Rotate</label><output class="value" id="selRotOut">0°</output></div>
+        <input type="range" min="-180" max="180" value="0" id="selRot">
+      </div>
+    </div>
+    <div class="two" style="margin-top:8px">
+      <button class="btn" id="dupLayerBtn" style="padding:6px">⧉ Duplicate</button>
+      <button class="btn" id="delLayerBtn" style="padding:6px;color:var(--orange)">⌫ Delete</button>
+    </div>
+  </section>
+
+  <section class="prop">
+    <div class="prop-title">Filament palette <span class="count">5 slots</span></div>
+    <div class="material"><span><i class="mdot" style="background:#b8f36b"></i>Mint green</span><em>Slot 1</em></div>
+    <div class="material"><span><i class="mdot" style="background:#ff8057"></i>Coral red</span><em>Slot 2</em></div>
+    <div class="material"><span><i class="mdot" style="background:#86baff"></i>Sky blue</span><em>Slot 3</em></div>
+    <div class="material"><span><i class="mdot" style="background:#bba2ff"></i>Lavender</span><em>Slot 4</em></div>
+    <div class="material"><span><i class="mdot" style="background:#f3ede1"></i>Ivory</span><em>Slot 5</em></div>
+  </section>
+
+  <section class="prop" style="border-bottom:0">
+    <div class="prop-title">Surface &amp; Slicer Detail <span class="count">Auto fit</span></div>
+    <div class="toggle-row">
+      <span class="label">Perspective surface warp</span>
+      <button class="toggle on" id="perspToggle" aria-label="Perspective surface warp"></button>
+    </div>
+    <div class="toggle-row">
+      <span class="label">Show mesh wireframe</span>
+      <button class="toggle" id="meshToggle" aria-label="Show mesh lines"></button>
+    </div>
+    <div class="toggle-row">
+      <span class="label">Export 3MF Fuzzy Skin metadata</span>
+      <button class="toggle on" id="fuzzyExportToggle" aria-label="Export Fuzzy Skin metadata"></button>
+    </div>
+  </section>
+</aside>
+</main>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<div class="modal-bg" id="exportModal" role="dialog" aria-modal="true" aria-labelledby="exportTitle">
+  <div class="modal">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <h2 id="exportTitle">Export Surface &amp; Pattern Design</h2>
+      <button class="icon-btn" id="closeModal" aria-label="Close">×</button>
+    </div>
+    <p>Export your patterned surface artwork as a clean vector SVG decal (ready for <b>Add Part &rarr; SVG</b> in Anycubic Slicer Next, OrcaSlicer, or Bambu Studio) or save the editable project JSON.</p>
+    <div class="prototype-note">
+      <b>Pro Slicer Tip:</b> In Anycubic Slicer Next, right-click your 3D model &rarr; <b>Add Part &rarr; SVG</b> and load the exported <b>Pattern Only SVG</b> to emboss, deboss, or color-fill the entire repeating pattern in one click!
+    </div>
+    <div class="modal-actions">
+      <button class="btn" id="svgPatternOnlyExport">Download Pattern-Only SVG (For Slicer)</button>
+      <button class="btn" id="svgExport">Full Preview SVG</button>
+      <button class="btn primary" id="jsonExport">Save Project JSON</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var svg = document.getElementById("model"),
+      marks = document.getElementById("marksPlane"),
+      marksClipGroup = document.getElementById("marks"),
+      mode = "orbit",
+      activePane = "image",
+      color = "#b8f36b",
+      colorName = "Mint green",
+      brush = 18,
+      items = [],
+      redoItems = [],
+      active = null,
+      stroke = null,
+      imgData = null,
+      imgSvgMarkup = null,
+      imgSvgViewBox = null,
+      imgName = "",
+      imgAspect = 1,
+      activePreset = "crown",
+      patternMode = "brick",
+      zoomLevel = 1,
+      dragState = null,
+      orbitDrag = null,
+      orbitRaf = 0,
+      camYaw = -0.42,   // radians (~ -24 deg)
+      camPitch = 0.56,  // radians (~ 32 deg)
+      currentMesh = { normVerts: [], renderTris: [], totalTris: 0, topRing3D: [], topZ: 0 },
+      surfaceBounds = { minX: -220, maxX: 220, minY: -160, maxY: 160 },
+      baseModelName = "Orbit case",
+      timer;
+
+  function safeSetPointerCapture(el, pointerId){
+    try{
+      if(el && typeof el.setPointerCapture === "function" && pointerId !== undefined && pointerId !== null){
+        el.setPointerCapture(pointerId);
+      }
+    }catch(_){}
+  }
+
+  function safeReleasePointerCapture(el, pointerId){
+    try{
+      if(el && typeof el.releasePointerCapture === "function" && pointerId !== undefined && pointerId !== null){
+        if(!el.hasPointerCapture || el.hasPointerCapture(pointerId)){
+          el.releasePointerCapture(pointerId);
+        }
+      }
+    }catch(_){}
+  }
+
+  // Built-in vector paths (24x24 viewBox centered at 0,0)
+  var PRESETS = {
+    crown: {
+      label: "Crown Emblem",
+      path: "M-9 6h18v2H-9v-2zm0-2l2-9 5 4 2-6 2 6 5-4 2 9H-9z"
+    },
+    star: {
+      label: "4-Point Monogram",
+      path: "M0 -10L2.8 -2.8 10 0 2.8 2.8 0 10 -2.8 2.8 -10 0 -2.8 -2.8 0 -10z"
+    },
+    hex: {
+      label: "Cyber Hex",
+      path: "M0 -10l8.66 5v10L0 10l-8.66-5V-5L0 -10zm0 3.2L-5.9 -3.4v6.8L0 6.8l5.9-3.4v-6.8L0 -6.8z"
+    },
+    bolt: {
+      label: "Voltage Bolt",
+      path: "M1 -10L-8 2h7l-2 8 11-12h-7l2-8z"
+    },
+    heart: {
+      label: "Sculpted Heart",
+      path: "M0 9.35l-1.45-1.32C-6.6 3.36 -10 0.28 -10 -3.5c0-3.08 2.42-5.5 5.5-5.5 1.74 0 3.41.81 4.5 2.09C1.09 -8.19 2.76 -9 4.5 -9 7.58 -9 10 -6.58 10 -3.5c0 3.78-3.4 6.86-8.55 11.54L0 9.35z"
+    },
+    fleur: {
+      label: "Royal Crest",
+      path: "M0 -10c2 3 3 6 1.5 9 2.5-1.5 5.5-1 7.5 1-2.5 1-4.5 2.5-5.5 5H6v2H1.5L1 10h-2l-.5-3H-6V5h2.5c-1-2.5-3-4-5.5-5 2-2 5-2.5 7.5-1C-3 -4 -2 -7 0 -10z"
+    }
+  };
+
+  // Generate default 3D rounded Orbit Case mesh so user can immediately rotate 360° on launch
+  function buildDefaultCaseMesh(){
+    var verts = [], tris = [];
+    var segU = 36, segV = 8;
+    var rx = 155, ry = 105, h = 42;
+    for(var iv = 0; iv <= segV; iv++){
+      var v = iv / segV;
+      var z = (v - 0.5) * h;
+      var bevel = Math.sin(v * Math.PI);
+      var scaleXY = 0.88 + 0.12 * Math.pow(bevel, 0.35);
+      for(var iu = 0; iu < segU; iu++){
+        var theta = (iu / segU) * Math.PI * 2;
+        var ct = Math.cos(theta), st = Math.sin(theta);
+        var n = 3.4;
+        var x = rx * scaleXY * (ct >= 0 ? 1 : -1) * Math.pow(Math.abs(ct), 2 / n);
+        var y = ry * scaleXY * (st >= 0 ? 1 : -1) * Math.pow(Math.abs(st), 2 / n);
+        verts.push({ x: x, y: y, z: z });
+      }
+    }
+    var botCenter = verts.length;
+    verts.push({ x: 0, y: 0, z: -h * 0.5 });
+    var topCenter = verts.length;
+    verts.push({ x: 0, y: 0, z: h * 0.5 });
+
+    for(var r = 0; r < segV; r++){
+      for(var c = 0; c < segU; c++){
+        var nextC = (c + 1) % segU;
+        var a = r * segU + c;
+        var b = r * segU + nextC;
+        var d = (r + 1) * segU + c;
+        var e = (r + 1) * segU + nextC;
+        tris.push([a, b, e]);
+        tris.push([a, e, d]);
+      }
+    }
+    for(var i = 0; i < segU; i++){
+      var ni = (i + 1) % segU;
+      tris.push([botCenter, ni, i]);
+      var topRow = segV * segU;
+      tris.push([topCenter, topRow + i, topRow + ni]);
+    }
+    return { verts: verts, tris: tris };
+  }
+
+  function say(s){
+    var t = document.getElementById("toast");
+    t.textContent = s;
+    t.classList.add("show");
+    clearTimeout(timer);
+    timer = setTimeout(function(){ t.classList.remove("show"); }, 2600);
+  }
+
+  function setMode(m){
+    mode = m;
+    if(m !== "orbit") activePane = m;
+    document.querySelectorAll(".tab").forEach(function(b){
+      var yes = b.dataset.mode === activePane;
+      b.classList.toggle("active", yes);
+      b.setAttribute("aria-selected", yes ? "true" : "false");
+    });
+    document.querySelectorAll(".pane").forEach(function(p){
+      p.hidden = p.dataset.pane !== activePane;
+    });
+    document.querySelectorAll(".ctool[data-cmode]").forEach(function(b){
+      b.classList.toggle("active", b.dataset.cmode === m);
+    });
+    var labelMap = { orbit: "3D Orbit / Rotate", image: "Logo & Pattern mode", paint: "Paint mode", text: "Text mode" };
+    document.getElementById("modeLabel").textContent = labelMap[m] || (m + " mode");
+    document.getElementById("brushStatus").textContent = m === "paint" ? ("Brush: " + brush + " px") : ("Pattern: " + patternMode.toUpperCase());
+    var paintButton = document.getElementById("paintMode");
+    if(paintButton) paintButton.innerHTML = m === "paint" ? 'Stop painting <span class="key">Esc</span>' : 'Start painting <span class="key">B</span>';
+    svg.classList.toggle("painting", m === "paint");
+    svg.classList.toggle("orbiting", m === "orbit");
+  }
+
+  document.querySelectorAll(".tab").forEach(function(b){
+    b.onclick = function(){ setMode(b.dataset.mode); };
+  });
+  document.querySelectorAll(".ctool[data-cmode]").forEach(function(b){
+    b.onclick = function(){ setMode(b.dataset.cmode); };
+  });
+
+  function syncColorSwatches(hex){
+    var matchedName = colorName;
+    document.querySelectorAll(".swatch").forEach(function(x){
+      var match = x.dataset.color && x.dataset.color.toLowerCase() === String(hex || "").toLowerCase();
+      x.classList.toggle("selected", match);
+      if(match && x.dataset.name) matchedName = x.dataset.name;
+    });
+    color = hex || color;
+    colorName = matchedName;
+    document.getElementById("colorName").textContent = colorName;
+    document.getElementById("textColorName").textContent = colorName;
+    document.getElementById("imgColorName").textContent = colorName;
+  }
+
+  // Color swatches sync across all panes and live-update active pattern/text layer if selected
+  document.querySelectorAll(".swatch").forEach(function(b){
+    b.onclick = function(){
+      syncColorSwatches(b.dataset.color);
+      if(active && (active.kind === "Pattern" || active.kind === "Text")){
+        active.color = color;
+        if(active.kind === "Pattern" && active.cfg){
+          active.cfg.color = color;
+          rebuildPatternNode(active);
+        } else if(active.kind === "Text"){
+          active.node.querySelectorAll("text").forEach(function(t){ t.setAttribute("fill", color); });
+        }
+        update();
+        dirty();
+      }
+    };
+  });
+
+  // Preset selection
+  document.querySelectorAll(".preset-card").forEach(function(card){
+    card.onclick = function(){
+      document.querySelectorAll(".preset-card").forEach(function(c){ c.classList.remove("active"); });
+      card.classList.add("active");
+      activePreset = card.dataset.preset;
+      imgData = null;
+      imgSvgMarkup = null;
+      imgSvgViewBox = null;
+      imgName = "";
+      document.getElementById("activePresetName").textContent = card.dataset.label;
+      document.getElementById("imageTitle").textContent = "Using preset: " + card.dataset.label;
+      document.getElementById("imageCopy").textContent = "Click here to upload custom SVG/PNG instead";
+      if(active && active.kind === "Pattern" && active.cfg){
+        active.cfg.preset = activePreset;
+        active.cfg.imgData = null;
+        active.cfg.imgSvgMarkup = null;
+        active.cfg.imgSvgViewBox = null;
+        active.cfg.imgName = "";
+        active.cfg.width = null;
+        active.cfg.height = null;
+        active.name = card.dataset.label + " (" + active.cfg.pmode + ")";
+        rebuildPatternNode(active);
+        update();
+        dirty();
+      }
+    };
+  });
+
+  // Pattern mode buttons
+  document.querySelectorAll(".pmode").forEach(function(btn){
+    btn.onclick = function(){
+      document.querySelectorAll(".pmode").forEach(function(b){ b.classList.remove("active"); });
+      btn.classList.add("active");
+      patternMode = btn.dataset.pmode;
+      document.getElementById("brushStatus").textContent = "Pattern: " + patternMode.toUpperCase();
+      if(active && active.kind === "Pattern" && active.cfg){
+        active.cfg.pmode = patternMode;
+        var label = active.cfg.imgName || (PRESETS[active.cfg.preset] ? PRESETS[active.cfg.preset].label : "Pattern");
+        active.name = label + " (" + patternMode + ")";
+        rebuildPatternNode(active);
+        update();
+        dirty();
+      }
+    };
+  });
+
+  // Convert screen pointer to local coordinates on the 3D surface plane (#marksPlane)
+  function planePt(e){
+    var p = svg.createSVGPoint();
+    p.x = e.clientX;
+    p.y = e.clientY;
+    var ctm = marks.getScreenCTM();
+    if(!ctm) return { x: 0, y: 0 };
+    try{
+      var inv = ctm.inverse();
+      p = p.matrixTransform(inv);
+      if(!isFinite(p.x) || !isFinite(p.y)) return { x: 0, y: 0 };
+      return { x: p.x, y: p.y };
+    }catch(_){
+      return { x: 0, y: 0 };
+    }
+  }
+
+  function onFace(p){
+    var pad = 40;
+    return p.x >= (surfaceBounds.minX - pad) && p.x <= (surfaceBounds.maxX + pad) &&
+           p.y >= (surfaceBounds.minY - pad) && p.y <= (surfaceBounds.maxY + pad);
+  }
+
+  function node(tag, attrs){
+    var n = document.createElementNS("http://www.w3.org/2000/svg", tag);
+    if(attrs){
+      Object.keys(attrs).forEach(function(k){ n.setAttribute(k, attrs[k]); });
+    }
+    return n;
+  }
+
+  function applyLayerTransform(it){
+    var ox = it.offsetX || 0;
+    var oy = it.offsetY || 0;
+    var sc = (it.scale || 100) / 100;
+    var rot = it.rot || 0;
+    it.node.setAttribute("transform", "translate(" + ox + " " + oy + ") rotate(" + rot + ") scale(" + sc + ")");
+  }
+
+  // Safely parse uploaded SVG text into clean inline vector elements for crisp preview and slicer-ready SVG export
+  function parseUploadedSvgMarkup(svgText){
+    try{
+      var doc = new DOMParser().parseFromString(svgText, "image/svg+xml");
+      if(doc.getElementsByTagName("parsererror").length) return null;
+      var root = doc.documentElement;
+      if(!root || root.localName !== "svg") return null;
+
+      var vbAttr = root.getAttribute("viewBox");
+      var vb = null;
+      if(vbAttr){
+        var parts = vbAttr.trim().split(/[\s,]+/).map(Number);
+        if(parts.length === 4 && parts.every(isFinite) && parts[2] > 0 && parts[3] > 0){
+          vb = { x: parts[0], y: parts[1], w: parts[2], h: parts[3] };
+        }
+      }
+      if(!vb){
+        var wAttr = parseFloat(root.getAttribute("width"));
+        var hAttr = parseFloat(root.getAttribute("height"));
+        if(isFinite(wAttr) && wAttr > 0 && isFinite(hAttr) && hAttr > 0){
+          vb = { x: 0, y: 0, w: wAttr, h: hAttr };
+        } else {
+          vb = { x: 0, y: 0, w: 100, h: 100 };
+        }
+      }
+
+      // Strip scripts, foreignObject, and inline event handlers
+      var clone = root.cloneNode(true);
+      clone.querySelectorAll("script,foreignObject").forEach(function(el){ el.remove(); });
+      clone.querySelectorAll("*").forEach(function(el){
+        Array.from(el.attributes).forEach(function(attr){
+          if(/^on/i.test(attr.name)) el.removeAttribute(attr.name);
+        });
+      });
+
+      var innerParts = [];
+      var serializer = new XMLSerializer();
+      for(var i = 0; i < clone.childNodes.length; i++){
+        var ch = clone.childNodes[i];
+        if(ch.nodeType === 1){
+          var tag = ch.localName ? ch.localName.toLowerCase() : "";
+          if(tag === "title" || tag === "desc" || tag === "metadata") continue;
+          innerParts.push(serializer.serializeToString(ch));
+        }
+      }
+      if(!innerParts.length) return null;
+      return { markup: innerParts.join(""), viewBox: vb, aspect: vb.w / vb.h };
+    }catch(_){
+      return null;
+    }
+  }
+
+  // Generate stamps for any pattern configuration centered at (0,0) in surface plane coordinates
+  function rebuildPatternNode(it){
+    var cfg = it.cfg;
+    while(it.node.firstChild) it.node.removeChild(it.node.firstChild);
+
+    if(cfg.relief === "emboss") it.node.setAttribute("filter", "url(#embossFilter)");
+    else if(cfg.relief === "deboss") it.node.setAttribute("filter", "url(#debossFilter)");
+    else if(cfg.relief === "fuzzy") it.node.setAttribute("filter", "url(#fuzzyFilter)");
+    else it.node.removeAttribute("filter");
+
+    var coords = [];
+    var step = cfg.spacing;
+    var count = cfg.density;
+
+    if(cfg.pmode === "single"){
+      coords.push({ x: 0, y: 0, a: cfg.angle, s: 1 });
+    } else if(cfg.pmode === "grid" || cfg.pmode === "brick"){
+      var half = (count - 1) / 2;
+      for(var r = -Math.ceil(half); r <= Math.ceil(half); r++){
+        for(var c = -Math.ceil(half) - 1; c <= Math.ceil(half) + 1; c++){
+          var xOff = (cfg.pmode === "brick" && Math.abs(r) % 2 === 1) ? step * 0.5 : 0;
+          var extraRot = (cfg.altRotate && (Math.abs(r + c) % 2 === 1)) ? 45 : 0;
+          coords.push({
+            x: c * step + xOff,
+            y: r * (step * 0.82),
+            a: cfg.angle + extraRot,
+            s: (cfg.altRotate && (Math.abs(r + c) % 2 === 1)) ? 0.78 : 1
+          });
+        }
+      }
+    } else if(cfg.pmode === "radial"){
+      coords.push({ x: 0, y: 0, a: cfg.angle, s: 1.15 });
+      var rings = Math.max(1, Math.min(4, Math.floor(count / 2)));
+      for(var ring = 1; ring <= rings; ring++){
+        var rad = ring * step * 0.85;
+        var itemsInRing = ring * 6;
+        for(var k = 0; k < itemsInRing; k++){
+          var theta = (k / itemsInRing) * Math.PI * 2;
+          var deg = (theta * 180 / Math.PI) + 90 + cfg.angle;
+          coords.push({
+            x: Math.cos(theta) * rad,
+            y: Math.sin(theta) * rad * 0.78,
+            a: deg,
+            s: Math.max(0.6, 1 - ring * 0.1)
+          });
+        }
+      }
+    } else if(cfg.pmode === "spiral"){
+      var total = count * count + 4;
+      var golden = 137.508 * (Math.PI / 180);
+      for(var n = 0; n < total; n++){
+        var rDist = step * 0.34 * Math.sqrt(n);
+        var th = n * golden;
+        coords.push({
+          x: Math.cos(th) * rDist,
+          y: Math.sin(th) * rDist * 0.8,
+          a: cfg.angle + (th * 180 / Math.PI),
+          s: Math.max(0.55, 1 - (n / (total * 1.8)))
+        });
+      }
+    } else if(cfg.pmode === "scatter"){
+      var totalScatter = count * count + 3;
+      for(var sIdx = 0; sIdx < totalScatter; sIdx++){
+        var seed1 = Math.sin(sIdx * 12.9898 + 78.233) * 43758.5453;
+        var rx = (seed1 - Math.floor(seed1)) * 2 - 1;
+        var seed2 = Math.sin(sIdx * 45.164 + 19.123) * 19432.1234;
+        var ry = (seed2 - Math.floor(seed2)) * 2 - 1;
+        var seed3 = Math.sin(sIdx * 93.111) * 12345.678;
+        var ra = (seed3 - Math.floor(seed3)) * 360 - 180;
+        coords.push({
+          x: rx * step * (count * 0.48),
+          y: ry * step * (count * 0.32),
+          a: cfg.angle + (cfg.altRotate ? ra : 0),
+          s: 0.75 + Math.abs(rx) * 0.35
+        });
+      }
+    }
+
+    var unitScale = cfg.size / 20;
+    var hasCustom = !!(cfg.imgData || cfg.imgSvgMarkup);
+    var targetW = Number(cfg.width) || Number(cfg.size) || 28;
+    var targetH = Number(cfg.height) || (targetW / (Number(cfg.aspect) || 1));
+    var imageScaleX = targetW / 24;
+    var imageScaleY = targetH / 24;
+    var reliefOpacity = cfg.relief === "deboss" ? "0.74" : (cfg.relief === "flush" ? "0.96" : "0.93");
+
+    coords.forEach(function(ptItem){
+      var sx = hasCustom ? imageScaleX : unitScale;
+      var sy = hasCustom ? imageScaleY : unitScale;
+      var itemG = node("g", {
+        transform: "translate(" + ptItem.x.toFixed(1) + " " + ptItem.y.toFixed(1) + ") rotate(" + ptItem.a.toFixed(1) + ") scale(" + (sx * ptItem.s).toFixed(3) + " " + (sy * ptItem.s).toFixed(3) + ")"
+      });
+
+      if(cfg.imgSvgMarkup && cfg.imgSvgViewBox){
+        var vb = cfg.imgSvgViewBox;
+        var normSx = 24 / vb.w;
+        var normSy = 24 / vb.h;
+        var cx = vb.x + vb.w * 0.5;
+        var cy = vb.y + vb.h * 0.5;
+        var svgHolder = node("g", {
+          transform: "scale(" + normSx.toFixed(4) + " " + normSy.toFixed(4) + ") translate(" + (-cx).toFixed(2) + " " + (-cy).toFixed(2) + ")",
+          opacity: reliefOpacity,
+          fill: cfg.color
+        });
+        svgHolder.innerHTML = cfg.imgSvgMarkup;
+        itemG.appendChild(svgHolder);
+      } else if(cfg.imgData){
+        var im = node("image", {
+          x: "-12",
+          y: "-12",
+          width: "24",
+          height: "24",
+          preserveAspectRatio: "none",
+          opacity: reliefOpacity,
+          href: cfg.imgData
+        });
+        im.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", cfg.imgData);
+        itemG.appendChild(im);
+      } else {
+        var presetObj = PRESETS[cfg.preset] || PRESETS.crown;
+        var pNode = node("path", {
+          d: presetObj.path,
+          fill: cfg.color,
+          opacity: reliefOpacity
+        });
+        if(cfg.relief === "deboss"){
+          pNode.setAttribute("stroke", "#121612");
+          pNode.setAttribute("stroke-width", "0.55");
+          pNode.setAttribute("stroke-opacity", "0.55");
+        } else if(cfg.relief === "emboss"){
+          pNode.setAttribute("stroke", "#ffffff");
+          pNode.setAttribute("stroke-width", "0.35");
+          pNode.setAttribute("stroke-opacity", "0.28");
+        }
+        itemG.appendChild(pNode);
+      }
+      it.node.appendChild(itemG);
+    });
+
+    it.wrapCurve = cfg.wrapCurve;
+    applyLayerTransform(it);
+  }
+
+  function syncLeftControlsToActive(){
+    if(!active || active.kind !== "Pattern" || !active.cfg) return;
+    var cfg = active.cfg;
+    patternMode = cfg.pmode || "brick";
+    document.querySelectorAll(".pmode").forEach(function(b){
+      b.classList.toggle("active", b.dataset.pmode === patternMode);
+    });
+    document.getElementById("imageSize").value = cfg.size;
+    document.getElementById("imageSizeOut").textContent = Math.round(cfg.size) + " mm";
+    document.getElementById("patternSpacing").value = cfg.spacing;
+    document.getElementById("patternSpacingOut").textContent = Math.round(cfg.spacing) + " mm";
+    document.getElementById("patternDensity").value = cfg.density;
+    document.getElementById("patternDensityOut").textContent = cfg.density + " × " + cfg.density;
+    document.getElementById("patternAngle").value = cfg.angle;
+    document.getElementById("patternAngleOut").textContent = cfg.angle + "°";
+    document.getElementById("reliefMode").value = cfg.relief || "emboss";
+    document.getElementById("altRotateToggle").classList.toggle("on", !!cfg.altRotate);
+    document.getElementById("curveWrapToggle").classList.toggle("on", cfg.wrapCurve !== false);
+    if(cfg.color) syncColorSwatches(cfg.color);
+    if(cfg.imgData || cfg.imgSvgMarkup){
+      document.querySelectorAll(".preset-card").forEach(function(c){ c.classList.remove("active"); });
+      document.getElementById("activePresetName").textContent = "Custom Upload";
+    } else if(cfg.preset && PRESETS[cfg.preset]){
+      activePreset = cfg.preset;
+      document.querySelectorAll(".preset-card").forEach(function(c){
+        c.classList.toggle("active", c.dataset.preset === cfg.preset);
+      });
+      document.getElementById("activePresetName").textContent = PRESETS[cfg.preset].label;
+    }
+  }
+
+  function syncInspectorToActive(){
+    var panel = document.getElementById("selectedInspector");
+    var resizePanel = document.getElementById("imageResizeControls");
+    if(!active){
+      panel.style.display = "none";
+      return;
+    }
+    panel.style.display = "block";
+    document.getElementById("selKindBadge").textContent = active.kind + (active.cfg ? (" · " + active.cfg.relief) : "");
+    document.getElementById("selOffsetX").value = active.offsetX || 0;
+    document.getElementById("selOffsetXOut").textContent = (active.offsetX || 0) + " px";
+    document.getElementById("selOffsetY").value = active.offsetY || 0;
+    document.getElementById("selOffsetYOut").textContent = (active.offsetY || 0) + " px";
+    document.getElementById("selScale").value = active.scale || 100;
+    document.getElementById("selScaleOut").textContent = (active.scale || 100) + "%";
+    document.getElementById("selRot").value = active.rot || 0;
+    document.getElementById("selRotOut").textContent = (active.rot || 0) + "°";
+    var isUploadedGraphic = !!(active.cfg && (active.cfg.imgData || active.cfg.imgSvgMarkup));
+    resizePanel.style.display = isUploadedGraphic ? "block" : "none";
+    if(isUploadedGraphic){
+      var width = Number(active.cfg.width) || Number(active.cfg.size) || 52;
+      var height = Number(active.cfg.height) || width / (Number(active.cfg.aspect) || 1);
+      document.getElementById("selWidth").value = Math.max(4, Math.min(240, width));
+      document.getElementById("selWidthOut").textContent = Math.round(width) + " mm";
+      document.getElementById("selHeight").value = Math.max(4, Math.min(240, height));
+      document.getElementById("selHeightOut").textContent = Math.round(height) + " mm";
+      document.getElementById("aspectLock").classList.toggle("on", active.cfg.keepAspect !== false);
+    }
+  }
+
+  function update(){
+    var box = document.getElementById("layers");
+    box.innerHTML = "";
+    var base = document.createElement("div");
+    base.className = "layer";
+    base.style.cursor = "default";
+    base.innerHTML = '<span class="layer-color" style="background:#586358"></span><div class="layer-text"><div class="layer-name"></div><div class="layer-sub">Base 3D Mesh</div></div><span class="layer-vis">◉</span>';
+    base.querySelector(".layer-name").textContent = baseModelName;
+    box.appendChild(base);
+
+    items.forEach(function(it){
+      if(it.node){
+        it.node.classList.toggle("selected-mark", it === active);
+      }
+    });
+
+    items.slice().reverse().forEach(function(it){
+      var row = document.createElement("div");
+      row.className = "layer" + (it === active ? " active" : "");
+      var subLabel = it.kind + (it.cfg ? (" · " + it.cfg.pmode.toUpperCase() + " · " + it.cfg.relief) : " · Surface");
+      row.innerHTML = '<span class="layer-color" style="background:' + it.color + '"></span><div class="layer-text"><div class="layer-name"></div><div class="layer-sub">' + subLabel + '</div></div><button type="button" class="layer-vis" title="Toggle layer visibility">' + (it.hidden ? '◎' : '◉') + '</button>';
+      row.querySelector(".layer-name").textContent = it.name;
+
+      row.onclick = function(ev){
+        if(ev.target.classList.contains("layer-vis")){
+          it.hidden = !it.hidden;
+          it.node.style.display = it.hidden ? "none" : "";
+          update();
+          return;
+        }
+        active = it;
+        syncLeftControlsToActive();
+        update();
+      };
+      box.appendChild(row);
+    });
+
+    document.getElementById("layerCount").textContent = items.length + " " + (items.length === 1 ? "layer" : "layers");
+    document.getElementById("layerStatus").textContent = items.length + " surface " + (items.length === 1 ? "edit" : "edits");
+    syncInspectorToActive();
+  }
+
+  function dirty(){
+    document.getElementById("saved").textContent = "Unsaved changes";
+  }
+
+  // Interactive dragging of placed pattern/text/paint layers directly on the 3D surface plane
+  function makeLayerDraggable(it){
+    it.node.classList.add("mark-layer");
+    it.node.addEventListener("pointerdown", function(e){
+      // Right-click or middle-click or Orbit mode rotates the 3D camera instead
+      if(e.button === 2 || e.button === 1 || mode === "orbit" || mode === "paint") return;
+      e.stopPropagation();
+      active = it;
+      syncLeftControlsToActive();
+      update();
+      var startPt = planePt(e);
+      dragState = {
+        item: it,
+        startX: startPt.x,
+        startY: startPt.y,
+        origX: it.offsetX || 0,
+        origY: it.offsetY || 0
+      };
+      safeSetPointerCapture(svg, e.pointerId);
+    });
+  }
+
+  function finishStroke(e){
+    if(e && e.pointerId !== undefined) safeReleasePointerCapture(svg, e.pointerId);
+    if(orbitDrag){
+      orbitDrag = null;
+      return;
+    }
+    if(dragState){
+      dragState = null;
+      dirty();
+      return;
+    }
+    if(!stroke) return;
+    var it = { name: "Brush stroke", kind: "Paint", color: color, node: stroke, offsetX: 0, offsetY: 0, scale: 100, rot: 0 };
+    makeLayerDraggable(it);
+    items.push(it);
+    redoItems = [];
+    active = it;
+    stroke = null;
+    update();
+    dirty();
+  }
+
+  // Prevent context menu on canvas so Right-Click Drag works smoothly like a 3D Slicer
+  svg.addEventListener("contextmenu", function(e){ e.preventDefault(); });
+
+  function clearActiveViewButtons(){
+    document.querySelectorAll(".view-buttons button").forEach(function(b){ b.classList.remove("active"); });
+  }
+
+  function scheduleRender3D(){
+    if(orbitRaf) return;
+    orbitRaf = requestAnimationFrame(function(){
+      orbitRaf = 0;
+      render3DScene();
+    });
+  }
+
+  svg.addEventListener("pointerdown", function(e){
+    // Start 3D camera orbit if in Orbit mode, or right/middle mouse button, or clicking outside surface in non-paint mode
+    if(mode === "orbit" || e.button === 2 || e.button === 1 || (mode !== "paint" && !dragState)){
+      e.preventDefault();
+      safeSetPointerCapture(svg, e.pointerId);
+      clearActiveViewButtons();
+      orbitDrag = {
+        startX: e.clientX,
+        startY: e.clientY,
+        startYaw: camYaw,
+        startPitch: camPitch
+      };
+      return;
+    }
+
+    if(mode === "paint"){
+      var p = planePt(e);
+      if(!onFace(p)) return;
+      e.preventDefault();
+      safeSetPointerCapture(svg, e.pointerId);
+      stroke = node("g", { "shape-rendering": document.getElementById("smoothEdgesToggle").classList.contains("on") ? "geometricPrecision" : "crispEdges" });
+      stroke.appendChild(node("circle", { cx: p.x, cy: p.y, r: brush / 2, fill: color, opacity: "0.88" }));
+      marks.appendChild(stroke);
+    }
+  });
+
+  svg.addEventListener("pointermove", function(e){
+    if(orbitDrag){
+      var dx = e.clientX - orbitDrag.startX;
+      var dy = e.clientY - orbitDrag.startY;
+      camYaw = orbitDrag.startYaw + dx * 0.011;
+      camPitch = Math.max(-Math.PI, Math.min(Math.PI, orbitDrag.startPitch + dy * 0.011));
+      scheduleRender3D();
+      return;
+    }
+    if(dragState){
+      var cur = planePt(e);
+      dragState.item.offsetX = Math.round(dragState.origX + (cur.x - dragState.startX));
+      dragState.item.offsetY = Math.round(dragState.origY + (cur.y - dragState.startY));
+      applyLayerTransform(dragState.item);
+      syncInspectorToActive();
+      return;
+    }
+    if(!stroke) return;
+    var p = planePt(e);
+    if(onFace(p)){
+      stroke.appendChild(node("circle", { cx: p.x, cy: p.y, r: brush / 2, fill: color, opacity: "0.84" }));
+    }
+  });
+
+  svg.addEventListener("pointerup", finishStroke);
+  svg.addEventListener("pointercancel", finishStroke);
+
+  // Scroll wheel zoom on canvas
+  document.getElementById("canvas").addEventListener("wheel", function(e){
+    e.preventDefault();
+    var delta = e.deltaY < 0 ? 0.08 : -0.08;
+    zoomLevel = Math.min(2.2, Math.max(0.55, zoomLevel + delta));
+    document.getElementById("modelArt").style.transformOrigin = "463px 280px";
+    document.getElementById("modelArt").style.transform = "scale(" + zoomLevel.toFixed(2) + ")";
+    document.getElementById("zoomStatus").textContent = Math.round(zoomLevel * 100) + "%";
+  }, { passive: false });
+
+  // Live sliders for Pattern Generator
+  document.getElementById("paintMode").onclick = function(){
+    if(mode === "paint"){
+      setMode("orbit");
+      say("Paint mode stopped.");
+    } else {
+      setMode("paint");
+      say("Paint mode active. Drag over the model to paint.");
+    }
+  };
+
+  document.getElementById("brush").oninput = function(){
+    brush = Number(this.value);
+    document.getElementById("brushOut").textContent = brush + " px";
+    document.getElementById("brushStatus").textContent = "Brush: " + brush + " px";
+  };
+
+  document.getElementById("text").oninput = function(){
+    document.getElementById("charOut").textContent = this.value.length + " / 24";
+  };
+
+  document.getElementById("textSize").oninput = function(){
+    document.getElementById("textSizeOut").textContent = this.value + " mm";
+  };
+
+  function liveUpdateActivePatternFromControls(){
+    if(document.getElementById("curveWrapToggle").classList.contains("on")) marksClipGroup.setAttribute("clip-path", "url(#surfaceClip)");
+    else marksClipGroup.removeAttribute("clip-path");
+    if(!active || active.kind !== "Pattern" || !active.cfg) return;
+    active.cfg.size = Number(document.getElementById("imageSize").value);
+    active.cfg.spacing = Number(document.getElementById("patternSpacing").value);
+    active.cfg.density = Number(document.getElementById("patternDensity").value);
+    active.cfg.angle = Number(document.getElementById("patternAngle").value);
+    active.cfg.relief = document.getElementById("reliefMode").value;
+    active.cfg.altRotate = document.getElementById("altRotateToggle").classList.contains("on");
+    active.cfg.wrapCurve = document.getElementById("curveWrapToggle").classList.contains("on");
+    rebuildPatternNode(active);
+    update();
+    dirty();
+  }
+
+  document.getElementById("imageSize").oninput = function(){
+    document.getElementById("imageSizeOut").textContent = this.value + " mm";
+    if(active && active.kind === "Pattern" && active.cfg && (active.cfg.imgData || active.cfg.imgSvgMarkup)){
+      var oldWidth = Number(active.cfg.width) || Number(active.cfg.size) || 52;
+      var nextWidth = Number(this.value);
+      var ratio = active.cfg.keepAspect === false ? (Number(active.cfg.height) || oldWidth) / oldWidth : 1 / (Number(active.cfg.aspect) || 1);
+      active.cfg.width = nextWidth;
+      active.cfg.height = Math.max(4, Math.min(240, nextWidth * ratio));
+      syncInspectorToActive();
+    }
+    liveUpdateActivePatternFromControls();
+  };
+  document.getElementById("patternSpacing").oninput = function(){
+    document.getElementById("patternSpacingOut").textContent = this.value + " mm";
+    liveUpdateActivePatternFromControls();
+  };
+  document.getElementById("patternDensity").oninput = function(){
+    document.getElementById("patternDensityOut").textContent = this.value + " × " + this.value;
+    liveUpdateActivePatternFromControls();
+  };
+  document.getElementById("patternAngle").oninput = function(){
+    document.getElementById("patternAngleOut").textContent = this.value + "°";
+    liveUpdateActivePatternFromControls();
+  };
+  document.getElementById("reliefMode").onchange = function(){
+    liveUpdateActivePatternFromControls();
+  };
+
+  // Inspector Selected Layer Sliders
+  document.getElementById("selOffsetX").oninput = function(){
+    if(!active) return;
+    active.offsetX = Number(this.value);
+    document.getElementById("selOffsetXOut").textContent = active.offsetX + " px";
+    applyLayerTransform(active);
+    dirty();
+  };
+  document.getElementById("selOffsetY").oninput = function(){
+    if(!active) return;
+    active.offsetY = Number(this.value);
+    document.getElementById("selOffsetYOut").textContent = active.offsetY + " px";
+    applyLayerTransform(active);
+    dirty();
+  };
+  document.getElementById("selScale").oninput = function(){
+    if(!active) return;
+    active.scale = Number(this.value);
+    document.getElementById("selScaleOut").textContent = active.scale + "%";
+    applyLayerTransform(active);
+    dirty();
+  };
+  function setUploadedDimension(axis, rawValue){
+    if(!active || !active.cfg || !(active.cfg.imgData || active.cfg.imgSvgMarkup)) return;
+    var cfg = active.cfg;
+    var value = Math.max(4, Math.min(240, Number(rawValue) || 4));
+    var locked = cfg.keepAspect !== false;
+    var aspect = Number(cfg.aspect) || 1;
+    if(axis === "width"){
+      cfg.width = value;
+      if(locked) cfg.height = Math.max(4, Math.min(240, value / aspect));
+    } else {
+      cfg.height = value;
+      if(locked) cfg.width = Math.max(4, Math.min(240, value * aspect));
+    }
+    document.getElementById("selWidth").value = Math.max(4, Math.min(240, cfg.width));
+    document.getElementById("selHeight").value = Math.max(4, Math.min(240, cfg.height));
+    document.getElementById("selWidthOut").textContent = Math.round(cfg.width) + " mm";
+    document.getElementById("selHeightOut").textContent = Math.round(cfg.height) + " mm";
+    rebuildPatternNode(active);
+    update();
+    dirty();
+  }
+  document.getElementById("selWidth").oninput = function(){ setUploadedDimension("width", this.value); };
+  document.getElementById("selHeight").oninput = function(){ setUploadedDimension("height", this.value); };
+  document.getElementById("selRot").oninput = function(){
+    if(!active) return;
+    active.rot = Number(this.value);
+    document.getElementById("selRotOut").textContent = active.rot + "°";
+    applyLayerTransform(active);
+    dirty();
+  };
+
+  document.getElementById("dupLayerBtn").onclick = function(){
+    if(!active) return;
+    var cloneNode = active.node.cloneNode(true);
+    marks.appendChild(cloneNode);
+    var copy = {
+      name: active.name + " copy",
+      kind: active.kind,
+      color: active.color,
+      node: cloneNode,
+      offsetX: (active.offsetX || 0) + 18,
+      offsetY: (active.offsetY || 0) + 14,
+      scale: active.scale || 100,
+      rot: active.rot || 0,
+      wrapCurve: active.wrapCurve,
+      cfg: active.cfg ? JSON.parse(JSON.stringify(active.cfg)) : null
+    };
+    makeLayerDraggable(copy);
+    applyLayerTransform(copy);
+    items.push(copy);
+    active = copy;
+    update();
+    dirty();
+    say("Layer duplicated.");
+  };
+
+  document.getElementById("delLayerBtn").onclick = function(){
+    document.getElementById("erase").click();
+  };
+
+  // Place Text / Repeating Text Pattern
+  document.getElementById("addText").onclick = function(){
+    var s = document.getElementById("text").value.trim();
+    if(!s){ say("Type something before placing it."); return; }
+    var size = Number(document.getElementById("textSize").value),
+        fam = document.getElementById("font").value,
+        weight = document.getElementById("weight").value,
+        repeat = document.getElementById("textRepeatToggle").classList.contains("on");
+    var font = fam === "Mono" ? "monospace" : fam === "Serif" ? "Georgia,serif" : "Inter,system-ui,sans-serif";
+    var g = node("g", { filter: "url(#embossFilter)" });
+
+    if(repeat){
+      for(var r = -2; r <= 2; r++){
+        for(var c = -2; c <= 2; c++){
+          var tx = node("text", {
+            x: String(c * 135 + (Math.abs(r) % 2 ? 65 : 0)),
+            y: String(r * 52),
+            "text-anchor": "middle",
+            "dominant-baseline": "central",
+            "font-family": font,
+            "font-weight": weight === "Light" ? "400" : weight === "Regular" ? "550" : "760",
+            "font-size": String(Math.max(14, size * 0.9)),
+            fill: color,
+            "letter-spacing": "2"
+          });
+          tx.textContent = s.toUpperCase();
+          g.appendChild(tx);
+        }
+      }
+    } else {
+      var singleTx = node("text", {
+        x: "0",
+        y: "0",
+        "text-anchor": "middle",
+        "dominant-baseline": "central",
+        "font-family": font,
+        "font-weight": weight === "Light" ? "400" : weight === "Regular" ? "550" : "760",
+        "font-size": String(Math.max(19, size * 1.45)),
+        fill: color,
+        "letter-spacing": "1.4"
+      });
+      singleTx.textContent = s.toUpperCase();
+      g.appendChild(singleTx);
+    }
+
+    marks.appendChild(g);
+    var it = {
+      name: s + (repeat ? " · pattern" : " · text"),
+      kind: "Text",
+      color: color,
+      node: g,
+      offsetX: 0,
+      offsetY: 0,
+      scale: 100,
+      rot: 0,
+      wrapCurve: true
+    };
+    makeLayerDraggable(it);
+    applyLayerTransform(it);
+    items.push(it);
+    redoItems = [];
+    active = it;
+    update();
+    dirty();
+    say(repeat ? "Repeating text pattern mapped to surface." : "Text placed on surface. Drag to reposition.");
+  };
+
+  // Custom Image / SVG upload (Click + Drag & Drop, zero CORS / tainted-canvas issues)
+  var imgInput = document.getElementById("imageFile");
+  var imgDrop = document.getElementById("imageDrop");
+  imgDrop.onclick = function(){ imgInput.click(); };
+
+  function handleImageFile(f){
+    if(!f) return;
+    if(f.size > 10000000){ say("Choose an SVG or image under 10 MB."); return; }
+    var isSvg = /\.svg$/i.test(f.name) || f.type === "image/svg+xml";
+    imgName = f.name.replace(/\.[^.]+$/, "");
+
+    function finishUploadUI(){
+      document.querySelectorAll(".preset-card").forEach(function(c){ c.classList.remove("active"); });
+      document.getElementById("activePresetName").textContent = "Custom Upload";
+      document.getElementById("imageTitle").textContent = f.name;
+      document.getElementById("imageCopy").textContent = "Graphic loaded. Adjust width and height in Selected Layer Controls.";
+      say("Custom graphic loaded: " + f.name);
+    }
+
+    if(isSvg){
+      var txtReader = new FileReader();
+      txtReader.onload = function(ev){
+        var parsed = parseUploadedSvgMarkup(ev.target.result || "");
+        var dataReader = new FileReader();
+        dataReader.onload = function(dev){
+          imgData = dev.target.result;
+          if(parsed){
+            imgSvgMarkup = parsed.markup;
+            imgSvgViewBox = parsed.viewBox;
+            imgAspect = parsed.aspect || 1;
+            finishUploadUI();
+            placeLogoPattern();
+          } else {
+            imgSvgMarkup = null;
+            imgSvgViewBox = null;
+            finishUploadUI();
+            var probe = new Image();
+            probe.onload = function(){
+              imgAspect = probe.naturalWidth > 0 && probe.naturalHeight > 0 ? probe.naturalWidth / probe.naturalHeight : 1;
+              placeLogoPattern();
+            };
+            probe.onerror = function(){ imgAspect = 1; placeLogoPattern(); };
+            probe.src = imgData;
+          }
+        };
+        dataReader.readAsDataURL(f);
+      };
+      txtReader.readAsText(f);
+      return;
+    }
+
+    var r = new FileReader();
+    r.onload = function(e){
+      imgData = e.target.result;
+      imgSvgMarkup = null;
+      imgSvgViewBox = null;
+      finishUploadUI();
+      var probe = new Image();
+      probe.onload = function(){
+        imgAspect = probe.naturalWidth > 0 && probe.naturalHeight > 0 ? probe.naturalWidth / probe.naturalHeight : 1;
+        var autoVec = document.getElementById("autoVectorizeToggle");
+        if(autoVec && autoVec.classList.contains("on")){
+          var traced = traceRasterImageToSvg(probe);
+          if(traced && traced.markup){
+            imgSvgMarkup = traced.markup;
+            imgSvgViewBox = traced.viewBox;
+            document.getElementById("imageCopy").textContent = "Photo auto-converted to 3D vector SVG! Ready for Pattern-Only SVG export.";
+            say("Converted " + f.name + " to 3D-printable vector SVG!");
+          }
+        }
+        placeLogoPattern();
+      };
+      probe.onerror = function(){ imgAspect = 1; placeLogoPattern(); };
+      probe.src = imgData;
+    };
+    r.readAsDataURL(f);
+  }
+
+  // Client-side Marching Squares raster (PNG/JPG/WEBP) -> clean closed SVG vector paths
+  function traceRasterImageToSvg(imgEl){
+    try{
+      var natW = imgEl.naturalWidth || 160, natH = imgEl.naturalHeight || 160;
+      var aspect = natW / natH;
+      var maxDim = 150;
+      var w = aspect >= 1 ? maxDim : Math.max(24, Math.round(maxDim * aspect));
+      var h = aspect >= 1 ? Math.max(24, Math.round(maxDim / aspect)) : maxDim;
+      var cvs = document.createElement("canvas");
+      cvs.width = w; cvs.height = h;
+      var ctx = cvs.getContext("2d", { willReadFrequently: true });
+      if(!ctx) return null;
+      ctx.drawImage(imgEl, 0, 0, w, h);
+      var rgba = ctx.getImageData(0, 0, w, h).data;
+      var luma = new Uint8Array(w * h);
+      var alphaCount = 0;
+      for(var i = 0; i < w * h; i++){
+        var p = i * 4;
+        if(rgba[p + 3] < 200) alphaCount++;
+        luma[i] = Math.round(0.299 * rgba[p] + 0.587 * rgba[p + 1] + 0.114 * rgba[p + 2]);
+      }
+      var hasAlpha = alphaCount > (w * h * 0.04);
+
+      // Estimate corner background brightness
+      var cornerSum = 0, cornerN = 0;
+      for(var cx = 0; cx < w; cx += Math.max(1, Math.floor(w / 8))){
+        cornerSum += luma[cx] + luma[(h - 1) * w + cx]; cornerN += 2;
+      }
+      var bgLuma = cornerN ? (cornerSum / cornerN) : 255;
+      var darkBg = !hasAlpha && bgLuma < 115;
+
+      // Otsu threshold
+      var hist = new Uint32Array(256), sumAll = 0;
+      for(var hi = 0; hi < luma.length; hi++){ hist[luma[hi]]++; sumAll += luma[hi]; }
+      var sumB = 0, wB = 0, maxVar = -1, thresh = 128, tot = luma.length;
+      for(var t = 0; t < 256; t++){
+        wB += hist[t]; if(!wB) continue;
+        var wF = tot - wB; if(!wF) break;
+        sumB += t * hist[t];
+        var mB = sumB / wB, mF = (sumAll - sumB) / wF;
+        var v = wB * wF * (mB - mF) * (mB - mF);
+        if(v > maxVar){ maxVar = v; thresh = t; }
+      }
+
+      var grid = new Uint8Array(w * h);
+      for(var gi = 0; gi < w * h; gi++){
+        if(hasAlpha) grid[gi] = rgba[gi * 4 + 3] >= 120 ? 1 : 0;
+        else grid[gi] = darkBg ? (luma[gi] >= thresh ? 1 : 0) : (luma[gi] <= thresh ? 1 : 0);
+      }
+
+      // Marching squares on padded grid
+      var pw = w + 2, ph = h + 2;
+      var pad = new Uint8Array(pw * ph);
+      for(var py = 0; py < h; py++) for(var px = 0; px < w; px++) pad[(py + 1) * pw + (px + 1)] = grid[py * w + px];
+      var adj = Object.create(null);
+      function addS(x1, y1, x2, y2){
+        var k1 = x1 + "," + y1;
+        if(!adj[k1]) adj[k1] = [];
+        adj[k1].push({ k: x2 + "," + y2, x: x2 * 0.5 - 1, y: y2 * 0.5 - 1 });
+      }
+      for(var my = 0; my < ph - 1; my++){
+        for(var mx = 0; mx < pw - 1; mx++){
+          var c = (pad[my*pw+mx]<<3)|(pad[my*pw+mx+1]<<2)|(pad[(my+1)*pw+mx+1]<<1)|pad[(my+1)*pw+mx];
+          if(c === 0 || c === 15) continue;
+          var tx=2*mx+1, ty=2*my, rx=2*mx+2, ry=2*my+1, bx=2*mx+1, by=2*my+2, lx=2*mx, ly=2*my+1;
+          if(c===1) addS(lx,ly,bx,by);
+          else if(c===2) addS(bx,by,rx,ry);
+          else if(c===3) addS(lx,ly,rx,ry);
+          else if(c===4) addS(rx,ry,tx,ty);
+          else if(c===5){ addS(lx,ly,tx,ty); addS(rx,ry,bx,by); }
+          else if(c===6) addS(bx,by,tx,ty);
+          else if(c===7) addS(lx,ly,tx,ty);
+          else if(c===8) addS(tx,ty,lx,ly);
+          else if(c===9) addS(tx,ty,bx,by);
+          else if(c===10){ addS(tx,ty,rx,ry); addS(bx,by,lx,ly); }
+          else if(c===11) addS(tx,ty,rx,ry);
+          else if(c===12) addS(rx,ry,lx,ly);
+          else if(c===13) addS(rx,ry,bx,by);
+          else if(c===14) addS(bx,by,lx,ly);
+        }
+      }
+      var pathParts = [];
+      Object.keys(adj).forEach(function(sk){
+        var list = adj[sk];
+        while(list && list.length){
+          var first = list.pop();
+          var sp = sk.split(",");
+          var pts = [{ x: Number(sp[0]) * 0.5 - 1, y: Number(sp[1]) * 0.5 - 1 }, { x: first.x, y: first.y }];
+          var cur = first.k, guard = 0;
+          while(cur !== sk && guard++ < 50000){
+            var nxt = adj[cur];
+            if(!nxt || !nxt.length) break;
+            var e = nxt.pop();
+            pts.push({ x: e.x, y: e.y });
+            cur = e.k;
+          }
+          if(pts.length < 5) continue;
+          pts.pop();
+          // Decimate every 2nd point on long contours for compact smooth SVG
+          var step = pts.length > 40 ? 2 : 1;
+          var sub = [];
+          for(var pi = 0; pi < pts.length; pi += step) sub.push(pts[pi]);
+          if(sub.length < 3) continue;
+          var d = "M" + sub.map(function(pt){ return pt.x.toFixed(1) + " " + pt.y.toFixed(1); }).join("L") + "Z";
+          pathParts.push(d);
+        }
+      });
+      if(!pathParts.length) return null;
+      return {
+        markup: '<path d="' + pathParts.join(" ") + '" fill-rule="evenodd"/>',
+        viewBox: { x: 0, y: 0, w: w, h: h }
+      };
+    }catch(_){
+      return null;
+    }
+  }
+
+  imgInput.onchange = function(){
+    if(this.files && this.files[0]) handleImageFile(this.files[0]);
+    this.value = "";
+  };
+  imgDrop.ondragover = function(e){ e.preventDefault(); imgDrop.classList.add("dragover"); };
+  imgDrop.ondragleave = function(){ imgDrop.classList.remove("dragover"); };
+  imgDrop.ondrop = function(e){
+    e.preventDefault();
+    imgDrop.classList.remove("dragover");
+    if(e.dataTransfer.files && e.dataTransfer.files[0]) handleImageFile(e.dataTransfer.files[0]);
+  };
+
+  // Place Logo / Pattern onto 3D Surface
+  function placeLogoPattern(){
+    var hasCustom = !!(imgData || imgSvgMarkup);
+    var cfg = {
+      preset: activePreset,
+      imgData: imgData,
+      imgSvgMarkup: imgSvgMarkup,
+      imgSvgViewBox: imgSvgViewBox ? { x: imgSvgViewBox.x, y: imgSvgViewBox.y, w: imgSvgViewBox.w, h: imgSvgViewBox.h } : null,
+      imgName: imgName,
+      pmode: patternMode,
+      color: color,
+      size: Number(document.getElementById("imageSize").value),
+      aspect: imgAspect || 1,
+      width: hasCustom ? Number(document.getElementById("imageSize").value) : null,
+      height: hasCustom ? Number(document.getElementById("imageSize").value) / (imgAspect || 1) : null,
+      keepAspect: true,
+      spacing: Number(document.getElementById("patternSpacing").value),
+      density: Number(document.getElementById("patternDensity").value),
+      angle: Number(document.getElementById("patternAngle").value),
+      relief: document.getElementById("reliefMode").value,
+      altRotate: document.getElementById("altRotateToggle").classList.contains("on"),
+      wrapCurve: document.getElementById("curveWrapToggle").classList.contains("on")
+    };
+
+    var g = node("g", {});
+    marks.appendChild(g);
+
+    var baseTitle = hasCustom ? (imgName || "Custom Graphic") : (PRESETS[activePreset] ? PRESETS[activePreset].label : "Pattern");
+    var it = {
+      name: baseTitle + " (" + patternMode + ")",
+      kind: "Pattern",
+      color: color,
+      node: g,
+      offsetX: 0,
+      offsetY: 0,
+      scale: 100,
+      rot: 0,
+      wrapCurve: cfg.wrapCurve,
+      cfg: cfg
+    };
+
+    rebuildPatternNode(it);
+    makeLayerDraggable(it);
+    items.push(it);
+    redoItems = [];
+    active = it;
+    update();
+    dirty();
+    say("Pattern mapped onto 3D print surface!");
+  }
+
+  document.getElementById("addImage").onclick = placeLogoPattern;
+  document.getElementById("demoPatternBtn").onclick = function(){
+    placeLogoPattern();
+  };
+
+  function undo(){
+    if(!items.length){ say("Nothing to undo yet."); return; }
+    var it = items.pop();
+    it.node.remove();
+    redoItems.push(it);
+    active = items[items.length - 1] || null;
+    syncLeftControlsToActive();
+    update();
+    dirty();
+    say("Last surface edit undone.");
+  }
+
+  function redo(){
+    if(!redoItems.length){ say("Nothing to redo."); return; }
+    var it = redoItems.pop();
+    items.push(it);
+    marks.appendChild(it.node);
+    active = it;
+    syncLeftControlsToActive();
+    update();
+    dirty();
+    say("Surface edit restored.");
+  }
+
+  document.getElementById("undo").onclick = undo;
+  document.getElementById("redo").onclick = redo;
+  document.getElementById("erase").onclick = function(){
+    if(!active){ say("Select a surface layer first."); return; }
+    var i = items.indexOf(active);
+    if(i < 0) return;
+    var it = items.splice(i, 1)[0];
+    it.node.remove();
+    redoItems.push(it);
+    active = items[items.length - 1] || null;
+    syncLeftControlsToActive();
+    update();
+    dirty();
+    say("Layer removed. Undo can restore it.");
+  };
+
+  document.addEventListener("keydown", function(e){
+    var k = e.key.toLowerCase();
+    if((e.ctrlKey || e.metaKey) && k === "z"){ e.preventDefault(); undo(); }
+    else if((e.ctrlKey || e.metaKey) && k === "y"){ e.preventDefault(); redo(); }
+    else if(!e.ctrlKey && !e.metaKey && !e.altKey && k === "b" && !/input|textarea|select/i.test(document.activeElement.tagName)){
+      setMode("paint");
+    } else if(k === "escape" && mode === "paint"){
+      setMode("orbit");
+    }
+  });
+
+  // Toggles
+  document.querySelectorAll(".toggle").forEach(function(b){
+    b.onclick = function(){
+      b.classList.toggle("on");
+      if(b.id === "altRotateToggle" || b.id === "curveWrapToggle"){
+        liveUpdateActivePatternFromControls();
+      } else if(b.id === "perspToggle"){
+        render3DScene();
+        say("Surface 3D projection wrap " + (b.classList.contains("on") ? "enabled" : "flattened"));
+      }
+    };
+  });
+
+  document.getElementById("aspectLock").onclick = function(){
+    this.classList.toggle("on");
+    if(active && active.cfg && (active.cfg.imgData || active.cfg.imgSvgMarkup)){
+      active.cfg.keepAspect = this.classList.contains("on");
+      if(active.cfg.keepAspect){
+        active.cfg.height = Math.max(4, Math.min(240, Number(active.cfg.width) / (Number(active.cfg.aspect) || 1)));
+        syncInspectorToActive();
+        rebuildPatternNode(active);
+        update();
+        dirty();
+      }
+    }
+  };
+
+  document.getElementById("smoothEdgesToggle").onclick = function(){
+    this.classList.toggle("on");
+    if(stroke) stroke.setAttribute("shape-rendering", this.classList.contains("on") ? "geometricPrecision" : "crispEdges");
+  };
+
+  document.getElementById("meshToggle").onclick = function(){
+    this.classList.toggle("on");
+    document.querySelector(".mesh-lines").style.display = this.classList.contains("on") ? "" : "none";
+  };
+
+  document.getElementById("gridBtn").onclick = function(){
+    this.classList.toggle("active");
+    document.getElementById("canvas").classList.toggle("no-grid");
+  };
+
+  // Camera View Preset Buttons (Full 360° Angles)
+  function setCameraAngle(yawDeg, pitchDeg, label, btnId){
+    camYaw = yawDeg * Math.PI / 180;
+    camPitch = pitchDeg * Math.PI / 180;
+    clearActiveViewButtons();
+    if(btnId){
+      var activeBtn = document.getElementById(btnId);
+      if(activeBtn) activeBtn.classList.add("active");
+    }
+    render3DScene();
+    if(label) say(label + " angle selected.");
+  }
+
+  document.getElementById("fit").onclick = function(){
+    zoomLevel = 1;
+    document.getElementById("modelArt").style.transform = "";
+    document.getElementById("zoomStatus").textContent = "100%";
+    setCameraAngle(-24, 32, "Fitted 3D view", "reset");
+  };
+  document.getElementById("isoView").onclick = function(){ setCameraAngle(-28, 35, "3D Isometric", "isoView"); };
+  document.getElementById("front").onclick = function(){ setCameraAngle(0, 78, "Front", "front"); };
+  document.getElementById("backView").onclick = function(){ setCameraAngle(180, 78, "Back", "backView"); };
+  document.getElementById("leftView").onclick = function(){ setCameraAngle(-90, 78, "Left side", "leftView"); };
+  document.getElementById("rightView").onclick = function(){ setCameraAngle(90, 78, "Right side", "rightView"); };
+  document.getElementById("top").onclick = function(){ setCameraAngle(0, 0, "Top-Down Plan", "top"); };
+  document.getElementById("bottomView").onclick = function(){ setCameraAngle(0, 180, "Bottom Underside", "bottomView"); };
+  document.getElementById("reset").onclick = function(){
+    zoomLevel = 1;
+    document.getElementById("modelArt").style.transform = "";
+    document.getElementById("zoomStatus").textContent = "100%";
+    setCameraAngle(-24, 32, "Reset 3D view", "reset");
+  };
+  document.getElementById("full").onclick = function(){
+    var el = document.querySelector(".center");
+    if(!document.fullscreenElement && el.requestFullscreen) el.requestFullscreen();
+    else if(document.exitFullscreen) document.exitFullscreen();
+  };
+
+  var modelInput = document.getElementById("modelFile");
+  document.getElementById("modelDrop").onclick = function(){ modelInput.click(); };
+
+  // Convex Hull (Monotone Chain)
+  function computeConvexHull(pts){
+    if(pts.length <= 3) return pts;
+    var sorted = pts.slice().sort(function(a, b){ return a.x === b.x ? a.y - b.y : a.x - b.x; });
+    function cross(o, a, b){ return (a.x - o.x) * (b.y - o.y) - (a.y - o.y) * (b.x - o.x); }
+    var lower = [];
+    for(var i = 0; i < sorted.length; i++){
+      while(lower.length >= 2 && cross(lower[lower.length - 2], lower[lower.length - 1], sorted[i]) <= 0){
+        lower.pop();
+      }
+      lower.push(sorted[i]);
+    }
+    var upper = [];
+    for(var j = sorted.length - 1; j >= 0; j--){
+      while(upper.length >= 2 && cross(upper[upper.length - 2], upper[upper.length - 1], sorted[j]) <= 0){
+        upper.pop();
+      }
+      upper.push(sorted[j]);
+    }
+    upper.pop();
+    lower.pop();
+    return lower.concat(upper);
+  }
+
+  // Store normalized 3D mesh & decimated render triangles so 360° interactive rotation is 60fps
+  function setActiveMeshGeometry(verts, tris, fileName){
+    if(!verts || !verts.length || !tris || !tris.length){
+      say("No usable 3D mesh geometry found in " + fileName);
+      return;
+    }
+
+    var minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity, minZ = Infinity, maxZ = -Infinity;
+    for(var i = 0; i < verts.length; i++){
+      var v = verts[i];
+      if(!isFinite(v.x) || !isFinite(v.y) || !isFinite(v.z)) continue;
+      if(v.x < minX) minX = v.x;
+      if(v.x > maxX) maxX = v.x;
+      if(v.y < minY) minY = v.y;
+      if(v.y > maxY) maxY = v.y;
+      if(v.z < minZ) minZ = v.z;
+      if(v.z > maxZ) maxZ = v.z;
+    }
+    if(!isFinite(minX)){
+      say("Invalid 3D mesh coordinates in " + fileName);
+      return;
+    }
+
+    var cx = (minX + maxX) / 2;
+    var cy = (minY + maxY) / 2;
+    var cz = (minZ + maxZ) / 2;
+    var span = Math.max(maxX - minX, maxY - minY, maxZ - minZ, 1);
+    var scale = 340 / span;
+    var topZ = (maxZ - cz) * scale;
+
+    var normVerts = new Array(verts.length);
+    var allTop = [];
+    var zThreshold = minZ + (maxZ - minZ) * 0.65;
+
+    for(var k = 0; k < verts.length; k++){
+      var nx = (verts[k].x - cx) * scale;
+      var ny = (verts[k].y - cy) * scale;
+      var nz = (verts[k].z - cz) * scale;
+      normVerts[k] = { x: nx, y: ny, z: nz };
+      if(verts[k].z >= zThreshold){
+        allTop.push({ x: nx, y: ny, z: topZ });
+      }
+    }
+
+    // Subsample top vertices specifically (up to 1500) so high-poly models keep an accurate top hull
+    var hullInput = [];
+    var srcList = allTop.length >= 4 ? allTop : normVerts;
+    var hullStep = Math.max(1, Math.floor(srcList.length / 1500));
+    for(var h = 0; h < srcList.length; h += hullStep){
+      hullInput.push(srcList[h]);
+    }
+    var topHull2D = computeConvexHull(hullInput);
+    if(topHull2D.length < 3){
+      topHull2D = [
+        { x: -140, y: -100 }, { x: 140, y: -100 },
+        { x: 140, y: 100 }, { x: -140, y: 100 }
+      ];
+    }
+    var topRing3D = topHull2D.map(function(p){ return { x: p.x, y: p.y, z: topZ }; });
+
+    // Update interactive surface bounds in decal plane coords (u = x, v = -y)
+    var sbMinX = Infinity, sbMaxX = -Infinity, sbMinY = Infinity, sbMaxY = -Infinity;
+    for(var bi = 0; bi < topHull2D.length; bi++){
+      var hp = topHull2D[bi];
+      if(hp.x < sbMinX) sbMinX = hp.x;
+      if(hp.x > sbMaxX) sbMaxX = hp.x;
+      var dv = -hp.y;
+      if(dv < sbMinY) sbMinY = dv;
+      if(dv > sbMaxY) sbMaxY = dv;
+    }
+    surfaceBounds = {
+      minX: isFinite(sbMinX) ? sbMinX : -170,
+      maxX: isFinite(sbMaxX) ? sbMaxX : 170,
+      minY: isFinite(sbMinY) ? sbMinY : -140,
+      maxY: isFinite(sbMaxY) ? sbMaxY : 140
+    };
+
+    // Representative sample across the whole model for crisp, 60fps interactive 3D orbit
+    var maxRenderTris = 5000;
+    var renderCount = Math.min(tris.length, maxRenderTris);
+    var renderTris = [];
+
+    for(var sample = 0; sample < renderCount; sample++){
+      var t = Math.floor(sample * tris.length / renderCount);
+      var tr = tris[t];
+      var v0 = normVerts[tr[0]], v1 = normVerts[tr[1]], v2 = normVerts[tr[2]];
+      if(!v0 || !v1 || !v2) continue;
+      var ux = v1.x - v0.x, uy = v1.y - v0.y, uz = v1.z - v0.z;
+      var wx = v2.x - v0.x, wy = v2.y - v0.y, wz = v2.z - v0.z;
+      var fnx = uy * wz - uz * wy;
+      var fny = uz * wx - ux * wz;
+      var fnz = ux * wy - uy * wx;
+      var len = Math.sqrt(fnx * fnx + fny * fny + fnz * fnz);
+      if(len < 1e-8) continue;
+      renderTris.push({
+        i0: tr[0], i1: tr[1], i2: tr[2],
+        nx: fnx / len, ny: fny / len, nz: fnz / len
+      });
+    }
+
+    currentMesh = {
+      normVerts: normVerts,
+      renderTris: renderTris,
+      totalTris: tris.length,
+      topRing3D: topRing3D,
+      topZ: topZ
+    };
+
+    var triCountStr = tris.length >= 1000 ? (tris.length / 1000).toFixed(1) + "k" : String(tris.length);
+    document.querySelector(".stats").textContent = triCountStr + " triangles · 360° 3D Orbit Ready";
+    baseModelName = fileName.replace(/\.[^.]+$/, "");
+    render3DScene();
+    update();
+  }
+
+  // Real-time 3D Rotation & Projection Engine
+  function project3DPoint(pt, cosY, sinY, cosP, sinP){
+    // Rotate around Z (Yaw / Turntable)
+    var x1 = pt.x * cosY - pt.y * sinY;
+    var y1 = pt.x * sinY + pt.y * cosY;
+    var z1 = pt.z;
+    // Rotate around X (Pitch / Tilt)
+    var x2 = x1;
+    var y2 = y1 * cosP - z1 * sinP;
+    var z2 = y1 * sinP + z1 * cosP;
+    return { x: 463 + x2, y: 272 - y2, z: z2 };
+  }
+
+  function render3DScene(){
+    if(!currentMesh.normVerts || !currentMesh.normVerts.length) return;
+
+    var cosY = Math.cos(camYaw), sinY = Math.sin(camYaw);
+    var cosP = Math.cos(camPitch), sinP = Math.sin(camPitch);
+
+    var yawDeg = Math.round((camYaw * 180 / Math.PI) % 360);
+    var pitchDeg = Math.round((camPitch * 180 / Math.PI) % 360);
+    document.getElementById("orbitReadout").textContent = "Yaw " + yawDeg + "° · Pitch " + pitchDeg + "°";
+
+    var nv = currentMesh.normVerts;
+    var proj = new Array(nv.length);
+    for(var i = 0; i < nv.length; i++){
+      proj[i] = project3DPoint(nv[i], cosY, sinY, cosP, sinP);
+    }
+
+    // Painter's algorithm depth sort + double-sided directional lighting
+    var rTris = currentMesh.renderTris;
+    var sorted = new Array(rTris.length);
+    for(var k = 0; k < rTris.length; k++){
+      var rt = rTris[k];
+      var p0 = proj[rt.i0], p1 = proj[rt.i1], p2 = proj[rt.i2];
+      var nx1 = rt.nx * cosY - rt.ny * sinY;
+      var ny1 = rt.nx * sinY + rt.ny * cosY;
+      var nz1 = rt.nz;
+      var ny2 = ny1 * cosP - nz1 * sinP;
+      var nz2 = ny1 * sinP + nz1 * cosP;
+
+      sorted[k] = {
+        p0: p0, p1: p1, p2: p2,
+        z: (p0.z + p1.z + p2.z) * 0.3333,
+        nx: nx1, ny: ny2, nz: nz2
+      };
+    }
+
+    sorted.sort(function(a, b){ return a.z - b.z; });
+
+    var depthBandCount = 48;
+    var depthBands = new Array(depthBandCount);
+    for(var band = 0; band < depthBandCount; band++) depthBands[band] = ["", "", "", "", "", ""];
+    var wireD = "";
+    var minDepth = sorted.length ? sorted[0].z : 0;
+    var maxDepth = sorted.length ? sorted[sorted.length - 1].z : 0;
+    var depthRange = maxDepth - minDepth || 1;
+    var wireStep = Math.max(1, Math.floor(sorted.length / 450));
+    for(var m = 0; m < sorted.length; m++){
+      var st = sorted[m];
+      var dStr = "M" + st.p0.x.toFixed(1) + " " + st.p0.y.toFixed(1) +
+                 "L" + st.p1.x.toFixed(1) + " " + st.p1.y.toFixed(1) +
+                 "L" + st.p2.x.toFixed(1) + " " + st.p2.y.toFixed(1) + "Z";
+      // Flip back-facing normals softly so models with inverted winding still render cleanly
+      var sign = st.nz < 0 ? -1 : 1;
+      var dot = (st.nx * -0.35 + st.ny * 0.45 + st.nz * 0.82) * sign;
+      var bIdx = Math.max(0, Math.min(5, Math.floor((dot + 0.65) * 3.4)));
+      var depthIndex = Math.max(0, Math.min(depthBandCount - 1, Math.floor((st.z - minDepth) / depthRange * depthBandCount)));
+      depthBands[depthIndex][bIdx] += dStr;
+      if(m % wireStep === 0) wireD += dStr;
+    }
+
+    var palette = ["#303735", "#414945", "#535d57", "#68736c", "#818d85", "#a7b1aa"];
+    var importedGroup = document.getElementById("importedMeshGroup");
+    var html = "";
+    for(var depth = 0; depth < depthBandCount; depth++){
+      for(var b = 0; b < 6; b++){
+        if(depthBands[depth][b]){
+          html += '<path d="' + depthBands[depth][b] + '" fill="' + palette[b] + '" stroke="' + palette[b] + '" stroke-width="0.35" stroke-linejoin="round"/>';
+        }
+      }
+    }
+    importedGroup.innerHTML = html;
+    document.getElementById("wireframePath").setAttribute("d", wireD);
+
+    // Project the top surface boundary & transform the SVG Pattern Plane (#marksPlane) so patterns rotate right-side-up in 3D with the model
+    if(currentMesh.topRing3D && currentMesh.topRing3D.length >= 3){
+      var ringProj = currentMesh.topRing3D.map(function(pt3){
+        return project3DPoint(pt3, cosY, sinY, cosP, sinP);
+      });
+      var clipD = "M" + ringProj.map(function(rp){ return rp.x.toFixed(1) + " " + rp.y.toFixed(1); }).join("L") + "Z";
+      document.getElementById("clipPathShape").setAttribute("d", clipD);
+      document.getElementById("meshTop").setAttribute("d", clipD);
+    }
+
+    // Exact 2D affine matrix mapping SVG decal coords (u, v) -> 3D top surface point (u, -v, topZ) -> screen space
+    var persp = document.getElementById("perspToggle").classList.contains("on");
+    if(persp){
+      var center3D = project3DPoint({ x: 0, y: 0, z: currentMesh.topZ || 0 }, cosY, sinY, cosP, sinP);
+      var a = cosY;
+      var b = -sinY * cosP;
+      var c = sinY;
+      var d = cosY * cosP;
+      var e = center3D.x;
+      var f = center3D.y;
+      marks.setAttribute("transform", "matrix(" + a.toFixed(4) + " " + b.toFixed(4) + " " + c.toFixed(4) + " " + d.toFixed(4) + " " + e.toFixed(1) + " " + f.toFixed(1) + ")");
+      var underside = cosP < -0.1;
+      marksClipGroup.setAttribute("opacity", underside ? "0.22" : "1");
+      marksClipGroup.style.pointerEvents = underside ? "none" : "";
+    } else {
+      marks.setAttribute("transform", "translate(463 272)");
+      marksClipGroup.setAttribute("opacity", "1");
+      marksClipGroup.style.pointerEvents = "";
+    }
+
+    // Update 3D XYZ Orientation Axis Gizmo
+    var gizmo = document.getElementById("axisGizmo");
+    if(gizmo){
+      var axLen = 28;
+      var xEnd = { x: axLen * cosY, y: -axLen * sinY * cosP };
+      var yEnd = { x: -axLen * sinY, y: -axLen * cosY * cosP };
+      var zEnd = { x: 0, y: -axLen * -sinP };
+      gizmo.innerHTML =
+        '<circle cx="0" cy="0" r="34" fill="#151915cc" stroke="#364035"/>' +
+        '<line x1="0" y1="0" x2="' + xEnd.x.toFixed(1) + '" y2="' + xEnd.y.toFixed(1) + '" stroke="#ff8057" stroke-width="2.2"/>' +
+        '<text x="' + (xEnd.x * 1.28).toFixed(1) + '" y="' + (xEnd.y * 1.28 + 3).toFixed(1) + '" fill="#ff8057" font-size="8" font-weight="700" text-anchor="middle">X</text>' +
+        '<line x1="0" y1="0" x2="' + yEnd.x.toFixed(1) + '" y2="' + yEnd.y.toFixed(1) + '" stroke="#b8f36b" stroke-width="2.2"/>' +
+        '<text x="' + (yEnd.x * 1.28).toFixed(1) + '" y="' + (yEnd.y * 1.28 + 3).toFixed(1) + '" fill="#b8f36b" font-size="8" font-weight="700" text-anchor="middle">Y</text>' +
+        '<line x1="0" y1="0" x2="' + zEnd.x.toFixed(1) + '" y2="' + zEnd.y.toFixed(1) + '" stroke="#86baff" stroke-width="2.2"/>' +
+        '<text x="' + (zEnd.x * 1.28).toFixed(1) + '" y="' + (zEnd.y * 1.28 + 3).toFixed(1) + '" fill="#86baff" font-size="8" font-weight="700" text-anchor="middle">Z</text>';
+    }
+  }
+
+  // Native pure-JS ZIP unpacker fallback (used automatically if JSZip CDN is blocked/offline)
+  function unpackZipModelFilesFallback(file){
+    return file.arrayBuffer().then(function(buf){
+      var u8 = new Uint8Array(buf);
+      var dv = new DataView(buf);
+      var eocd = -1;
+      for(var i = u8.length - 22; i >= Math.max(0, u8.length - 65557); i--){
+        if(dv.getUint32(i, true) === 0x06054b50){ eocd = i; break; }
+      }
+      if(eocd < 0) throw new Error("Invalid 3MF ZIP archive (missing EOCD).");
+      var cdSize = dv.getUint32(eocd + 12, true);
+      var cdOffset = dv.getUint32(eocd + 16, true);
+      var dec = new TextDecoder("utf-8");
+      var ptr = cdOffset;
+      var end = cdOffset + cdSize;
+      var tasks = [];
+
+      while(ptr + 46 <= end && dv.getUint32(ptr, true) === 0x02014b50){
+        var method = dv.getUint16(ptr + 10, true);
+        var compSize = dv.getUint32(ptr + 20, true);
+        var nameLen = dv.getUint16(ptr + 28, true);
+        var extraLen = dv.getUint16(ptr + 30, true);
+        var commentLen = dv.getUint16(ptr + 32, true);
+        var localOff = dv.getUint32(ptr + 42, true);
+        var name = dec.decode(u8.subarray(ptr + 46, ptr + 46 + nameLen));
+        ptr += 46 + nameLen + extraLen + commentLen;
+
+        if(/\.model$/i.test(name)){
+          (function(entryName, compMethod, cSize, lOff){
+            var lNameLen = dv.getUint16(lOff + 26, true);
+            var lExtraLen = dv.getUint16(lOff + 28, true);
+            var dataStart = lOff + 30 + lNameLen + lExtraLen;
+            var slice = u8.subarray(dataStart, dataStart + cSize);
+            var normPath = entryName.replace(/\\/g, "/").replace(/^\/+/, "").toLowerCase();
+            if(compMethod === 0){
+              tasks.push(Promise.resolve({ path: normPath, text: dec.decode(slice) }));
+            } else if(compMethod === 8 && typeof DecompressionStream !== "undefined"){
+              var ds = new DecompressionStream("deflate-raw");
+              var p = new Response(new Blob([slice]).stream().pipeThrough(ds)).text().then(function(txt){
+                return { path: normPath, text: txt };
+              });
+              tasks.push(p);
+            } else {
+              throw new Error("Unsupported ZIP compression method (" + compMethod + ") in offline mode.");
+            }
+          })(name, method, compSize, localOff);
+        }
+      }
+      return Promise.all(tasks);
+    });
+  }
+
+  // Extract all .model files from a .3mf ZIP archive using JSZip (with native fallback)
+  function extract3MFModelFiles(file){
+    if(typeof JSZip !== "undefined"){
+      return JSZip.loadAsync(file).then(function(zip){
+        var entries = [];
+        zip.forEach(function(relPath, fileEntry){
+          if(!fileEntry.dir && /\.model$/i.test(relPath)){
+            var normalized = relPath.replace(/\\/g, "/").replace(/^\/+/, "").toLowerCase();
+            entries.push(fileEntry.async("string").then(function(text){
+              return { path: normalized, text: text };
+            }));
+          }
+        });
+        return Promise.all(entries);
+      });
+    }
+    return unpackZipModelFilesFallback(file);
+  }
+
+  // Parse multi-file Bambu Studio / Anycubic Slicer Next / OrcaSlicer .3mf archives
+  // Supports both 3D/3dmodel.model AND linked 3D/Objects/*.model production extension component files
+  function parse3MFArchive(modelEntries){
+    if(!modelEntries || !modelEntries.length){
+      throw new Error("No .model mesh files found inside 3MF archive.");
+    }
+
+    var UNIT_SCALES = { micron: 0.001, millimeter: 1, centimeter: 10, inch: 25.4, foot: 304.8, meter: 1000 };
+    var PROD_NS = "http://schemas.microsoft.com/3dmanufacturing/production/2015/06";
+
+    function normalize3MFPath(rawPath, currentFilePath){
+      if(!rawPath) return currentFilePath;
+      var p = String(rawPath).replace(/\\/g, "/").trim();
+      if(p.charAt(0) === "/"){
+        p = p.replace(/^\/+/, "");
+      } else if(currentFilePath && currentFilePath.indexOf("/") >= 0){
+        var dir = currentFilePath.slice(0, currentFilePath.lastIndexOf("/") + 1);
+        p = dir + p;
+      }
+      // Collapse any ./ or ../ segments
+      var segs = p.split("/"), out = [];
+      for(var i = 0; i < segs.length; i++){
+        if(!segs[i] || segs[i] === ".") continue;
+        if(segs[i] === "..") out.pop();
+        else out.push(segs[i]);
+      }
+      return out.join("/").toLowerCase();
+    }
+
+    function getComponentPathAttr(el){
+      if(!el) return null;
+      var val = el.getAttributeNS ? el.getAttributeNS(PROD_NS, "path") : null;
+      if(val) return val;
+      val = el.getAttribute("p:path") || el.getAttribute("path");
+      if(val) return val;
+      if(el.attributes){
+        for(var i = 0; i < el.attributes.length; i++){
+          var a = el.attributes[i];
+          if(a.localName === "path" || /:path$/i.test(a.name)) return a.value;
+        }
+      }
+      return null;
+    }
+
+    function childrenNamed(parent, wanted){
+      var found = [];
+      if(!parent) return found;
+      var list = parent.childNodes;
+      for(var i = 0; i < list.length; i++){
+        var child = list[i];
+        if(child.nodeType === 1 && child.localName === wanted) found.push(child);
+      }
+      return found;
+    }
+    function childNamed(parent, wanted){
+      if(!parent) return null;
+      var list = parent.childNodes;
+      for(var i = 0; i < list.length; i++){
+        var child = list[i];
+        if(child.nodeType === 1 && child.localName === wanted) return child;
+      }
+      return null;
+    }
+
+    function transformFromAttribute(raw){
+      if(!raw) return [1,0,0, 0,1,0, 0,0,1, 0,0,0];
+      var v = raw.trim().split(/\s+/).map(Number);
+      if(v.length !== 12 || v.some(function(n){ return !isFinite(n); })){
+        return [1,0,0, 0,1,0, 0,0,1, 0,0,0];
+      }
+      return v;
+    }
+
+    // 3MF Core Specification uses row-vector 4x3 affine matrices:
+    // p' = [x y z 1] * M, so applying local then parent is M_out = M_local * M_parent
+    function composeTransform(parent, local){
+      var out = new Array(12);
+      for(var r = 0; r < 3; r++){
+        var r3 = r * 3;
+        for(var c = 0; c < 3; c++){
+          out[r3 + c] = local[r3] * parent[c] + local[r3 + 1] * parent[3 + c] + local[r3 + 2] * parent[6 + c];
+        }
+      }
+      for(var tc = 0; tc < 3; tc++){
+        out[9 + tc] = local[9] * parent[tc] + local[10] * parent[3 + tc] + local[11] * parent[6 + tc] + parent[9 + tc];
+      }
+      return out;
+    }
+
+    function matrixDet3(m){
+      return m[0] * (m[4] * m[8] - m[5] * m[7])
+           - m[1] * (m[3] * m[8] - m[5] * m[6])
+           + m[2] * (m[3] * m[7] - m[4] * m[6]);
+    }
+
+    var parsedModels = Object.create(null);
+    var orderedPaths = [];
+    var parser = new DOMParser();
+
+    for(var ei = 0; ei < modelEntries.length; ei++){
+      var entry = modelEntries[ei];
+      var doc = parser.parseFromString(entry.text, "application/xml");
+      if(doc.getElementsByTagName("parsererror").length) continue;
+      var modelEl = doc.documentElement;
+      if(!modelEl || modelEl.localName !== "model"){
+        var allEls = doc.getElementsByTagName("*");
+        modelEl = null;
+        for(var mi = 0; mi < allEls.length; mi++){
+          if(allEls[mi].localName === "model"){ modelEl = allEls[mi]; break; }
+        }
+      }
+      if(!modelEl) continue;
+
+      var unitName = (modelEl.getAttribute("unit") || "millimeter").toLowerCase();
+      var unitScale = UNIT_SCALES[unitName] || 1;
+      var resources = childNamed(modelEl, "resources");
+      var objects = childrenNamed(resources, "object");
+      var objectMap = Object.create(null);
+      for(var oi = 0; oi < objects.length; oi++){
+        var oid = objects[oi].getAttribute("id");
+        if(oid != null) objectMap[String(oid)] = objects[oi];
+      }
+      var build = childNamed(modelEl, "build");
+      var buildItems = childrenNamed(build, "item");
+
+      parsedModels[entry.path] = {
+        path: entry.path,
+        unitScale: unitScale,
+        objects: objects,
+        objectMap: objectMap,
+        buildItems: buildItems
+      };
+      orderedPaths.push(entry.path);
+    }
+
+    if(!orderedPaths.length){
+      throw new Error("No valid 3MF XML model documents found.");
+    }
+    orderedPaths.sort();
+    var primaryPath = parsedModels["3d/3dmodel.model"] ? "3d/3dmodel.model" : orderedPaths[0];
+    var vertsOut = [], trisOut = [];
+
+    function appendMeshFromNode(meshNode, matrix, unitScale){
+      var verticesNode = childNamed(meshNode, "vertices");
+      var trianglesNode = childNamed(meshNode, "triangles");
+      if(!verticesNode || !trianglesNode) return;
+
+      var base = vertsOut.length;
+      var vChildren = verticesNode.childNodes;
+      var localCount = 0;
+      var m0 = matrix[0], m1 = matrix[1], m2 = matrix[2],
+          m3 = matrix[3], m4 = matrix[4], m5 = matrix[5],
+          m6 = matrix[6], m7 = matrix[7], m8 = matrix[8],
+          m9 = matrix[9], m10 = matrix[10], m11 = matrix[11];
+
+      for(var vi = 0; vi < vChildren.length; vi++){
+        var vEl = vChildren[vi];
+        if(vEl.nodeType !== 1 || vEl.localName !== "vertex") continue;
+        var px = parseFloat(vEl.getAttribute("x")) || 0;
+        var py = parseFloat(vEl.getAttribute("y")) || 0;
+        var pz = parseFloat(vEl.getAttribute("z")) || 0;
+        var tx = (px * m0 + py * m3 + pz * m6 + m9) * unitScale;
+        var ty = (px * m1 + py * m4 + pz * m7 + m10) * unitScale;
+        var tz = (px * m2 + py * m5 + pz * m8 + m11) * unitScale;
+        vertsOut.push({ x: tx, y: ty, z: tz });
+        localCount++;
+      }
+
+      var flipWinding = matrixDet3(matrix) < 0;
+      var tChildren = trianglesNode.childNodes;
+      for(var ti = 0; ti < tChildren.length; ti++){
+        var tEl = tChildren[ti];
+        if(tEl.nodeType !== 1 || tEl.localName !== "triangle") continue;
+        var a = parseInt(tEl.getAttribute("v1"), 10);
+        var b = parseInt(tEl.getAttribute("v2"), 10);
+        var c = parseInt(tEl.getAttribute("v3"), 10);
+        if(a >= 0 && b >= 0 && c >= 0 && a < localCount && b < localCount && c < localCount){
+          if(flipWinding) trisOut.push([base + a, base + c, base + b]);
+          else trisOut.push([base + a, base + b, base + c]);
+        }
+      }
+    }
+
+    function appendObject(modelPath, objectId, matrix, stack){
+      var mDoc = parsedModels[modelPath];
+      if(!mDoc) return;
+      var id = String(objectId);
+      var obj = mDoc.objectMap[id];
+      if(!obj) return;
+      var key = modelPath + "#" + id;
+      if(stack[key]) return;
+      stack[key] = true;
+
+      var mesh = childNamed(obj, "mesh");
+      if(mesh){
+        appendMeshFromNode(mesh, matrix, mDoc.unitScale);
+      }
+      var components = childNamed(obj, "components");
+      if(components){
+        var comps = childrenNamed(components, "component");
+        for(var ci = 0; ci < comps.length; ci++){
+          var comp = comps[ci];
+          var rawRefPath = getComponentPathAttr(comp);
+          var targetPath = rawRefPath ? normalize3MFPath(rawRefPath, modelPath) : modelPath;
+          var compMatrix = transformFromAttribute(comp.getAttribute("transform"));
+          appendObject(targetPath, comp.getAttribute("objectid"), composeTransform(matrix, compMatrix), stack);
+        }
+      }
+      delete stack[key];
+    }
+
+    // 1. Traverse primary 3D/3dmodel.model build items (which follow p:path into 3D/Objects/*.model)
+    var primary = parsedModels[primaryPath];
+    if(primary.buildItems.length){
+      for(var bi = 0; bi < primary.buildItems.length; bi++){
+        var item = primary.buildItems[bi];
+        var itemPathAttr = getComponentPathAttr(item);
+        var itemTarget = itemPathAttr ? normalize3MFPath(itemPathAttr, primaryPath) : primaryPath;
+        appendObject(itemTarget, item.getAttribute("objectid"), transformFromAttribute(item.getAttribute("transform")), Object.create(null));
+      }
+    }
+
+    // 2. Fallback: if <build> produced no triangles (e.g. non-standard 3MF), read all mesh objects across all .model files
+    if(!trisOut.length){
+      var identity = [1,0,0, 0,1,0, 0,0,1, 0,0,0];
+      for(var pi = 0; pi < orderedPaths.length; pi++){
+        var docObj = parsedModels[orderedPaths[pi]];
+        for(var oj = 0; oj < docObj.objects.length; oj++){
+          var mNode = childNamed(docObj.objects[oj], "mesh");
+          if(mNode) appendMeshFromNode(mNode, identity, docObj.unitScale);
+        }
+      }
+    }
+
+    return { verts: vertsOut, tris: trisOut, fileCount: orderedPaths.length };
+  }
+
+  // Parse Binary or ASCII .STL files
+  function parseSTLBuffer(buf){
+    var verts = [], tris = [];
+    var dv = new DataView(buf);
+    var isAscii = false;
+    if(buf.byteLength >= 15){
+      var head = new TextDecoder().decode(new Uint8Array(buf, 0, Math.min(256, buf.byteLength)));
+      if(/^\s*solid\b/i.test(head) && /facet\s+normal/i.test(head)){
+        isAscii = true;
+      }
+    }
+    if(!isAscii && buf.byteLength > 84){
+      var numTris = dv.getUint32(80, true);
+      var expected = 84 + numTris * 50;
+      if(numTris > 0 && buf.byteLength >= expected && buf.byteLength <= expected + 4){
+        var offset = 84;
+        for(var i = 0; i < numTris; i++){
+          var b = verts.length;
+          for(var v = 0; v < 3; v++){
+            var vx = dv.getFloat32(offset + 12 + v * 12, true);
+            var vy = dv.getFloat32(offset + 16 + v * 12, true);
+            var vz = dv.getFloat32(offset + 20 + v * 12, true);
+            verts.push({ x: vx, y: vy, z: vz });
+          }
+          tris.push([b, b + 1, b + 2]);
+          offset += 50;
+        }
+        return { verts: verts, tris: tris };
+      }
+    }
+    var txt = new TextDecoder().decode(buf);
+    var re = /vertex\s+([\d.+\-eE]+)\s+([\d.+\-eE]+)\s+([\d.+\-eE]+)/g;
+    var m;
+    while((m = re.exec(txt)) !== null){
+      verts.push({ x: parseFloat(m[1]), y: parseFloat(m[2]), z: parseFloat(m[3]) });
+      if(verts.length % 3 === 0){
+        var idx = verts.length - 3;
+        tris.push([idx, idx + 1, idx + 2]);
+      }
+    }
+    return { verts: verts, tris: tris };
+  }
+
+  // Parse .OBJ files
+  function parseOBJText(txt){
+    var verts = [], tris = [];
+    var lines = txt.split(/\r?\n/);
+    for(var i = 0; i < lines.length; i++){
+      var l = lines[i].split("#")[0].trim();
+      if(l.indexOf("v ") === 0 || l.indexOf("v\t") === 0){
+        var p = l.split(/\s+/);
+        verts.push({ x: parseFloat(p[1]) || 0, y: parseFloat(p[2]) || 0, z: parseFloat(p[3]) || 0 });
+      } else if(l.indexOf("f ") === 0 || l.indexOf("f\t") === 0){
+        var tokens = l.split(/\s+/).slice(1);
+        var f = tokens.map(function(tok){
+          var rawIndex = parseInt(tok.split("/")[0], 10);
+          return rawIndex > 0 ? rawIndex - 1 : verts.length + rawIndex;
+        });
+        for(var fi = 1; fi + 1 < f.length; fi++){
+          if(f[0] >= 0 && f[fi] >= 0 && f[fi + 1] >= 0 &&
+             f[0] < verts.length && f[fi] < verts.length && f[fi + 1] < verts.length){
+            tris.push([f[0], f[fi], f[fi + 1]]);
+          }
+        }
+      }
+    }
+    return { verts: verts, tris: tris };
+  }
+
+  function loadModel(f){
+    if(!f) return;
+    document.getElementById("topName").textContent = f.name;
+    document.getElementById("viewName").textContent = "◈   " + f.name;
+    document.getElementById("dropTitle").textContent = f.name;
+    document.getElementById("dropCopy").textContent = "Parsing 3D mesh geometry...";
+    document.getElementById("filetypes").textContent = (f.size / 1048576).toFixed(2) + " MB";
+    document.getElementById("meshCaption").textContent = f.name.toUpperCase() + " / 360° INTERACTIVE MESH";
+    document.getElementById("saved").textContent = "Loading mesh...";
+
+    var ext = f.name.split(".").pop().toLowerCase();
+
+    if(ext === "3mf"){
+      extract3MFModelFiles(f).then(function(entries){
+        var res = parse3MFArchive(entries);
+        if(!res.tris.length) throw new Error("The 3MF build contains no usable mesh triangles.");
+        setActiveMeshGeometry(res.verts, res.tris, f.name);
+        document.getElementById("dropCopy").textContent = "3MF active (" + res.tris.length.toLocaleString() + " tris · " + res.fileCount + " model " + (res.fileCount === 1 ? "file" : "files") + ")";
+        document.getElementById("saved").textContent = "3MF mesh active";
+        say("Opened 3MF model: " + f.name + " (" + res.tris.length.toLocaleString() + " tris)");
+      }).catch(function(err){
+        document.getElementById("dropCopy").textContent = "Could not parse 3MF mesh";
+        document.getElementById("saved").textContent = "3MF load failed";
+        say("3MF read error: " + (err && err.message ? err.message : "Invalid archive"));
+      });
+    } else if(ext === "stl"){
+      var r = new FileReader();
+      r.onload = function(e){
+        try{
+          var res = parseSTLBuffer(e.target.result);
+          if(!res.tris.length) throw new Error("No triangles found in STL file.");
+          setActiveMeshGeometry(res.verts, res.tris, f.name);
+          document.getElementById("dropCopy").textContent = "STL geometry active (" + res.tris.length.toLocaleString() + " tris)";
+          document.getElementById("saved").textContent = "STL mesh active";
+          say("Opened STL model: " + f.name + " — drag anywhere to rotate 360°!");
+        }catch(err){
+          document.getElementById("dropCopy").textContent = "Could not parse STL mesh";
+          say("STL read error: " + (err && err.message ? err.message : "Invalid STL"));
+        }
+      };
+      r.readAsArrayBuffer(f);
+    } else if(ext === "obj"){
+      var rObj = new FileReader();
+      rObj.onload = function(e){
+        try{
+          var res = parseOBJText(e.target.result);
+          if(!res.tris.length) throw new Error("No faces found in OBJ file.");
+          setActiveMeshGeometry(res.verts, res.tris, f.name);
+          document.getElementById("dropCopy").textContent = "OBJ geometry active (" + res.tris.length.toLocaleString() + " tris)";
+          document.getElementById("saved").textContent = "OBJ mesh active";
+          say("Opened OBJ model: " + f.name + " — drag anywhere to rotate 360°!");
+        }catch(err){
+          document.getElementById("dropCopy").textContent = "Could not parse OBJ mesh";
+          say("OBJ read error: " + (err && err.message ? err.message : "Invalid OBJ"));
+        }
+      };
+      rObj.readAsText(f);
+    } else {
+      say("Unsupported format. Please select a .3mf, .stl, or .obj file.");
+    }
+  }
+  modelInput.onchange = function(){
+    if(this.files && this.files[0]) loadModel(this.files[0]);
+    this.value = "";
+  };
+  var drop = document.getElementById("modelDrop");
+  drop.ondragover = function(e){ e.preventDefault(); drop.classList.add("dragover"); };
+  drop.ondragleave = function(){ drop.classList.remove("dragover"); };
+  drop.ondrop = function(e){
+    e.preventDefault();
+    drop.classList.remove("dragover");
+    if(e.dataTransfer.files[0]) loadModel(e.dataTransfer.files[0]);
+  };
+
+  document.getElementById("save").onclick = function(){
+    var data = {
+      name: document.getElementById("topName").textContent,
+      edits: items.map(function(it){
+        return { name: it.name, kind: it.kind, color: it.color, cfg: it.cfg || null, svg: it.node.outerHTML };
+      }),
+      savedAt: new Date().toISOString()
+    };
+    try{
+      localStorage.setItem("meshGraffitiDraft", JSON.stringify(data));
+      document.getElementById("saved").textContent = "Saved locally";
+      say("Draft saved in browser storage.");
+    }catch(e){
+      say("Could not save locally. Use Export JSON.");
+    }
+  };
+
+  var modal = document.getElementById("exportModal");
+  document.getElementById("export").onclick = function(){ modal.classList.add("open"); };
+  document.getElementById("closeModal").onclick = function(){ modal.classList.remove("open"); };
+  modal.onclick = function(e){ if(e.target === modal) modal.classList.remove("open"); };
+
+  function download(name, content, type){
+    var b = new Blob([content], { type: type }),
+        a = document.createElement("a");
+    a.href = URL.createObjectURL(b);
+    a.download = name;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(function(){ URL.revokeObjectURL(a.href); }, 1000);
+  }
+
+  document.getElementById("jsonExport").onclick = function(){
+    var data = {
+      name: document.getElementById("topName").textContent,
+      format: "Mesh Graffiti Studio v2.0",
+      slicerTarget: "Anycubic Slicer Next / 3MF",
+      fuzzySkinMetadata: document.getElementById("fuzzyExportToggle").classList.contains("on"),
+      edits: items.map(function(it){
+        return {
+          name: it.name,
+          kind: it.kind,
+          color: it.color,
+          offsetX: it.offsetX || 0,
+          offsetY: it.offsetY || 0,
+          scale: it.scale || 100,
+          rot: it.rot || 0,
+          cfg: it.cfg || null,
+          svg: it.node.outerHTML
+        };
+      })
+    };
+    download("mesh-graffiti-project.json", JSON.stringify(data, null, 2), "application/json");
+    modal.classList.remove("open");
+    say("Project JSON downloaded.");
+  };
+
+  document.getElementById("svgExport").onclick = function(){
+    var c = svg.cloneNode(true);
+    c.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+    if(c.querySelector("image")) c.setAttribute("xmlns:xlink", "http://www.w3.org/1999/xlink");
+    c.setAttribute("width", "900");
+    c.setAttribute("height", "610");
+    var serialized = '<?xml version="1.0" encoding="UTF-8"?>\n' + new XMLSerializer().serializeToString(c);
+    download("mesh-graffiti-preview.svg", serialized, "image/svg+xml;charset=utf-8");
+    modal.classList.remove("open");
+    say("Full preview SVG downloaded.");
+  };
+
+  // Compute tight bounding box across all visible surface layers in local #marksPlane coordinates
+  function computeVisibleArtworkBounds(visibleItems){
+    var minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    for(var i = 0; i < visibleItems.length; i++){
+      var it = visibleItems[i];
+      try{
+        var bb = it.node.getBBox();
+        if(!bb || (!bb.width && !bb.height)) continue;
+        var ox = it.offsetX || 0;
+        var oy = it.offsetY || 0;
+        var sc = (it.scale || 100) / 100;
+        var rad = (it.rot || 0) * Math.PI / 180;
+        var cosR = Math.cos(rad), sinR = Math.sin(rad);
+        var corners = [
+          [bb.x, bb.y],
+          [bb.x + bb.width, bb.y],
+          [bb.x + bb.width, bb.y + bb.height],
+          [bb.x, bb.y + bb.height]
+        ];
+        for(var ci = 0; ci < 4; ci++){
+          var sx = corners[ci][0] * sc;
+          var sy = corners[ci][1] * sc;
+          var rx = sx * cosR - sy * sinR + ox;
+          var ry = sx * sinR + sy * cosR + oy;
+          if(rx < minX) minX = rx;
+          if(rx > maxX) maxX = rx;
+          if(ry < minY) minY = ry;
+          if(ry > maxY) maxY = ry;
+        }
+      }catch(_){}
+    }
+    if(!isFinite(minX) || maxX <= minX || maxY <= minY){
+      return {
+        minX: surfaceBounds.minX,
+        minY: surfaceBounds.minY,
+        w: Math.max(20, surfaceBounds.maxX - surfaceBounds.minX),
+        h: Math.max(20, surfaceBounds.maxY - surfaceBounds.minY)
+      };
+    }
+    var pad = 4;
+    return {
+      minX: minX - pad,
+      minY: minY - pad,
+      w: Math.max(10, (maxX - minX) + pad * 2),
+      h: Math.max(10, (maxY - minY) + pad * 2)
+    };
+  }
+
+  // Export clean, valid Pattern-Only SVG specifically formatted for Anycubic Slicer Next "Add Part -> SVG"
+  function buildPatternOnlySvgString(){
+    var visibleItems = items.filter(function(it){
+      return !it.hidden && it.node && it.node.style.display !== "none";
+    });
+    if(!visibleItems.length) return null;
+
+    var bounds = computeVisibleArtworkBounds(visibleItems);
+    var cleanSvg = node("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      version: "1.1",
+      viewBox: bounds.minX.toFixed(2) + " " + bounds.minY.toFixed(2) + " " + bounds.w.toFixed(2) + " " + bounds.h.toFixed(2),
+      width: bounds.w.toFixed(2) + "mm",
+      height: bounds.h.toFixed(2) + "mm"
+    });
+
+    var rootGroup = node("g", { id: "slicer-pattern" });
+    var hasImage = false;
+
+    visibleItems.forEach(function(it){
+      var clone = it.node.cloneNode(true);
+      clone.removeAttribute("filter");
+      clone.removeAttribute("clip-path");
+      clone.removeAttribute("class");
+      clone.removeAttribute("style");
+      clone.querySelectorAll("[clip-path]").forEach(function(el){ el.removeAttribute("clip-path"); });
+      clone.querySelectorAll("[filter]").forEach(function(el){ el.removeAttribute("filter"); });
+      clone.querySelectorAll("[class]").forEach(function(el){ el.removeAttribute("class"); });
+      clone.querySelectorAll("path,circle,rect,polygon,ellipse,text").forEach(function(el){
+        if(el.getAttribute("opacity")) el.setAttribute("opacity", "1");
+        if(el.getAttribute("stroke-opacity")) el.removeAttribute("stroke-opacity");
+        // Strip decorative preview highlight strokes on presets so slicers extrude clean solid outlines
+        if(it.kind === "Pattern" && el.tagName.toLowerCase() === "path" && !it.cfg.imgSvgMarkup){
+          el.removeAttribute("stroke");
+          el.removeAttribute("stroke-width");
+        }
+      });
+      if(clone.querySelector("image")) hasImage = true;
+      rootGroup.appendChild(clone);
+    });
+
+    if(hasImage){
+      cleanSvg.setAttribute("xmlns:xlink", "http://www.w3.org/1999/xlink");
+    }
+    cleanSvg.appendChild(rootGroup);
+    return '<?xml version="1.0" encoding="UTF-8"?>\n' + new XMLSerializer().serializeToString(cleanSvg);
+  }
+
+  document.getElementById("svgPatternOnlyExport").onclick = function(){
+    var svgString = buildPatternOnlySvgString();
+    if(!svgString){
+      say("Add or unhide at least one pattern, paint, or text layer before exporting.");
+      return;
+    }
+    download("slicer-surface-pattern.svg", svgString, "image/svg+xml;charset=utf-8");
+    modal.classList.remove("open");
+    say("Slicer-ready pattern SVG downloaded!");
+  };
+
+  // Expose lightweight debug handle for automated verification without polluting UI
+  window.__meshGraffitiDebug = {
+    getState: function(){
+      return {
+        mode: mode,
+        activePane: activePane,
+        patternMode: patternMode,
+        activePreset: activePreset,
+        camYawDeg: Math.round((camYaw * 180 / Math.PI) % 360),
+        camPitchDeg: Math.round((camPitch * 180 / Math.PI) % 360),
+        layerCount: items.length,
+        totalTris: currentMesh.totalTris,
+        renderTris: currentMesh.renderTris ? currentMesh.renderTris.length : 0,
+        baseModelName: baseModelName,
+        surfaceBounds: surfaceBounds
+      };
+    },
+    buildPatternOnlySvgString: buildPatternOnlySvgString
+  };
+
+  // Initialize default 3D mesh, open Logo & Pattern controls, and enable 360° orbit
+  var defaultMesh = buildDefaultCaseMesh();
+  setActiveMeshGeometry(defaultMesh.verts, defaultMesh.tris, "Orbit case");
+  setMode("image");
+  setMode("orbit");
+  placeLogoPattern();
+})();
+</script>
+</body>
+</html>
