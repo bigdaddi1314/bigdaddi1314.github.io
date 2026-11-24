@@ -8,6 +8,7 @@
     "start": "node server/boutique-server.mjs",
     "serve": "node server/boutique-server.mjs",
     "build": "vite build",
+    "sync-photos": "node scripts/sync-photos.mjs",
     "preview": "vite preview --host 127.0.0.1 --port 5173",
     "clean": "rm -rf dist",
     "lint": "tsc --noEmit"
