@@ -1,0 +1,8 @@
+{
+  "name": "Remix Maison 704",
+  "description": "Charlotte custom 3D-printed boutique and interactive 3D purse \u0026 accessory design studio featuring full-spectrum multi-color customization, personalized engravings, and cross-platform iOS \u0026 Android PWA support.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

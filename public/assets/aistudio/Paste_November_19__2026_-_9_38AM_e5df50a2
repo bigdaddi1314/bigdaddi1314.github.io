@@ -1,0 +1,2621 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Maison 704 | Charlotte Sculpted Accessories &amp; Custom Purse Boutique</title>
+
+  <!-- Google Fonts: Cormorant Garamond (Editorial Fashion Display) + Plus Jakarta Sans (Clean Boutique UI) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            pearl: '#FFFBF8',
+            blush: '#FBE8EE',
+            champagne: '#C6986C',
+            roseBerry: '#C23B6B',
+            roseDeep: '#A32B56',
+            espresso: '#24191D',
+            mauve: '#6E5A62',
+          },
+          fontFamily: {
+            serif: ['"Cormorant Garamond"', 'Georgia', 'serif'],
+            sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+          },
+        },
+      },
+    };
+  </script>
+
+  <!-- Three.js r128 + OrbitControls + STLExporter (Reliable CDN setup for Web & Antigravity porting) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/exporters/STLExporter.js"></script>
+
+  <style>
+    /* =========================================================================
+       DESIGN TOKENS (Structured cleanly for effortless Antigravity app porting)
+       ========================================================================= */
+    :root {
+      --bg-pearl-glass: rgba(255, 251, 248, 0.86);
+      --bg-pearl-strong: rgba(255, 251, 248, 0.94);
+      --bg-blush-soft: #FBE8EE;
+      --border-champagne: rgba(198, 152, 108, 0.38);
+      --border-champagne-strong: rgba(198, 152, 108, 0.62);
+      --accent-rose: #C23B6B;
+      --accent-rose-hover: #A62D58;
+      --accent-gold: #C6986C;
+      --ink-espresso: #24191D;
+      --ink-mauve: #6E5A62;
+      --radius-card: 1.75rem;
+      --radius-pill: 9999px;
+      --shadow-boutique: 0 20px 50px rgba(48, 22, 34, 0.14), 0 4px 16px rgba(198, 152, 108, 0.12);
+      --shadow-soft: 0 12px 32px rgba(48, 22, 34, 0.09);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      color: var(--ink-espresso);
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+      background-color: #2c1b29;
+      overflow-x: hidden;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Extra bottom spacing on mobile for native-feeling bottom app navigation bar */
+    @media (max-width: 767px) {
+      body {
+        padding-bottom: 76px;
+      }
+    }
+
+    /* =========================================================================
+       PHOTOREALISTIC MOVING CHARLOTTE SKYLINE BACKDROP
+       ========================================================================= */
+    #skyline-stage {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      overflow: hidden;
+      pointer-events: none;
+      background: linear-gradient(160deg, #4b2a46 0%, #8e4765 48%, #d78a76 100%);
+    }
+
+    #skyline-photo-wrap {
+      position: absolute;
+      inset: -8%;
+      width: 116%;
+      height: 116%;
+      will-change: transform;
+      transform-origin: center center;
+    }
+
+    #skyline-photo {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 42%;
+      filter: saturate(1.16) brightness(1.06) contrast(1.03);
+      transition: filter 0.6s ease;
+    }
+
+    /* Vibrant Boutique Color Wash Layers */
+    #skyline-wash {
+      position: absolute;
+      inset: 0;
+      transition: background 0.7s ease, opacity 0.7s ease;
+    }
+
+    /* Golden Blush (Default): Warm Rose Sunset, Peach Gold & Luminous Plum */
+    .wash-golden-blush {
+      background:
+        radial-gradient(circle at 18% 15%, rgba(255, 206, 173, 0.48) 0%, transparent 52%),
+        radial-gradient(circle at 82% 24%, rgba(242, 128, 166, 0.42) 0%, transparent 55%),
+        linear-gradient(180deg, rgba(114, 48, 86, 0.46) 0%, rgba(214, 114, 134, 0.34) 48%, rgba(247, 198, 168, 0.42) 100%);
+      mix-blend-mode: screen;
+      opacity: 0.78;
+    }
+
+    /* Vibrant Twilight: Rich Sunset Plum, Roseberry & Warm Amber Skyline Glow */
+    .wash-vibrant-twilight {
+      background:
+        radial-gradient(circle at 22% 20%, rgba(194, 59, 107, 0.42) 0%, transparent 55%),
+        radial-gradient(circle at 78% 75%, rgba(244, 162, 118, 0.38) 0%, transparent 55%),
+        linear-gradient(180deg, rgba(58, 25, 62, 0.44) 0%, rgba(145, 52, 95, 0.32) 55%, rgba(224, 138, 122, 0.34) 100%);
+      mix-blend-mode: normal;
+      opacity: 0.85;
+    }
+
+    /* Clear Skyline: Crisp Photorealistic View with Gentle Champagne Veil */
+    .wash-clear-skyline {
+      background:
+        linear-gradient(180deg, rgba(42, 24, 38, 0.22) 0%, rgba(198, 152, 108, 0.14) 55%, rgba(255, 244, 238, 0.24) 100%);
+      mix-blend-mode: normal;
+      opacity: 0.7;
+    }
+
+    /* Soft atmospheric vignette so foreground pearl cards always read crisply */
+    #skyline-veil {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(255, 245, 248, 0.12) 0%, rgba(255, 240, 245, 0.06) 45%, rgba(36, 25, 29, 0.24) 100%);
+    }
+
+    #bokeh-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* =========================================================================
+       FROSTED PEARL & CHAMPAGNE BOUTIQUE SURFACES
+       ========================================================================= */
+    .pearl-card {
+      background: var(--bg-pearl-glass);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--border-champagne);
+      box-shadow: var(--shadow-boutique);
+    }
+
+    .pearl-card-strong {
+      background: var(--bg-pearl-strong);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid var(--border-champagne-strong);
+      box-shadow: var(--shadow-boutique);
+    }
+
+    .editorial-frame {
+      background: linear-gradient(145deg, #FFF7F9 0%, #FBE8EE 52%, #F6E4D4 100%);
+    }
+
+    /* Custom Boutique Range Slider */
+    input[type="range"].boutique-range {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 6px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #F3D1DD, #E2B996);
+      outline: none;
+      cursor: pointer;
+    }
+    input[type="range"].boutique-range::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #C23B6B;
+      border: 3px solid #FFFBF8;
+      box-shadow: 0 3px 10px rgba(194, 59, 107, 0.35);
+      transition: transform 0.15s ease;
+    }
+    input[type="range"].boutique-range::-webkit-slider-thumb:hover {
+      transform: scale(1.12);
+    }
+
+    /* 3D Canvas Container Touch Handling */
+    .three-mount canvas {
+      display: block;
+      width: 100% !important;
+      height: 100% !important;
+      touch-action: none;
+      cursor: grab;
+    }
+    .three-mount canvas:active {
+      cursor: grabbing;
+    }
+
+    /* Soft Scrollbar */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #FAF0F3; }
+    ::-webkit-scrollbar-thumb { background: #D7B294; border-radius: 999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #C23B6B; }
+  </style>
+</head>
+<body class="selection:bg-blush selection:text-roseBerry">
+
+  <!-- ==================== FIXED PHOTOREALISTIC CHARLOTTE SKYLINE BACKDROP ==================== -->
+  <div id="skyline-stage" aria-hidden="true">
+    <div id="skyline-photo-wrap">
+      <img
+        id="skyline-photo"
+        src="https://commons.wikimedia.org/wiki/Special:FilePath/Charlotte_night_skyline_2016.jpg?width=1920"
+        alt="Charlotte North Carolina Uptown Skyline"
+        loading="eager"
+      />
+    </div>
+    <div id="skyline-wash" class="wash-golden-blush"></div>
+    <div id="skyline-veil"></div>
+    <canvas id="bokeh-canvas"></canvas>
+  </div>
+
+  <!-- ==================== MAIN FOREGROUND APPLICATION ==================== -->
+  <div class="relative z-10 flex flex-col min-h-screen">
+
+    <!-- ==================== 1. TOP ANNOUNCEMENT STRIP & FROSTED HEADER ==================== -->
+    <div class="bg-[#FFF4F7]/92 backdrop-blur-md border-b border-champagne/30 text-espresso">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] sm:text-xs">
+        <p class="text-center sm:text-left font-medium text-mauve tracking-wide">
+          Hand-Finished in Charlotte, NC &middot; Available In-Store at Our Partner Boutique &amp; Online &middot; Custom Orders Welcome
+        </p>
+
+        <!-- Skyline Glow Switcher -->
+        <div class="flex items-center gap-1.5 bg-white/80 px-2.5 py-1 rounded-full border border-champagne/40 shadow-sm shrink-0">
+          <span class="text-[10px] font-semibold uppercase tracking-wider text-mauve pr-1">Skyline Glow:</span>
+          <button type="button" class="glow-pill px-2.5 py-0.5 rounded-full text-[11px] font-semibold transition-all bg-roseBerry text-white" data-glow="golden-blush">Golden Blush</button>
+          <button type="button" class="glow-pill px-2.5 py-0.5 rounded-full text-[11px] font-semibold transition-all text-mauve hover:text-espresso" data-glow="vibrant-twilight">Vibrant Twilight</button>
+          <button type="button" class="glow-pill px-2.5 py-0.5 rounded-full text-[11px] font-semibold transition-all text-mauve hover:text-espresso" data-glow="clear-skyline">Clear Skyline</button>
+        </div>
+      </div>
+    </div>
+
+    <header class="sticky top-0 z-40 bg-[#FFFBF8]/86 backdrop-blur-xl border-b border-champagne/35 shadow-sm">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16 sm:h-20">
+          <!-- Brand Wordmark -->
+          <a href="#home" class="flex items-center gap-3 group">
+            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-[#FBE8EE] to-[#F3D9C3] border border-champagne/60 flex items-center justify-center shadow-sm">
+              <svg class="w-5 h-5 text-roseBerry group-hover:scale-110 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path d="M12 20.5C6.5 16.5 4 12.6 4 8.7C4 5.9 6.2 4 8.7 4C10.3 4 11.4 4.8 12 5.9C12.6 4.8 13.7 4 15.3 4C17.8 4 20 5.9 20 8.7C20 12.6 17.5 16.5 12 20.5Z" />
+              </svg>
+            </div>
+            <div>
+              <div class="font-serif font-bold text-2xl sm:text-[28px] tracking-[0.06em] leading-none text-espresso">
+                MAISON 704
+              </div>
+              <div class="text-[9px] sm:text-[10px] tracking-[0.26em] uppercase text-champagne font-semibold mt-0.5">
+                Charlotte Atelier
+              </div>
+            </div>
+          </a>
+
+          <!-- Desktop Nav Links -->
+          <nav class="hidden md:flex items-center gap-8 text-sm font-medium text-mauve">
+            <a href="#lookbook" class="hover:text-roseBerry transition-colors">Lookbook</a>
+            <a href="#purse-studio" class="hover:text-roseBerry transition-colors inline-flex items-center gap-1.5 text-espresso font-semibold">
+              <span>Design Your Purse</span>
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-blush text-roseBerry border border-roseBerry/20">3D Studio</span>
+            </a>
+            <a href="#bespoke" class="hover:text-roseBerry transition-colors">Bespoke Orders</a>
+            <a href="#our-story" class="hover:text-roseBerry transition-colors">Our Story</a>
+          </nav>
+
+          <!-- Right Actions: Bag Pill -->
+          <div class="flex items-center gap-3">
+            <button id="openBagBtn" type="button" class="inline-flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-full bg-espresso hover:bg-roseBerry text-pearl text-xs sm:text-sm font-semibold transition-all shadow-md">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9">
+                <path d="M6 7h12l1 13H5L6 7z" />
+                <path d="M9 7V6a3 3 0 0 1 6 0v1" />
+              </svg>
+              <span>Bag (<span id="headerBagCount">0</span>)</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- ==================== 2. EDITORIAL FASHION HERO SECTION ==================== -->
+    <section id="home" class="relative py-10 sm:py-16 lg:py-24">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
+
+          <!-- Left Frosted Editorial Hero Card -->
+          <div class="lg:col-span-7">
+            <div class="pearl-card rounded-[2rem] p-7 sm:p-10 lg:p-12 space-y-6">
+              <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blush/90 border border-champagne/40 text-xs font-semibold text-roseBerry tracking-wide">
+                <span class="w-1.5 h-1.5 rounded-full bg-roseBerry"></span>
+                <span>South End &amp; Dilworth &middot; Sculpted Boutique Accessories</span>
+              </div>
+
+              <h1 class="font-serif font-semibold text-4xl sm:text-5xl lg:text-6xl leading-[1.05] text-espresso">
+                Sculpted Statements, <br class="hidden sm:inline" />
+                <span class="italic text-roseBerry font-medium">Made in the Queen City.</span>
+              </h1>
+
+              <p class="text-sm sm:text-base lg:text-[17px] text-mauve leading-relaxed max-w-xl">
+                Discover one-of-a-kind sculpted handbags, evening clutches, and vanity decor hand-finished right here in Charlotte. Shop our curated boutique collection or personalize a bespoke piece matched to your exact outfit and initials.
+              </p>
+
+              <!-- Boutique CTAs -->
+              <div class="flex flex-wrap items-center gap-3.5 pt-2">
+                <a href="#purse-studio" class="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-full bg-roseBerry hover:bg-roseDeep text-pearl font-semibold text-sm transition-all shadow-lg shadow-roseBerry/25">
+                  <span>Design Your Custom Purse</span>
+                  <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" />
+                  </svg>
+                </a>
+                <a href="#lookbook" class="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-full bg-white/85 hover:bg-blush text-espresso border border-champagne/70 font-semibold text-sm transition-all">
+                  <span>Browse Lookbook</span>
+                </a>
+              </div>
+
+              <!-- Soft Boutique Trust Bar -->
+              <div class="pt-4 border-t border-champagne/25 grid grid-cols-3 gap-3 text-center sm:text-left">
+                <div>
+                  <div class="font-serif font-bold text-lg sm:text-xl text-espresso">Custom Color</div>
+                  <div class="text-[11px] sm:text-xs text-mauve">Matched to your look</div>
+                </div>
+                <div>
+                  <div class="font-serif font-bold text-lg sm:text-xl text-espresso">Boutique Pickup</div>
+                  <div class="text-[11px] sm:text-xs text-mauve">Free in Charlotte, NC</div>
+                </div>
+                <div>
+                  <div class="font-serif font-bold text-lg sm:text-xl text-espresso">Hand-Finished</div>
+                  <div class="text-[11px] sm:text-xs text-mauve">Small-batch atelier</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Floating 3D Sculptural Purse Spotlight Card -->
+          <div class="lg:col-span-5">
+            <div class="pearl-card-strong rounded-[2rem] p-5 sm:p-6 space-y-4">
+              <div class="flex items-center justify-between px-1">
+                <div>
+                  <div class="text-[10px] uppercase tracking-[0.2em] text-champagne font-semibold">Signature Silhouette</div>
+                  <div class="font-serif font-semibold text-xl text-espresso">The Dilworth Heart Clutch</div>
+                </div>
+                <span class="px-3 py-1 rounded-full bg-blush text-roseBerry text-xs font-semibold">$78</span>
+              </div>
+
+              <!-- Live 3D Hero Spotlight Canvas -->
+              <div class="relative h-72 sm:h-80 rounded-[1.5rem] editorial-frame border border-champagne/30 overflow-hidden">
+                <div id="heroPurseMount" class="three-mount absolute inset-0 w-full h-full"></div>
+                <div id="heroWebglFallback" class="hidden absolute inset-0 flex flex-col items-center justify-center p-6 text-center">
+                  <svg class="w-24 h-24 text-roseBerry/75 mb-2" viewBox="0 0 120 120" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path d="M60 98 C24 72 14 44 32 26 C46 12 60 28 60 38 C60 28 74 12 88 26 C106 44 96 72 60 98 Z" fill="#FBE8EE"/>
+                  </svg>
+                  <p class="font-serif italic text-lg text-espresso">Interactive 3D Preview</p>
+                </div>
+                <div class="pointer-events-none absolute bottom-3 left-3 px-3 py-1 rounded-full bg-white/80 backdrop-blur-md text-[11px] font-medium text-mauve border border-champagne/30">
+                  Drag gently to admire
+                </div>
+              </div>
+
+              <!-- Quick 3-Color Tap Selector -->
+              <div class="flex items-center justify-between px-1 pt-1">
+                <div class="flex items-center gap-2.5">
+                  <span class="text-xs font-medium text-mauve">Shade:</span>
+                  <button type="button" class="hero-color-dot w-7 h-7 rounded-full ring-2 ring-roseBerry ring-offset-2 ring-offset-pearl transition-transform scale-105" data-color="0xE89BB5" data-label="Rose Quartz" style="background:#E89BB5" title="Rose Quartz"></button>
+                  <button type="button" class="hero-color-dot w-7 h-7 rounded-full ring-1 ring-champagne/60 hover:scale-105 transition-transform" data-color="0xD6B082" data-label="Champagne Gold" style="background:#D6B082" title="Champagne Gold"></button>
+                  <button type="button" class="hero-color-dot w-7 h-7 rounded-full ring-1 ring-champagne/60 hover:scale-105 transition-transform" data-color="0xF6EFE7" data-label="Pearl Ivory" style="background:#F6EFE7" title="Pearl Ivory"></button>
+                  <span id="heroColorLabel" class="text-xs font-semibold text-espresso ml-1">Rose Quartz</span>
+                </div>
+                <a href="#purse-studio" class="text-xs font-semibold text-roseBerry hover:text-roseDeep underline underline-offset-4">
+                  Personalize &rarr;
+                </a>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 3. THE BOUTIQUE COLLECTION LOOKBOOK (#lookbook) ==================== -->
+    <section id="lookbook" class="py-12 sm:py-20">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="pearl-card rounded-[2rem] p-6 sm:p-10 space-y-7">
+
+          <!-- Header & Category Pills -->
+          <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-5">
+            <div>
+              <div class="text-xs uppercase tracking-[0.22em] text-champagne font-semibold mb-1.5">Curated Lookbook</div>
+              <h2 class="font-serif font-semibold text-3xl sm:text-4xl lg:text-5xl text-espresso">
+                The Boutique Collection
+              </h2>
+              <p class="text-sm sm:text-base text-mauve mt-2 max-w-2xl">
+                Ready-to-shop sculpted silhouettes and boutique vanity pieces. Every piece can also be custom color-matched or personalized with your initials.
+              </p>
+            </div>
+
+            <!-- Soft Filter Pills -->
+            <div id="lookbookFilters" class="flex flex-wrap gap-2">
+              <!-- Populated dynamically from APP_DATA.categories -->
+            </div>
+          </div>
+
+          <!-- Subtle Owner Photo Guide Bar -->
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-4 py-3 rounded-2xl bg-blush/55 border border-champagne/35 text-xs text-mauve">
+            <div class="flex items-center gap-2.5">
+              <svg class="w-4 h-4 text-roseBerry shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9">
+                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                <circle cx="12" cy="13" r="4" />
+              </svg>
+              <span><strong class="text-espresso">Photo Guide:</strong> Tap <em>"Preview Photo"</em> on any lookbook frame below to test your real product photography right on the storefront.</span>
+            </div>
+            <button id="resetPhotosBtn" type="button" class="hidden self-start sm:self-auto px-3.5 py-1.5 rounded-full bg-white hover:bg-roseBerry hover:text-white border border-champagne/50 text-espresso font-semibold text-[11px] transition-all shrink-0">
+              Reset Sample Placeholders
+            </button>
+          </div>
+
+          <!-- 8 Curated Lookbook Cards Grid -->
+          <div id="lookbookGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <!-- Populated dynamically from APP_DATA.catalog -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 4. GUIDED BOUTIQUE PURSE CUSTOMIZER (#purse-studio) ==================== -->
+    <section id="purse-studio" class="py-12 sm:py-20">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="pearl-card-strong rounded-[2.25rem] overflow-hidden">
+
+          <!-- Atelier Header -->
+          <div class="px-6 sm:px-10 pt-8 pb-6 border-b border-champagne/25 flex flex-col md:flex-row md:items-end justify-between gap-4">
+            <div>
+              <div class="text-xs uppercase tracking-[0.22em] text-champagne font-semibold mb-1.5">Maison 704 Atelier</div>
+              <h2 class="font-serif font-semibold text-3xl sm:text-4xl lg:text-5xl text-espresso">
+                Design Your Custom Purse
+              </h2>
+              <p class="text-sm sm:text-base text-mauve mt-1.5 max-w-2xl">
+                Choose your silhouette, size, finish, shade, and monogram—watch your bespoke handbag come to life in real time.
+              </p>
+            </div>
+            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blush/80 border border-champagne/35 text-xs font-medium text-espresso self-start md:self-auto">
+              <span class="w-2 h-2 rounded-full bg-roseBerry"></span>
+              <span>Hand-Finished in Charlotte &middot; Made to Order</span>
+            </div>
+          </div>
+
+          <!-- Split Studio Layout: Left 3D Stage + Right Guided 4-Step Panel -->
+          <div class="grid grid-cols-1 lg:grid-cols-12">
+
+            <!-- LEFT: LUMINOUS BOUTIQUE 3D STAGE -->
+            <div class="lg:col-span-7 relative min-h-[390px] sm:min-h-[500px] lg:min-h-[650px] editorial-frame border-b lg:border-b-0 lg:border-r border-champagne/25">
+              <!-- Three.js Mount -->
+              <div id="studioPurseMount" class="three-mount absolute inset-0 w-full h-full"></div>
+
+              <!-- Graceful Fallback if WebGL is disabled -->
+              <div id="studioWebglFallback" class="hidden absolute inset-0 flex flex-col items-center justify-center p-8 text-center">
+                <div class="w-20 h-20 rounded-full bg-white/80 border border-champagne/50 flex items-center justify-center text-roseBerry mb-3">
+                  <svg class="w-10 h-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <path d="M6 7h12l1 13H5L6 7z" /><path d="M9 7V6a3 3 0 0 1 6 0v1" />
+                  </svg>
+                </div>
+                <h3 class="font-serif text-2xl font-semibold text-espresso">Interactive 3D Boutique Stage</h3>
+                <p class="text-sm text-mauve max-w-xs mt-1">Your customized selections are saved below and ready to add to your bag.</p>
+              </div>
+
+              <!-- Top-Left Live Selection Pill -->
+              <div class="pointer-events-none absolute top-4 left-4 z-10 bg-white/86 backdrop-blur-md px-4 py-2 rounded-full border border-champagne/40 shadow-sm flex items-center gap-2.5">
+                <span id="studioStageDot" class="w-3.5 h-3.5 rounded-full border border-champagne/60" style="background:#E89BB5"></span>
+                <span id="studioStageTitle" class="text-xs font-semibold text-espresso">Sculpted Heart &middot; Rose Quartz</span>
+              </div>
+
+              <!-- Bottom-Center Rounded Boutique Camera View Pills -->
+              <div class="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1.5 bg-white/88 backdrop-blur-md px-2.5 py-1.5 rounded-full border border-champagne/40 shadow-md">
+                <button type="button" class="cam-pill px-3 py-1.5 rounded-full text-xs font-semibold text-mauve hover:text-espresso hover:bg-blush/70 transition-all" data-view="front">Front</button>
+                <button type="button" class="cam-pill px-3 py-1.5 rounded-full text-xs font-semibold text-mauve hover:text-espresso hover:bg-blush/70 transition-all" data-view="side">Side</button>
+                <button type="button" class="cam-pill px-3 py-1.5 rounded-full text-xs font-semibold text-mauve hover:text-espresso hover:bg-blush/70 transition-all" data-view="top">Top</button>
+                <button id="studioSpinBtn" type="button" class="px-3.5 py-1.5 rounded-full text-xs font-semibold bg-roseBerry text-white transition-all">360&deg; Spin</button>
+              </div>
+            </div>
+
+            <!-- RIGHT: GUIDED 4-STEP BOUTIQUE DESIGNER PANEL -->
+            <div class="lg:col-span-5 flex flex-col bg-[#FFFBF8]/95">
+
+              <!-- Step Indicator Tabs -->
+              <div class="grid grid-cols-4 gap-1 p-2.5 bg-blush/45 border-b border-champagne/25">
+                <button type="button" class="step-tab py-2.5 px-1.5 rounded-xl text-[11px] sm:text-xs font-semibold transition-all bg-roseBerry text-white shadow-sm" data-step="1">1. Shape</button>
+                <button type="button" class="step-tab py-2.5 px-1.5 rounded-xl text-[11px] sm:text-xs font-semibold transition-all text-mauve hover:text-espresso hover:bg-white/70" data-step="2">2. Size &amp; Feel</button>
+                <button type="button" class="step-tab py-2.5 px-1.5 rounded-xl text-[11px] sm:text-xs font-semibold transition-all text-mauve hover:text-espresso hover:bg-white/70" data-step="3">3. Color</button>
+                <button type="button" class="step-tab py-2.5 px-1.5 rounded-xl text-[11px] sm:text-xs font-semibold transition-all text-mauve hover:text-espresso hover:bg-white/70" data-step="4">4. Monogram</button>
+              </div>
+
+              <!-- Scrollable Step Content -->
+              <div class="p-5 sm:p-6 flex-1 overflow-y-auto max-h-[460px] lg:max-h-[470px] space-y-5">
+
+                <!-- STEP 1: SILHOUETTE CARDS -->
+                <div class="step-pane space-y-3" data-pane="1">
+                  <div>
+                    <h3 class="font-serif font-semibold text-2xl text-espresso">Choose Your Silhouette</h3>
+                    <p class="text-xs text-mauve mt-0.5">Tap any shape to preview it immediately on the studio pedestal.</p>
+                  </div>
+                  <div id="silhouetteGrid" class="grid grid-cols-2 gap-2.5">
+                    <!-- Populated from APP_DATA.silhouettes -->
+                  </div>
+                </div>
+
+                <!-- STEP 2: SIZE & SCULPTED TEXTURE -->
+                <div class="step-pane hidden space-y-5" data-pane="2">
+                  <div>
+                    <h3 class="font-serif font-semibold text-2xl text-espresso">Select Your Size</h3>
+                    <p class="text-xs text-mauve mt-0.5">Designed to carry your essentials comfortably.</p>
+                    <div id="sizeCards" class="mt-3 space-y-2.5">
+                      <!-- Populated from APP_DATA.sizes -->
+                    </div>
+                  </div>
+
+                  <div>
+                    <h3 class="font-serif font-semibold text-2xl text-espresso">Sculpted Surface Feel</h3>
+                    <div id="textureCards" class="mt-2.5 grid grid-cols-2 gap-2.5">
+                      <!-- Populated from APP_DATA.textures -->
+                    </div>
+                  </div>
+                </div>
+
+                <!-- STEP 3: SHADES, STRAPS & CLASP -->
+                <div class="step-pane hidden space-y-5" data-pane="3">
+                  <div>
+                    <div class="flex items-center justify-between">
+                      <h3 class="font-serif font-semibold text-2xl text-espresso">Boutique Shade</h3>
+                      <span id="selectedShadeName" class="text-xs font-semibold text-roseBerry">Rose Quartz</span>
+                    </div>
+                    <div id="colorSwatches" class="mt-3 grid grid-cols-4 sm:grid-cols-7 lg:grid-cols-4 gap-2.5">
+                      <!-- Populated from APP_DATA.colors -->
+                    </div>
+                  </div>
+
+                  <div>
+                    <h3 class="font-serif font-semibold text-xl text-espresso">Handle &amp; Carry Style</h3>
+                    <div id="handleCards" class="mt-2.5 grid grid-cols-2 gap-2">
+                      <!-- Populated from APP_DATA.handles -->
+                    </div>
+                  </div>
+
+                  <div>
+                    <h3 class="font-serif font-semibold text-xl text-espresso">Closure Style</h3>
+                    <div id="claspCards" class="mt-2.5 grid grid-cols-2 gap-2">
+                      <!-- Populated from APP_DATA.clasps -->
+                    </div>
+                  </div>
+                </div>
+
+                <!-- STEP 4: MEDALLION, MONOGRAM & PEEK INSIDE -->
+                <div class="step-pane hidden space-y-4" data-pane="4">
+                  <div>
+                    <h3 class="font-serif font-semibold text-2xl text-espresso">Personalize Your Medallion</h3>
+                    <p class="text-xs text-mauve mt-0.5">Add up to 4 letters for a custom front emblem.</p>
+                  </div>
+
+                  <div>
+                    <label class="block text-xs font-semibold text-espresso mb-2">Front Plaque Style</label>
+                    <div id="badgeCards" class="grid grid-cols-3 gap-2">
+                      <!-- Populated from APP_DATA.badges -->
+                    </div>
+                  </div>
+
+                  <div>
+                    <label for="monogramInput" class="block text-xs font-semibold text-espresso mb-1.5">Custom Monogram Initials (Up to 4 Characters)</label>
+                    <input
+                      id="monogramInput"
+                      type="text"
+                      maxlength="4"
+                      value="CLT"
+                      placeholder="e.g. CLT, JM"
+                      class="w-full px-4 py-3 rounded-2xl bg-white border border-champagne/55 focus:border-roseBerry focus:outline-none font-serif font-bold text-2xl tracking-[0.2em] uppercase text-center text-espresso"
+                    />
+                  </div>
+
+                  <!-- Friendly Peek Inside Lid Slider -->
+                  <div class="p-4 rounded-2xl bg-blush/50 border border-champagne/30 space-y-2">
+                    <div class="flex items-center justify-between text-xs font-semibold text-espresso">
+                      <span>Peek Inside</span>
+                      <span id="peekStatusLabel" class="text-roseBerry">Slightly Open</span>
+                    </div>
+                    <input id="peekSlider" type="range" min="0" max="105" step="1" value="22" class="boutique-range" />
+                    <div class="flex justify-between text-[11px] text-mauve">
+                      <span>Closed</span>
+                      <span>Open Wide</span>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label for="giftNoteInput" class="block text-xs font-semibold text-espresso mb-1.5">Optional Gift Note or Outfit Color Match Note</label>
+                    <input
+                      id="giftNoteInput"
+                      type="text"
+                      maxlength="90"
+                      placeholder="e.g. Matching my dusty rose bridesmaid dress!"
+                      class="w-full px-4 py-2.5 rounded-2xl bg-white border border-champagne/45 focus:border-roseBerry focus:outline-none text-xs text-espresso placeholder-mauve/70"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Step Navigation Mini Row -->
+              <div class="px-5 py-2.5 border-t border-champagne/20 flex items-center justify-between bg-[#FFFDFB]">
+                <button id="prevStepBtn" type="button" class="text-xs font-semibold text-mauve hover:text-espresso disabled:opacity-30" disabled>&larr; Previous Step</button>
+                <button id="nextStepBtn" type="button" class="text-xs font-semibold text-roseBerry hover:text-roseDeep">Next Step &rarr;</button>
+              </div>
+
+              <!-- Bottom Pricing Summary & Add to Bag -->
+              <div class="p-5 sm:p-6 border-t border-champagne/30 bg-blush/35 space-y-3.5">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <div class="text-xs text-mauve">Your Bespoke Purse</div>
+                    <div id="studioPriceDisplay" class="font-serif font-bold text-3xl text-espresso leading-tight">$84</div>
+                  </div>
+                  <div class="text-right">
+                    <div class="text-xs font-semibold text-roseBerry">Hand-finished in Charlotte</div>
+                    <div class="text-[11px] text-mauve">Ships or ready for pickup in 3&ndash;5 days</div>
+                  </div>
+                </div>
+
+                <button id="addCustomPurseBtn" type="button" class="w-full py-3.5 px-6 rounded-full bg-roseBerry hover:bg-roseDeep text-pearl font-semibold text-sm transition-all shadow-lg shadow-roseBerry/25">
+                  Add Custom Purse to Bag
+                </button>
+
+                <!-- Discreet Tucked-Away Atelier Owner Tools Accordion -->
+                <details class="pt-1 group">
+                  <summary class="cursor-pointer list-none flex items-center justify-center gap-1.5 text-[11px] font-medium text-mauve/80 hover:text-espresso transition-colors select-none">
+                    <span>Atelier Owner Tools (STL Export)</span>
+                    <svg class="w-3.5 h-3.5 transition-transform group-open:rotate-180" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polyline points="6 9 12 15 18 9" />
+                    </svg>
+                  </summary>
+                  <div class="mt-3 p-3.5 rounded-2xl bg-white/85 border border-champagne/35 space-y-2.5 text-center">
+                    <div id="ownerDimReadout" class="text-[11px] font-medium text-mauve">
+                      Dimensions: 162 &times; 74 &times; 102 mm (+24 mm Lid)
+                    </div>
+                    <div class="grid grid-cols-3 gap-2">
+                      <button id="exportFullStlBtn" type="button" class="py-2 px-2 rounded-xl bg-blush/80 hover:bg-roseBerry hover:text-white text-espresso text-[11px] font-semibold transition-all">
+                        Full Set .STL
+                      </button>
+                      <button id="exportBodyStlBtn" type="button" class="py-2 px-2 rounded-xl bg-blush/80 hover:bg-roseBerry hover:text-white text-espresso text-[11px] font-semibold transition-all">
+                        Body Only
+                      </button>
+                      <button id="exportLidStlBtn" type="button" class="py-2 px-2 rounded-xl bg-blush/80 hover:bg-roseBerry hover:text-white text-espresso text-[11px] font-semibold transition-all">
+                        Lid Only
+                      </button>
+                    </div>
+                  </div>
+                </details>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 5. BESPOKE & OUTFIT-MATCH CONCIERGE (#bespoke) ==================== -->
+    <section id="bespoke" class="py-12 sm:py-20">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="pearl-card rounded-[2rem] p-6 sm:p-10 lg:p-12">
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-start">
+
+            <!-- Left Warm Editorial Pitch -->
+            <div class="lg:col-span-5 space-y-5">
+              <div class="text-xs uppercase tracking-[0.22em] text-champagne font-semibold">Personal Styling &amp; Custom Requests</div>
+              <h2 class="font-serif font-semibold text-3xl sm:text-4xl lg:text-5xl text-espresso leading-tight">
+                Dreaming of Something <span class="italic text-roseBerry font-medium">Custom?</span>
+              </h2>
+              <p class="text-sm sm:text-base text-mauve leading-relaxed">
+                Whether you found the perfect dress at a Charlotte boutique and need a clutch color-matched to it, or you're planning coordinated monogrammed pieces for a bridal party or girls' night out, our atelier crafts it just for you.
+              </p>
+
+              <!-- 4 Boutique Bespoke Highlights -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                <div class="p-4 rounded-2xl bg-white/80 border border-champagne/35">
+                  <div class="font-serif font-bold text-lg text-espresso">Match Your Outfit Color</div>
+                  <p class="text-xs text-mauve mt-1">Share a photo of your dress or heels and we'll match the exact tone.</p>
+                </div>
+                <div class="p-4 rounded-2xl bg-white/80 border border-champagne/35">
+                  <div class="font-serif font-bold text-lg text-espresso">Bridal &amp; Girls' Night Sets</div>
+                  <p class="text-xs text-mauve mt-1">Coordinated pearl, blush, or rose-gold clutches with each guest's initials.</p>
+                </div>
+                <div class="p-4 rounded-2xl bg-white/80 border border-champagne/35">
+                  <div class="font-serif font-bold text-lg text-espresso">Boutique &amp; Brand Monograms</div>
+                  <p class="text-xs text-mauve mt-1">Custom sculpted logos and exclusive capsule drops for local boutiques.</p>
+                </div>
+                <div class="p-4 rounded-2xl bg-white/80 border border-champagne/35">
+                  <div class="font-serif font-bold text-lg text-espresso">Custom Home Accents</div>
+                  <p class="text-xs text-mauve mt-1">Fluted vases, jewelry displays, and vanity trays sized to your space.</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right Interactive Concierge Form -->
+            <div class="lg:col-span-7">
+              <form id="bespokeForm" class="bg-white/80 rounded-[1.75rem] border border-champagne/35 p-6 sm:p-8 space-y-4 shadow-sm">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label for="bespokeType" class="block text-xs font-semibold text-espresso mb-1.5">What are we creating?</label>
+                    <select id="bespokeType" class="w-full px-4 py-3 rounded-2xl bg-pearl border border-champagne/45 text-sm text-espresso focus:border-roseBerry focus:outline-none">
+                      <option value="Custom Purse or Clutch">Custom Purse or Clutch</option>
+                      <option value="Bridal / Girls' Night Matching Set">Bridal / Girls' Night Matching Set</option>
+                      <option value="Vanity &amp; Home Decor">Vanity &amp; Home Decor</option>
+                      <option value="Personalized Boutique Gift">Personalized Boutique Gift</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label for="bespokeDate" class="block text-xs font-semibold text-espresso mb-1.5">Date Needed (Optional)</label>
+                    <input id="bespokeDate" type="date" class="w-full px-4 py-3 rounded-2xl bg-pearl border border-champagne/45 text-sm text-espresso focus:border-roseBerry focus:outline-none" />
+                  </div>
+                </div>
+
+                <div>
+                  <label for="bespokeVibe" class="block text-xs font-semibold text-espresso mb-1.5">Color Palette, Outfit Vibe &amp; Details</label>
+                  <textarea id="bespokeVibe" rows="3" required placeholder="Tell us about your outfit colors, preferred finish (satin matte or silk sheen), monogram text, or any special ideas..." class="w-full px-4 py-3 rounded-2xl bg-pearl border border-champagne/45 text-sm text-espresso placeholder-mauve/70 focus:border-roseBerry focus:outline-none"></textarea>
+                </div>
+
+                <!-- Inspiration Photo Upload Dropzone -->
+                <div>
+                  <label class="block text-xs font-semibold text-espresso mb-1.5">Inspiration Photo or Outfit Snapshot (Optional)</label>
+                  <label id="bespokeDropZone" for="bespokeFileInput" class="flex flex-col sm:flex-row items-center justify-center gap-4 p-5 rounded-2xl bg-blush/35 border-2 border-dashed border-champagne/60 hover:border-roseBerry cursor-pointer transition-all text-center sm:text-left">
+                    <div id="bespokeThumbWrap" class="hidden w-16 h-16 rounded-xl overflow-hidden border border-champagne/50 shrink-0 bg-white">
+                      <img id="bespokeThumbImg" src="" alt="Inspiration preview" class="w-full h-full object-cover" />
+                    </div>
+                    <div id="bespokeUploadIcon" class="w-11 h-11 rounded-full bg-white border border-champagne/45 flex items-center justify-center text-roseBerry shrink-0">
+                      <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                        <polyline points="17 8 12 3 7 8" />
+                        <line x1="12" y1="3" x2="12" y2="15" />
+                      </svg>
+                    </div>
+                    <div>
+                      <div id="bespokeFileLabel" class="text-sm font-semibold text-espresso">Upload an outfit photo, color swatch, or sketch</div>
+                      <div class="text-xs text-mauve mt-0.5">Tap to browse your camera roll or drag a file here (images &amp; design files welcome)</div>
+                    </div>
+                    <input id="bespokeFileInput" type="file" class="hidden" accept="image/*,.svg,.stl,.3mf,.obj" />
+                  </label>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+                  <div>
+                    <label for="bespokeName" class="block text-xs font-semibold text-espresso mb-1.5">Your Name</label>
+                    <input id="bespokeName" type="text" required placeholder="Camille Bennett" class="w-full px-4 py-2.5 rounded-2xl bg-pearl border border-champagne/45 text-sm text-espresso focus:border-roseBerry focus:outline-none" />
+                  </div>
+                  <div>
+                    <label for="bespokeEmail" class="block text-xs font-semibold text-espresso mb-1.5">Email Address</label>
+                    <input id="bespokeEmail" type="email" required placeholder="camille@example.com" class="w-full px-4 py-2.5 rounded-2xl bg-pearl border border-champagne/45 text-sm text-espresso focus:border-roseBerry focus:outline-none" />
+                  </div>
+                  <div>
+                    <label for="bespokeInsta" class="block text-xs font-semibold text-espresso mb-1.5">Instagram Handle</label>
+                    <input id="bespokeInsta" type="text" placeholder="@yourhandle" class="w-full px-4 py-2.5 rounded-2xl bg-pearl border border-champagne/45 text-sm text-espresso focus:border-roseBerry focus:outline-none" />
+                  </div>
+                </div>
+
+                <button type="submit" class="w-full py-3.5 px-6 rounded-full bg-espresso hover:bg-roseBerry text-pearl font-semibold text-sm transition-all shadow-lg">
+                  Send Bespoke Request to Our Atelier
+                </button>
+              </form>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 6. CHARLOTTE BOUTIQUE STORY & PARTNER STORE (#our-story) ==================== -->
+    <section id="our-story" class="py-12 sm:py-20">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="pearl-card rounded-[2rem] p-7 sm:p-11">
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+            <div class="lg:col-span-6 space-y-4">
+              <div class="text-xs uppercase tracking-[0.22em] text-champagne font-semibold">Our Charlotte Story</div>
+              <h2 class="font-serif font-semibold text-3xl sm:text-4xl text-espresso leading-tight">
+                Crafted with Southern Warmth &amp; Modern Artistry.
+              </h2>
+              <p class="text-sm sm:text-base text-mauve leading-relaxed">
+                Born in the heart of Charlotte, Maison 704 blends boutique fashion sensibility with modern sculptural craft. Every handbag, clutch, and vanity piece is thoughtfully sculpted in small batches using lightweight, sustainable plant-based bio-resins and finished by hand for a luminous silk sheen or velvety satin matte touch.
+              </p>
+              <p class="text-sm sm:text-base text-mauve leading-relaxed">
+                Find our seasonal capsules in-store at our partner women's clothing boutique in South End &amp; Dilworth, visit us at weekend Queen City pop-ups, or enjoy complimentary local pickup right here in Charlotte.
+              </p>
+            </div>
+
+            <div class="lg:col-span-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div class="p-5 rounded-2xl bg-white/85 border border-champagne/35 space-y-1.5">
+                <div class="text-xs font-semibold uppercase tracking-wider text-roseBerry">In-Store Partner</div>
+                <div class="font-serif font-bold text-xl text-espresso">South End &amp; Dilworth</div>
+                <p class="text-xs text-mauve leading-relaxed">Try on our latest clutches alongside curated dresses &amp; resort wear at our Charlotte partner boutique.</p>
+              </div>
+              <div class="p-5 rounded-2xl bg-white/85 border border-champagne/35 space-y-1.5">
+                <div class="text-xs font-semibold uppercase tracking-wider text-roseBerry">Conscious Craft</div>
+                <div class="font-serif font-bold text-xl text-espresso">Plant-Based &amp; Featherlight</div>
+                <p class="text-xs text-mauve leading-relaxed">Sculpted from renewable, lightweight plant-based materials so your statement bag feels effortless all evening.</p>
+              </div>
+              <div class="p-5 rounded-2xl bg-white/85 border border-champagne/35 space-y-1.5">
+                <div class="text-xs font-semibold uppercase tracking-wider text-roseBerry">Zero Waste</div>
+                <div class="font-serif font-bold text-xl text-espresso">Made to Order</div>
+                <p class="text-xs text-mauve leading-relaxed">We craft each custom handbag specifically for you—no mass-produced warehouse overstock.</p>
+              </div>
+              <div class="p-5 rounded-2xl bg-white/85 border border-champagne/35 space-y-1.5">
+                <div class="text-xs font-semibold uppercase tracking-wider text-roseBerry">Queen City Pickup</div>
+                <div class="font-serif font-bold text-xl text-espresso">Complimentary Local Handoff</div>
+                <p class="text-xs text-mauve leading-relaxed">Skip shipping fees with free boutique pickup in Charlotte, or enjoy insured US shipping (free over $120).</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== FOOTER ==================== -->
+    <footer class="mt-auto bg-[#FFFBF8]/90 backdrop-blur-lg border-t border-champagne/35 py-8">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-mauve">
+        <div class="flex items-center gap-3">
+          <span class="font-serif font-bold text-lg text-espresso tracking-wider">MAISON 704</span>
+          <span>&middot;</span>
+          <span>Charlotte, North Carolina</span>
+        </div>
+        <div class="flex flex-wrap items-center justify-center gap-5 font-medium">
+          <a href="#lookbook" class="hover:text-roseBerry transition-colors">Lookbook</a>
+          <a href="#purse-studio" class="hover:text-roseBerry transition-colors">Design Your Purse</a>
+          <a href="#bespoke" class="hover:text-roseBerry transition-colors">Bespoke Concierge</a>
+          <a href="#our-story" class="hover:text-roseBerry transition-colors">Our Story</a>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <!-- ==================== NATIVE-FEELING MOBILE BOTTOM NAVIGATION BAR (< 768px) ==================== -->
+  <nav class="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#FFFBF8]/95 backdrop-blur-xl border-t border-champagne/40 shadow-[0_-6px_24px_rgba(36,25,29,0.08)]" aria-label="Mobile Navigation">
+    <div class="grid grid-cols-5 h-16 px-1">
+      <a href="#home" class="mobile-tab flex flex-col items-center justify-center gap-0.5 text-[10px] font-semibold text-roseBerry">
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.5z"/></svg>
+        <span>Home</span>
+      </a>
+      <a href="#lookbook" class="mobile-tab flex flex-col items-center justify-center gap-0.5 text-[10px] font-semibold text-mauve hover:text-roseBerry">
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+        <span>Lookbook</span>
+      </a>
+      <a href="#purse-studio" class="mobile-tab flex flex-col items-center justify-center gap-0.5 text-[10px] font-semibold text-mauve hover:text-roseBerry">
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M12 20.5C6.5 16.5 4 12.6 4 8.7C4 5.9 6.2 4 8.7 4C10.3 4 11.4 4.8 12 5.9C12.6 4.8 13.7 4 15.3 4C17.8 4 20 5.9 20 8.7C20 12.6 17.5 16.5 12 20.5Z"/></svg>
+        <span>Design</span>
+      </a>
+      <a href="#bespoke" class="mobile-tab flex flex-col items-center justify-center gap-0.5 text-[10px] font-semibold text-mauve hover:text-roseBerry">
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M12 3l1.9 5.8H20l-4.9 3.6 1.9 5.8L12 14.6 7 18.2l1.9-5.8L4 8.8h6.1L12 3z"/></svg>
+        <span>Bespoke</span>
+      </a>
+      <button id="mobileBagBtn" type="button" class="relative flex flex-col items-center justify-center gap-0.5 text-[10px] font-semibold text-mauve hover:text-roseBerry">
+        <div class="relative">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M6 7h12l1 13H5L6 7z"/><path d="M9 7V6a3 3 0 0 1 6 0v1"/></svg>
+          <span id="mobileBagBadge" class="hidden absolute -top-1.5 -right-2.5 min-w-[16px] h-4 px-1 rounded-full bg-roseBerry text-white text-[9px] font-bold flex items-center justify-center">0</span>
+        </div>
+        <span>Bag</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ==================== 7. SLIDE-OVER SHOPPING BAG DRAWER ==================== -->
+  <div id="bagOverlay" class="fixed inset-0 z-50 bg-espresso/45 backdrop-blur-sm hidden opacity-0 transition-opacity duration-300"></div>
+  <aside id="bagDrawer" class="fixed top-0 right-0 z-50 h-full w-full max-w-md bg-[#FFFBF8] border-l border-champagne/40 shadow-2xl transform translate-x-full transition-transform duration-300 flex flex-col">
+    <div class="p-5 sm:p-6 border-b border-champagne/25 flex items-center justify-between bg-blush/35">
+      <div>
+        <h3 class="font-serif font-bold text-2xl text-espresso">Your Boutique Bag</h3>
+        <div class="text-xs text-mauve">Hand-finished in Charlotte, NC</div>
+      </div>
+      <button id="closeBagBtn" type="button" class="p-2 rounded-full bg-white/80 hover:bg-blush text-espresso border border-champagne/40" aria-label="Close Bag">
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Cart Items List -->
+    <div id="bagItemsList" class="flex-1 overflow-y-auto p-5 space-y-4"></div>
+
+    <!-- Fulfillment & Checkout Footer -->
+    <div class="p-5 sm:p-6 border-t border-champagne/30 bg-blush/30 space-y-4">
+      <!-- Free Shipping Progress Hint -->
+      <div id="shippingHintBar" class="text-xs text-center py-2 px-3 rounded-xl bg-white/85 border border-champagne/30 text-mauve">
+        Complimentary Boutique Pickup in Charlotte &middot; Free shipping over $120
+      </div>
+
+      <!-- Fulfillment Toggle -->
+      <div class="grid grid-cols-2 gap-2.5">
+        <button id="optPickupBtn" type="button" class="p-3 rounded-2xl border text-left transition-all bg-white border-roseBerry shadow-sm">
+          <div class="text-xs font-bold text-espresso">Boutique Pickup</div>
+          <div class="text-[11px] text-roseBerry font-semibold">Charlotte &middot; Free</div>
+        </button>
+        <button id="optShipBtn" type="button" class="p-3 rounded-2xl border text-left transition-all bg-white/60 border-champagne/40 text-mauve hover:bg-white">
+          <div class="text-xs font-bold text-espresso">Insured Shipping</div>
+          <div class="text-[11px] text-mauve">$8 &middot; Free $120+</div>
+        </button>
+      </div>
+
+      <!-- Totals -->
+      <div class="space-y-1.5 text-sm">
+        <div class="flex justify-between text-mauve">
+          <span>Subtotal</span>
+          <span id="bagSubtotal" class="font-semibold text-espresso">$0</span>
+        </div>
+        <div class="flex justify-between text-mauve">
+          <span>Delivery</span>
+          <span id="bagShipping" class="font-semibold text-roseBerry">Free</span>
+        </div>
+        <div class="flex justify-between text-base font-bold text-espresso pt-2 border-t border-champagne/30">
+          <span>Estimated Total</span>
+          <span id="bagTotal" class="font-serif text-2xl text-roseBerry">$0</span>
+        </div>
+      </div>
+
+      <button id="openCheckoutBtn" type="button" class="w-full py-3.5 rounded-full bg-roseBerry hover:bg-roseDeep text-pearl font-semibold text-sm transition-all shadow-lg shadow-roseBerry/25 disabled:opacity-40 disabled:cursor-not-allowed">
+        Proceed to Boutique Checkout
+      </button>
+    </div>
+  </aside>
+
+  <!-- ==================== BOUTIQUE CHECKOUT MODAL ==================== -->
+  <div id="checkoutModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-espresso/55 backdrop-blur-sm">
+    <div class="w-full max-w-md bg-[#FFFBF8] border border-champagne/50 rounded-[2rem] p-6 sm:p-8 shadow-2xl relative">
+      <button id="closeCheckoutBtn" type="button" class="absolute top-5 right-5 p-2 rounded-full bg-blush/70 text-espresso hover:bg-blush" aria-label="Close Checkout">
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+        </svg>
+      </button>
+
+      <!-- Step A: Order Details Form -->
+      <div id="checkoutFormState">
+        <div class="text-xs uppercase tracking-[0.2em] text-champagne font-semibold mb-1">Maison 704 Atelier</div>
+        <h3 class="font-serif font-bold text-3xl text-espresso mb-4">Complete Your Order</h3>
+        <form id="checkoutForm" class="space-y-3.5">
+          <div>
+            <label class="block text-xs font-semibold text-espresso mb-1">Full Name</label>
+            <input type="text" required placeholder="Sophia Laurent" class="w-full px-4 py-2.5 rounded-2xl bg-white border border-champagne/45 text-sm text-espresso focus:border-roseBerry focus:outline-none" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-espresso mb-1">Email for Atelier Updates &amp; Pickup Notice</label>
+            <input type="email" required placeholder="sophia@example.com" class="w-full px-4 py-2.5 rounded-2xl bg-white border border-champagne/45 text-sm text-espresso focus:border-roseBerry focus:outline-none" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-espresso mb-1">Phone Number (Optional SMS when ready)</label>
+            <input type="tel" placeholder="(704) 555-0194" class="w-full px-4 py-2.5 rounded-2xl bg-white border border-champagne/45 text-sm text-espresso focus:border-roseBerry focus:outline-none" />
+          </div>
+          <div class="p-4 rounded-2xl bg-blush/50 border border-champagne/35 flex items-center justify-between">
+            <span class="text-xs font-semibold text-mauve">Order Total</span>
+            <span id="checkoutModalTotal" class="font-serif font-bold text-2xl text-roseBerry">$0</span>
+          </div>
+          <button type="submit" class="w-full py-3.5 rounded-full bg-roseBerry hover:bg-roseDeep text-pearl font-semibold text-sm transition-all shadow-lg">
+            Place Boutique Order
+          </button>
+        </form>
+      </div>
+
+      <!-- Step B: Order Confirmation -->
+      <div id="checkoutConfirmState" class="hidden text-center py-4 space-y-4">
+        <div class="w-16 h-16 mx-auto rounded-full bg-blush border border-champagne/50 flex items-center justify-center text-roseBerry">
+          <svg class="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
+        </div>
+        <h3 class="font-serif font-bold text-3xl text-espresso">Thank You, Lovely!</h3>
+        <p class="text-sm text-mauve leading-relaxed">
+          Your Maison 704 order <strong id="confirmOrderNum" class="text-espresso">#M704-2819</strong> has been received. We'll begin hand-finishing your pieces in our Charlotte atelier and email you when they're ready!
+        </p>
+        <button id="finishCheckoutBtn" type="button" class="px-7 py-3 rounded-full bg-espresso hover:bg-roseBerry text-pearl text-xs font-semibold transition-all">
+          Continue Browsing
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== BESPOKE REQUEST CONFIRMATION MODAL ==================== -->
+  <div id="bespokeModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-espresso/55 backdrop-blur-sm">
+    <div class="w-full max-w-md bg-[#FFFBF8] border border-champagne/50 rounded-[2rem] p-7 sm:p-8 shadow-2xl text-center space-y-4">
+      <div class="w-16 h-16 mx-auto rounded-full bg-blush border border-champagne/50 flex items-center justify-center text-roseBerry">
+        <svg class="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 20.5C6.5 16.5 4 12.6 4 8.7C4 5.9 6.2 4 8.7 4C10.3 4 11.4 4.8 12 5.9C12.6 4.8 13.7 4 15.3 4C17.8 4 20 5.9 20 8.7C20 12.6 17.5 16.5 12 20.5Z" />
+        </svg>
+      </div>
+      <h3 class="font-serif font-bold text-3xl text-espresso">We Received Your Vision!</h3>
+      <p id="bespokeConfirmCopy" class="text-sm text-mauve leading-relaxed">
+        Our Charlotte atelier will review your color &amp; styling notes and reply within 24 hours with shade samples and your custom quote.
+      </p>
+      <button id="closeBespokeModalBtn" type="button" class="px-7 py-3 rounded-full bg-roseBerry hover:bg-roseDeep text-pearl text-xs font-semibold transition-all">
+        Back to Maison 704
+      </button>
+    </div>
+  </div>
+
+  <!-- ==================== TOAST NOTIFICATION STACK ==================== -->
+  <div id="toastStack" class="fixed bottom-20 md:bottom-6 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- ==================== STRUCTURED APP SCRIPT (ANTIGRAVITY-READY) ==================== -->
+  <script>
+    // =========================================================================
+    // 1. CENTRALIZED APP_DATA CONFIGURATION (Easy to port & swap real photos)
+    // =========================================================================
+    const APP_DATA = {
+      brand: {
+        name: 'MAISON 704',
+        subtitle: 'Charlotte Atelier',
+        city: 'Charlotte, NC',
+        freeShippingThreshold: 120,
+        flatShippingRate: 8
+      },
+
+      skylineImages: {
+        primary: 'https://commons.wikimedia.org/wiki/Special:FilePath/Charlotte_night_skyline_2016.jpg?width=1920',
+        fallback: 'https://commons.wikimedia.org/wiki/Special:FilePath/Charlotte_Skyline_from_South_End_Apartment_Building_March_2024.jpg?width=1920'
+      },
+
+      categories: [
+        { id: 'all', label: 'All Pieces' },
+        { id: 'purses', label: 'Statement Purses' },
+        { id: 'clutches', label: 'Evening Clutches' },
+        { id: 'decor', label: 'Vanity & Decor' },
+        { id: 'sets', label: 'Boutique Sets' }
+      ],
+
+      // 8 Curated Lookbook Items (Set `photoUrl` when ready to replace placeholder frames permanently)
+      catalog: [
+        {
+          id: 'dilworth-heart',
+          slot: '01',
+          name: 'The Dilworth Heart Clutch',
+          category: 'purses',
+          finishTag: 'Satin Rose · Made to Order',
+          price: 78,
+          isPurse: true,
+          photoUrl: '',
+          preset: { shape: 'heart', size: 'everyday', texture: 'quilt', color: 'rose-quartz', handle: 'lid_arch', clasp: 'snap', badge: 'shield', monogram: 'CLT' }
+        },
+        {
+          id: 'southend-quilted',
+          slot: '02',
+          name: 'South End Quilted Crossbody',
+          category: 'purses',
+          finishTag: 'Champagne Silk Sheen · Custom Color',
+          price: 86,
+          isPurse: true,
+          photoUrl: '',
+          preset: { shape: 'tote', size: 'everyday', texture: 'quilt', color: 'champagne-gold', handle: 'side_loops', clasp: 'snap', badge: 'plaque', monogram: 'M704' }
+        },
+        {
+          id: 'qc-crown-tray',
+          slot: '03',
+          name: 'Queen City Crown Vanity Tray',
+          category: 'decor',
+          finishTag: 'Pearl Matte · Hand-Finished',
+          price: 44,
+          isPurse: false,
+          photoUrl: ''
+        },
+        {
+          id: 'myers-park-vase',
+          slot: '04',
+          name: 'Myers Park Fluted Flower Vase',
+          category: 'decor',
+          finishTag: 'Satin Ivory · Sculpted Decor',
+          price: 52,
+          isPurse: false,
+          photoUrl: ''
+        },
+        {
+          id: 'atherton-starlight',
+          slot: '05',
+          name: 'Atherton Starlight Evening Bag',
+          category: 'clutches',
+          finishTag: 'Cherry Velvet · Night Out Ready',
+          price: 84,
+          isPurse: true,
+          photoUrl: '',
+          preset: { shape: 'star5', size: 'everyday', texture: 'pleats', color: 'cherry-velvet', handle: 'side_loops', clasp: 'snap', badge: 'circle', monogram: 'LUX' }
+        },
+        {
+          id: 'noda-pearl-scallop',
+          slot: '06',
+          name: 'NoDa Pearl Scallop Pouch',
+          category: 'clutches',
+          finishTag: 'Pearl Ivory · Soft Sheen',
+          price: 74,
+          isPurse: true,
+          photoUrl: '',
+          preset: { shape: 'scallop', size: 'mini', texture: 'smooth', color: 'pearl-ivory', handle: 'none', clasp: 'magnetic', badge: 'diamond', monogram: 'CLT' }
+        },
+        {
+          id: 'rosegold-earring-stand',
+          slot: '07',
+          name: 'Rose Gold Boutique Earring Stand',
+          category: 'decor',
+          finishTag: 'Silk Rose Gold · Vanity Essential',
+          price: 38,
+          isPurse: false,
+          photoUrl: ''
+        },
+        {
+          id: 'bachelorette-clutch-set',
+          slot: '08',
+          name: 'Bachelorette Monogram Clutch Set',
+          category: 'sets',
+          finishTag: 'Set of 3 · Custom Initials Included',
+          price: 198,
+          isPurse: true,
+          photoUrl: '',
+          preset: { shape: 'diamond', size: 'mini', texture: 'chevron', color: 'sunset-coral', handle: 'none', clasp: 'snap', badge: 'shield', monogram: 'BRDE' }
+        }
+      ],
+
+      // Guided Purse Customizer Configuration
+      silhouettes: [
+        { id: 'heart', name: 'Sculpted Heart', vibe: 'Romantic icon', icon: 'M12 20 C6.5 16 4 12.2 4 8.5 C4 5.8 6.2 4 8.6 4 C10.2 4 11.4 4.8 12 6 C12.6 4.8 13.8 4 15.4 4 C17.8 4 20 5.8 20 8.5 C20 12.2 17.5 16 12 20 Z' },
+        { id: 'star5', name: 'Starlight 5-Point', vibe: 'Party showstopper', icon: 'M12 3 L14.6 8.8 L21 9.5 L16.2 13.8 L17.6 20 L12 16.8 L6.4 20 L7.8 13.8 L3 9.5 L9.4 8.8 Z' },
+        { id: 'tote', name: 'Classic Kelly Tote', vibe: 'Timeless structured', icon: 'M5 8 H19 L20 19 H4 Z M9 8 V6 A3 3 0 0 1 15 6 V8' },
+        { id: 'octagon', name: 'Emerald Octagon', vibe: 'Chic faceted box', icon: 'M8 3 H16 L21 8 V16 L16 21 H8 L3 16 V8 Z' },
+        { id: 'crescent', name: 'Half-Moon Crescent', vibe: 'Modern curved', icon: 'M4 9 C4 16 8 20 12 20 C16 20 20 16 20 9 C17 12 15 13 12 13 C9 13 7 12 4 9 Z' },
+        { id: 'diamond', name: 'Diamond Facet', vibe: 'Jewel-like clutch', icon: 'M12 3 L20 12 L12 21 L4 12 Z' },
+        { id: 'scallop', name: 'Cloud Scallop', vibe: 'Soft feminine waves', icon: 'M7 18 H17 A4 4 0 0 0 18 10.5 A5 5 0 0 0 8.5 8.5 A4 4 0 0 0 7 18 Z' },
+        { id: 'drum', name: 'Pearl Drum', vibe: 'Round vanity box', icon: 'M12 4 A8 8 0 1 0 12 20 A8 8 0 1 0 12 4 Z' }
+      ],
+
+      sizes: [
+        { id: 'mini', name: 'Mini', desc: 'Lip Gloss, Cards & Keys', badge: '', priceDelta: -8, width: 132, height: 84, depth: 62, lidHeight: 20 },
+        { id: 'everyday', name: 'Everyday', desc: 'Fits Phone, Keys & Essentials', badge: '★ Most Popular', priceDelta: 0, width: 162, height: 102, depth: 74, lidHeight: 24 },
+        { id: 'statement', name: 'Statement', desc: 'Night Out Roomy Silhouette', badge: '', priceDelta: 10, width: 188, height: 118, depth: 84, lidHeight: 28 }
+      ],
+
+      textures: [
+        { id: 'quilt', name: 'Diamond Quilted', vibe: 'Plush cushion look', depth: 2.2 },
+        { id: 'chevron', name: 'Chevron Ribbed', vibe: 'Tailored V-waves', depth: 2.0 },
+        { id: 'woven', name: 'Woven Basketweave', vibe: 'Resort boutique', depth: 1.9 },
+        { id: 'pleats', name: 'Fluted Pleats', vibe: 'Delicate vertical', depth: 1.8 },
+        { id: 'smooth', name: 'Satin Smooth', vibe: 'Clean minimalist', depth: 0 }
+      ],
+
+      colors: [
+        { id: 'rose-quartz', name: 'Rose Quartz', hex: '#E89BB5', threeHex: 0xE89BB5, rough: 0.30, metal: 0.14, finish: 'Silk Sheen' },
+        { id: 'champagne-gold', name: 'Champagne Gold', hex: '#D6B082', threeHex: 0xD6B082, rough: 0.24, metal: 0.45, finish: 'Silk Sheen' },
+        { id: 'pearl-ivory', name: 'Pearl Ivory', hex: '#F6EFE7', threeHex: 0xF6EFE7, rough: 0.34, metal: 0.08, finish: 'Satin Matte' },
+        { id: 'espresso-noir', name: 'Espresso Noir', hex: '#342429', threeHex: 0x342429, rough: 0.36, metal: 0.18, finish: 'Satin Matte' },
+        { id: 'cherry-velvet', name: 'Cherry Velvet', hex: '#A92246', threeHex: 0xA92246, rough: 0.28, metal: 0.20, finish: 'Silk Sheen' },
+        { id: 'sunset-coral', name: 'Sunset Coral', hex: '#EB7861', threeHex: 0xEB7861, rough: 0.32, metal: 0.12, finish: 'Satin Matte' },
+        { id: 'carolina-sky', name: 'Carolina Sky', hex: '#88BCE0', threeHex: 0x88BCE0, rough: 0.30, metal: 0.14, finish: 'Silk Sheen' }
+      ],
+
+      handles: [
+        { id: 'lid_arch', name: 'Top Arch Handle', desc: 'Sculpted top carry', priceDelta: 4 },
+        { id: 'side_loops', name: 'Crossbody Chain Loops', desc: 'Ready for gold chain', priceDelta: 4 },
+        { id: 'both', name: 'Both Handle & Loops', desc: 'Versatile day-to-night', priceDelta: 8 },
+        { id: 'none', name: 'Handheld Clutch', desc: 'Sleek evening look', priceDelta: 0 }
+      ],
+
+      clasps: [
+        { id: 'snap', name: 'Signature Snap Clasp', desc: 'Chic front closure', badge: '★ Popular', priceDelta: 0 },
+        { id: 'magnetic', name: 'Hidden Magnetic Flap', desc: 'Seamless clean front', badge: '', priceDelta: 4 }
+      ],
+
+      badges: [
+        { id: 'shield', name: 'Royal Crest' },
+        { id: 'circle', name: 'Circle Medallion' },
+        { id: 'plaque', name: 'Boutique Plaque' },
+        { id: 'diamond', name: 'Diamond' },
+        { id: 'none', name: 'No Plaque' }
+      ]
+    };
+
+    // =========================================================================
+    // 2. TOAST NOTIFICATION HELPER (Zero alert() / confirm())
+    // =========================================================================
+    function showToast(message) {
+      const stack = document.getElementById('toastStack');
+      const el = document.createElement('div');
+      el.className = 'pointer-events-auto bg-[#FFFBF8]/95 backdrop-blur-lg border border-champagne/60 px-4 py-3 rounded-2xl shadow-xl flex items-center gap-2.5 text-xs sm:text-sm font-medium text-espresso transform translate-y-3 opacity-0 transition-all duration-300';
+      el.innerHTML = `<span class="w-2 h-2 rounded-full bg-roseBerry shrink-0"></span><span>${message}</span>`;
+      stack.appendChild(el);
+      requestAnimationFrame(() => el.classList.remove('translate-y-3', 'opacity-0'));
+      setTimeout(() => {
+        el.classList.add('translate-y-3', 'opacity-0');
+        setTimeout(() => el.remove(), 300);
+      }, 3200);
+    }
+
+    // =========================================================================
+    // 3. PHOTOREALISTIC CHARLOTTE SKYLINE PARALLAX, FALLBACK & GOLDEN BOKEH
+    // =========================================================================
+    (function initSkylineBackdrop() {
+      const img = document.getElementById('skyline-photo');
+      const wrap = document.getElementById('skyline-photo-wrap');
+      const wash = document.getElementById('skyline-wash');
+      const canvas = document.getElementById('bokeh-canvas');
+      const ctx = canvas.getContext('2d');
+
+      // Graceful onerror fallback chain for photorealistic Charlotte skyline
+      let triedFallback = false;
+      img.addEventListener('error', () => {
+        if (!triedFallback) {
+          triedFallback = true;
+          img.src = APP_DATA.skylineImages.fallback;
+        } else {
+          img.style.display = 'none';
+        }
+      });
+
+      // Skyline Glow Switcher
+      document.querySelectorAll('.glow-pill').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.glow-pill').forEach((b) => {
+            b.className = 'glow-pill px-2.5 py-0.5 rounded-full text-[11px] font-semibold transition-all text-mauve hover:text-espresso';
+          });
+          btn.className = 'glow-pill px-2.5 py-0.5 rounded-full text-[11px] font-semibold transition-all bg-roseBerry text-white';
+          wash.className = `wash-${btn.dataset.glow}`;
+          img.style.filter = btn.dataset.glow === 'clear-skyline'
+            ? 'saturate(1.08) brightness(1.08) contrast(1.05)'
+            : 'saturate(1.16) brightness(1.06) contrast(1.03)';
+        });
+      });
+
+      // Golden-champagne & soft rose bokeh motes
+      let w = 0, h = 0;
+      const motes = [];
+      const bokehColors = [
+        'rgba(255, 224, 189, 0.42)',
+        'rgba(251, 210, 224, 0.38)',
+        'rgba(255, 248, 240, 0.36)',
+        'rgba(218, 174, 128, 0.32)'
+      ];
+
+      function resizeBokeh() {
+        w = canvas.width = window.innerWidth;
+        h = canvas.height = window.innerHeight;
+      }
+      window.addEventListener('resize', resizeBokeh);
+      resizeBokeh();
+
+      for (let i = 0; i < 38; i++) {
+        motes.push({
+          x: Math.random() * w,
+          y: Math.random() * h,
+          r: Math.random() * 5.5 + 1.8,
+          vy: -(Math.random() * 0.22 + 0.06),
+          vx: (Math.random() - 0.5) * 0.14,
+          color: bokehColors[i % bokehColors.length],
+          phase: Math.random() * Math.PI * 2
+        });
+      }
+
+      let smoothProgress = 0;
+      function animateBackdrop(ts) {
+        requestAnimationFrame(animateBackdrop);
+
+        const maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+        const targetProgress = Math.min(1, Math.max(0, window.scrollY / maxScroll));
+        smoothProgress += (targetProgress - smoothProgress) * 0.06;
+
+        // Smooth panoramic parallax: gentle vertical glide + horizontal pan + subtle slow Ken Burns zoom
+        const kenBurns = 1.03 + 0.03 * Math.sin(ts * 0.00018) + smoothProgress * 0.05;
+        const panX = -smoothProgress * 3.4 + Math.sin(ts * 0.00014) * 0.6;
+        const glideY = -smoothProgress * 3.2;
+        wrap.style.transform = `translate3d(${panX.toFixed(3)}%, ${glideY.toFixed(3)}%, 0) scale(${kenBurns.toFixed(4)})`;
+
+        // Soft drifting bokeh light motes
+        ctx.clearRect(0, 0, w, h);
+        for (let i = 0; i < motes.length; i++) {
+          const m = motes[i];
+          m.y += m.vy;
+          m.x += m.vx + Math.sin(ts * 0.0007 + m.phase) * 0.08;
+          if (m.y < -15) { m.y = h + 15; m.x = Math.random() * w; }
+          if (m.x < -15) m.x = w + 15;
+          if (m.x > w + 15) m.x = -15;
+
+          const pulse = 0.55 + 0.45 * Math.sin(ts * 0.0014 + m.phase);
+          ctx.beginPath();
+          ctx.arc(m.x, m.y, m.r, 0, Math.PI * 2);
+          ctx.fillStyle = m.color;
+          ctx.globalAlpha = pulse;
+          ctx.fill();
+        }
+        ctx.globalAlpha = 1;
+      }
+      requestAnimationFrame(animateBackdrop);
+    })();
+
+    // =========================================================================
+    // 4. SHARED PROCEDURAL 3D PURSE GEOMETRY ENGINE (Three.js r128)
+    // =========================================================================
+    function regularPolyR(theta, sides, roundness = 0.14) {
+      const slice = (Math.PI * 2) / sides;
+      const a = ((theta % slice) + slice) % slice - slice * 0.5;
+      const polyR = Math.cos(slice * 0.5) / Math.cos(a);
+      return (1 - roundness) * polyR + roundness;
+    }
+
+    function getSilhouettePoint(u, shape, width, depth) {
+      const theta = u * Math.PI * 2;
+      const hw = width * 0.5;
+      const hd = depth * 0.5;
+      let x = 0, z = 0;
+
+      switch (shape) {
+        case 'heart': {
+          const hx = Math.pow(Math.sin(theta), 3);
+          const hz = (13 * Math.cos(theta) - 5 * Math.cos(2 * theta) - 2 * Math.cos(3 * theta) - Math.cos(4 * theta)) / 16;
+          x = hw * hx;
+          z = -hd * (hz - 0.14);
+          break;
+        }
+        case 'star5': {
+          const sf = 0.70 + 0.30 * Math.cos(theta * 5 - Math.PI / 2);
+          x = hw * Math.cos(theta) * sf;
+          z = hd * Math.sin(theta) * sf;
+          break;
+        }
+        case 'tote': {
+          const n = 3.6;
+          const cosT = Math.cos(theta), sinT = Math.sin(theta);
+          x = hw * Math.sign(cosT) * Math.pow(Math.abs(cosT), 2 / n);
+          z = hd * Math.sign(sinT) * Math.pow(Math.abs(sinT), 2 / n);
+          break;
+        }
+        case 'octagon': {
+          const r = regularPolyR(theta + Math.PI / 8, 8, 0.13);
+          x = hw * Math.cos(theta) * r;
+          z = hd * Math.sin(theta) * r;
+          break;
+        }
+        case 'crescent': {
+          // Graceful half-moon curve in XZ with rounded pouch gusset
+          const cosT = Math.cos(theta);
+          const sinT = Math.sin(theta);
+          const arch = 0.32 * Math.cos(cosT * Math.PI * 0.5);
+          x = hw * cosT;
+          z = hd * (sinT * 0.76 - arch + 0.16);
+          break;
+        }
+        case 'diamond': {
+          const denom = Math.pow(Math.abs(Math.cos(theta)), 1.25) + Math.pow(Math.abs(Math.sin(theta)), 1.25);
+          x = (hw / denom) * Math.cos(theta);
+          z = (hd / denom) * Math.sin(theta);
+          break;
+        }
+        case 'scallop': {
+          const wave = 0.87 + 0.13 * Math.abs(Math.cos(theta * 4));
+          x = hw * Math.cos(theta) * wave;
+          z = hd * Math.sin(theta) * wave;
+          break;
+        }
+        default: { // drum
+          x = hw * Math.cos(theta);
+          z = hd * Math.sin(theta);
+        }
+      }
+      return { x, z };
+    }
+
+    function getSurfaceTextureOffset(u, v, textureId, depthMm) {
+      if (textureId === 'smooth' || depthMm <= 0) return 0;
+      const freqU = 16, freqV = 8;
+      const fade = Math.sin(Math.min(1, v * 6) * Math.PI * 0.5) * Math.sin(Math.min(1, (1 - v) * 6) * Math.PI * 0.5);
+      let val = 0;
+
+      if (textureId === 'quilt') {
+        const d1 = Math.abs(Math.sin((u * freqU + v * freqV) * Math.PI));
+        const d2 = Math.abs(Math.sin((u * freqU - v * freqV) * Math.PI));
+        val = Math.pow(d1 * d2, 0.45) * depthMm;
+      } else if (textureId === 'chevron') {
+        const vWave = Math.abs(((u * 2) % 1) - 0.5) * 2;
+        val = (Math.sin((v * freqV * 1.4 + vWave * 2.4) * Math.PI * 2) * 0.5 + 0.5) * depthMm;
+      } else if (textureId === 'woven') {
+        const wu = Math.sin(u * freqU * Math.PI * 2);
+        const wv = Math.sin(v * freqV * Math.PI * 2);
+        const checker = Math.sign(Math.sin(u * freqU * Math.PI) * Math.sin(v * freqV * Math.PI));
+        val = ((checker > 0 ? Math.abs(wu) : Math.abs(wv)) * 0.85) * depthMm;
+      } else if (textureId === 'pleats') {
+        val = Math.abs(Math.sin(u * freqU * 1.5 * Math.PI)) * depthMm;
+      }
+      return val * fade;
+    }
+
+    function getOffsetPoint(u, cfg, radialOffset = 0, scaleFactor = 1.0) {
+      const base = getSilhouettePoint(u, cfg.shape, cfg.width, cfg.depth);
+      let x = base.x * scaleFactor;
+      let z = base.z * scaleFactor;
+      const len = Math.sqrt(x * x + z * z) || 1;
+      x += (x / len) * radialOffset;
+      z += (z / len) * radialOffset;
+      return { x, z };
+    }
+
+    // Crisp Gold/Pearl Boutique Monogram Canvas Texture for Front Emblem
+    function makeBoutiqueMonogramTexture(text, baseHex) {
+      const c = document.createElement('canvas');
+      c.width = 512;
+      c.height = 320;
+      const g = c.getContext('2d');
+
+      // Soft satin metallic plaque backdrop
+      const grad = g.createLinearGradient(0, 0, c.width, c.height);
+      const isDark = baseHex.toLowerCase() === '#342429' || baseHex.toLowerCase() === '#a92246';
+      if (isDark) {
+        grad.addColorStop(0, '#E8CCA5');
+        grad.addColorStop(1, '#C6986C');
+      } else {
+        grad.addColorStop(0, '#FFF8F2');
+        grad.addColorStop(1, '#F3DFCE');
+      }
+      g.fillStyle = grad;
+      g.fillRect(0, 0, c.width, c.height);
+
+      // Delicate inner border
+      g.strokeStyle = isDark ? 'rgba(255,251,248,0.65)' : 'rgba(198,152,108,0.8)';
+      g.lineWidth = 10;
+      g.strokeRect(18, 18, c.width - 36, c.height - 36);
+
+      const letters = (text || '').trim().toUpperCase().slice(0, 4);
+      if (letters) {
+        g.font = '700 132px "Cormorant Garamond", Georgia, serif';
+        g.textAlign = 'center';
+        g.textBaseline = 'middle';
+        g.fillStyle = isDark ? '#24191D' : '#8A5A3C';
+        g.fillText(letters, c.width / 2, c.height / 2 + 8);
+      }
+
+      const tex = new THREE.CanvasTexture(c);
+      tex.needsUpdate = true;
+      return tex;
+    }
+
+    // Build Lower Purse Body (Smooth Manifold Geometry)
+    function createPurseBodyGroup(cfg, bodyMat, hardwareMat) {
+      const group = new THREE.Group();
+      const segU = 136, segV = 48;
+      const positions = [], indices = [];
+      const addV = (x, y, z) => { positions.push(x, y, z); return (positions.length / 3) - 1; };
+
+      const wall = 3.2;
+      const floorT = 3.8;
+      const outerGrid = [], innerGrid = [];
+
+      for (let iv = 0; iv <= segV; iv++) {
+        const v = iv / segV;
+        const yOut = v * cfg.height;
+        const yIn = floorT + v * (cfg.height - floorT);
+        // Subtle organic boutique soften near bottom base
+        const baseRound = 1.0 - 0.04 * Math.pow(1 - v, 3);
+        const rOut = [], rIn = [];
+
+        for (let iu = 0; iu < segU; iu++) {
+          const u = iu / segU;
+          const tex = getSurfaceTextureOffset(u, v, cfg.texture, cfg.texDepth);
+          const pOut = getOffsetPoint(u, cfg, tex, baseRound);
+          const pIn = getOffsetPoint(u, cfg, -wall, baseRound);
+          rOut.push(addV(pOut.x, yOut, pOut.z));
+          rIn.push(addV(pIn.x, yIn, pIn.z));
+        }
+        outerGrid.push(rOut);
+        innerGrid.push(rIn);
+      }
+
+      for (let iv = 0; iv < segV; iv++) {
+        for (let iu = 0; iu < segU; iu++) {
+          const nU = (iu + 1) % segU;
+          indices.push(outerGrid[iv][iu], outerGrid[iv + 1][nU], outerGrid[iv][nU]);
+          indices.push(outerGrid[iv][iu], outerGrid[iv + 1][iu], outerGrid[iv + 1][nU]);
+
+          indices.push(innerGrid[iv][iu], innerGrid[iv][nU], innerGrid[iv + 1][nU]);
+          indices.push(innerGrid[iv][iu], innerGrid[iv + 1][nU], innerGrid[iv + 1][iu]);
+        }
+      }
+
+      for (let iu = 0; iu < segU; iu++) {
+        const nU = (iu + 1) % segU;
+        indices.push(outerGrid[segV][iu], outerGrid[segV][nU], innerGrid[segV][nU]);
+        indices.push(outerGrid[segV][iu], innerGrid[segV][nU], innerGrid[segV][iu]);
+      }
+
+      const outC = addV(0, 0, 0), inC = addV(0, floorT, 0);
+      for (let iu = 0; iu < segU; iu++) {
+        const nU = (iu + 1) % segU;
+        indices.push(outC, outerGrid[0][nU], outerGrid[0][iu]);
+        indices.push(inC, innerGrid[0][iu], innerGrid[0][nU]);
+      }
+
+      const geo = new THREE.BufferGeometry();
+      geo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+      geo.setIndex(indices);
+      geo.computeVertexNormals();
+      group.add(new THREE.Mesh(geo, bodyMat));
+
+      const backPt = getOffsetPoint(0.75, cfg, 0, 1.0);
+      const frontPt = getOffsetPoint(0.25, cfg, 0, 1.0);
+
+      // Rear Hinged Knuckles
+      const hZ = backPt.z - 4.2;
+      const span = Math.min(34, cfg.width * 0.24);
+      [-span * 0.65, span * 0.65].forEach((xPos) => {
+        const knuck = new THREE.CylinderGeometry(4.6, 4.6, span * 0.44, 24);
+        knuck.rotateZ(Math.PI / 2);
+        knuck.translate(xPos, cfg.height, hZ);
+        group.add(new THREE.Mesh(knuck, bodyMat));
+      });
+      const pin = new THREE.CylinderGeometry(2.1, 2.1, span * 1.65, 20);
+      pin.rotateZ(Math.PI / 2);
+      pin.translate(0, cfg.height, hZ);
+      group.add(new THREE.Mesh(pin, hardwareMat));
+
+      // Front Closure Hardware
+      if (cfg.clasp === 'snap') {
+        const stud = new THREE.BoxGeometry(18, 6, 4.2);
+        stud.translate(0, cfg.height - 5, frontPt.z + 2.0);
+        group.add(new THREE.Mesh(stud, hardwareMat));
+      } else {
+        // Subtle recessed magnetic pads inside top front rim
+        [-18, 18].forEach((mx) => {
+          const pad = new THREE.CylinderGeometry(4, 4, 2.2, 18);
+          pad.translate(mx, cfg.height - 1.2, frontPt.z - 4.5);
+          group.add(new THREE.Mesh(pad, hardwareMat));
+        });
+      }
+
+      // Crossbody Side D-Ring Loops
+      if (cfg.handle === 'side_loops' || cfg.handle === 'both') {
+        const rightPt = getOffsetPoint(0.0, cfg, 0, 1.0);
+        const leftPt = getOffsetPoint(0.5, cfg, 0, 1.0);
+        [rightPt.x + 2, leftPt.x - 2].forEach((xPos) => {
+          const loop = new THREE.TorusGeometry(8.5, 2.8, 14, 28);
+          loop.rotateY(Math.PI / 2);
+          loop.translate(xPos, cfg.height * 0.84, 0);
+          group.add(new THREE.Mesh(loop, hardwareMat));
+        });
+      }
+
+      // Front Center Medallion Plaque + Live 3D Monogram
+      if (cfg.badge !== 'none') {
+        const fMid = getOffsetPoint(0.25, cfg, cfg.texDepth, 1.0);
+        const bDepth = 4.6;
+        let bGeo = null;
+
+        if (cfg.badge === 'circle') {
+          bGeo = new THREE.CylinderGeometry(18, 19.2, bDepth, 40);
+          bGeo.rotateX(Math.PI / 2);
+        } else if (cfg.badge === 'plaque') {
+          bGeo = new THREE.BoxGeometry(44, 24, bDepth);
+        } else if (cfg.badge === 'diamond') {
+          bGeo = new THREE.BoxGeometry(26, 26, bDepth);
+          bGeo.rotateZ(Math.PI / 4);
+        } else if (cfg.badge === 'shield') {
+          const s = new THREE.Shape();
+          s.moveTo(0, 20);
+          s.lineTo(17, 14);
+          s.quadraticCurveTo(17, -8, 0, -21);
+          s.quadraticCurveTo(-17, -8, -17, 14);
+          s.closePath();
+          bGeo = new THREE.ExtrudeGeometry(s, { depth: bDepth, bevelEnabled: true, bevelThickness: 1.1, bevelSize: 0.9, bevelSegments: 2 });
+          bGeo.translate(0, 0, -bDepth * 0.5);
+        }
+
+        if (bGeo) {
+          bGeo.translate(0, cfg.height * 0.52, fMid.z + 1.8);
+          group.add(new THREE.Mesh(bGeo, hardwareMat));
+
+          if (cfg.monogram && cfg.monogram.trim().length > 0) {
+            const monoTex = makeBoutiqueMonogramTexture(cfg.monogram, cfg.colorCss);
+            const monoMat = new THREE.MeshStandardMaterial({ map: monoTex, roughness: 0.28, metalness: 0.22 });
+            const wPlaque = cfg.badge === 'plaque' ? 36 : 26;
+            const hPlaque = cfg.badge === 'plaque' ? 18 : 16;
+            const monoPlate = new THREE.BoxGeometry(wPlaque, hPlaque, 1.2);
+            monoPlate.translate(0, cfg.height * 0.52, fMid.z + 1.8 + bDepth * 0.5 + 0.65);
+            group.add(new THREE.Mesh(monoPlate, monoMat));
+          }
+        }
+      }
+
+      return group;
+    }
+
+    // Build Hinged Domed Lid + Top Arch Handle
+    function createPurseLidGroup(cfg, bodyMat, hardwareMat) {
+      const lidGroup = new THREE.Group();
+      const segU = 136, segV = 22;
+      const positions = [], indices = [];
+      const addV = (x, y, z) => { positions.push(x, y, z); return (positions.length / 3) - 1; };
+
+      const wall = 3.2;
+      const roofT = 3.2;
+      const outerGrid = [], innerGrid = [];
+
+      for (let iv = 0; iv <= segV; iv++) {
+        const v = iv / segV;
+        const yOut = v * cfg.lidHeight;
+        const yIn = v * (cfg.lidHeight - roofT);
+        const crownScale = 1.0 - 0.08 * Math.pow(v, 2);
+        const rOut = [], rIn = [];
+
+        for (let iu = 0; iu < segU; iu++) {
+          const u = iu / segU;
+          const tex = getSurfaceTextureOffset(u, v, cfg.texture, cfg.texDepth) * (1 - v * 0.72);
+          const pOut = getOffsetPoint(u, cfg, tex, crownScale);
+          const pIn = getOffsetPoint(u, cfg, -wall, crownScale);
+          rOut.push(addV(pOut.x, yOut, pOut.z));
+          rIn.push(addV(pIn.x, yIn, pIn.z));
+        }
+        outerGrid.push(rOut);
+        innerGrid.push(rIn);
+      }
+
+      for (let iv = 0; iv < segV; iv++) {
+        for (let iu = 0; iu < segU; iu++) {
+          const nU = (iu + 1) % segU;
+          indices.push(outerGrid[iv][iu], outerGrid[iv + 1][nU], outerGrid[iv][nU]);
+          indices.push(outerGrid[iv][iu], outerGrid[iv + 1][iu], outerGrid[iv + 1][nU]);
+
+          indices.push(innerGrid[iv][iu], innerGrid[iv][nU], innerGrid[iv + 1][nU]);
+          indices.push(innerGrid[iv][iu], innerGrid[iv + 1][nU], innerGrid[iv + 1][iu]);
+        }
+      }
+
+      const outRoof = addV(0, cfg.lidHeight, 0);
+      const inRoof = addV(0, cfg.lidHeight - roofT, 0);
+      for (let iu = 0; iu < segU; iu++) {
+        const nU = (iu + 1) % segU;
+        indices.push(outRoof, outerGrid[segV][iu], outerGrid[segV][nU]);
+        indices.push(inRoof, innerGrid[segV][nU], innerGrid[segV][iu]);
+        indices.push(outerGrid[0][iu], innerGrid[0][nU], outerGrid[0][nU]);
+        indices.push(outerGrid[0][iu], innerGrid[0][iu], innerGrid[0][nU]);
+      }
+
+      const geo = new THREE.BufferGeometry();
+      geo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+      geo.setIndex(indices);
+      geo.computeVertexNormals();
+      lidGroup.add(new THREE.Mesh(geo, bodyMat));
+
+      const backPt = getOffsetPoint(0.75, cfg, 0, 1.0);
+      const frontPt = getOffsetPoint(0.25, cfg, 0, 1.0);
+
+      // Center Rear Hinge Knuckle
+      const hZ = backPt.z - 4.2;
+      const span = Math.min(34, cfg.width * 0.24);
+      const midKnuck = new THREE.CylinderGeometry(4.3, 4.3, span * 0.70, 24);
+      midKnuck.rotateZ(Math.PI / 2);
+      midKnuck.translate(0, 0, hZ);
+      lidGroup.add(new THREE.Mesh(midKnuck, bodyMat));
+
+      // Front Clasp Tab
+      if (cfg.clasp === 'snap') {
+        const claspArm = new THREE.BoxGeometry(20, 13, 3.6);
+        claspArm.translate(0, -3.5, frontPt.z + 3.2);
+        lidGroup.add(new THREE.Mesh(claspArm, hardwareMat));
+      }
+
+      // Sculpted Top Arch Handle on Lid
+      if (cfg.handle === 'lid_arch' || cfg.handle === 'both') {
+        const archR = Math.min(36, cfg.width * 0.23);
+        const handleGeo = new THREE.TorusGeometry(archR, 4.2, 16, 40, Math.PI);
+        handleGeo.translate(0, cfg.lidHeight - 1, 0);
+        lidGroup.add(new THREE.Mesh(handleGeo, bodyMat));
+      }
+
+      return lidGroup;
+    }
+
+    function disposeGroup(g) {
+      while (g.children.length > 0) {
+        const c = g.children[0];
+        if (c.geometry) c.geometry.dispose();
+        g.remove(c);
+      }
+    }
+
+    // Soft bright boutique lighting helper (keeps pastel/pearl/gold luminous & crisp)
+    function addBoutiqueLighting(scene) {
+      const hemi = new THREE.HemisphereLight(0xFFFDFB, 0xF3D4E0, 0.95);
+      scene.add(hemi);
+
+      const key = new THREE.DirectionalLight(0xFFF7EE, 0.88);
+      key.position.set(160, 280, 240);
+      scene.add(key);
+
+      const blushFill = new THREE.DirectionalLight(0xFFDCE8, 0.48);
+      blushFill.position.set(-200, 130, 140);
+      scene.add(blushFill);
+
+      const champagneRim = new THREE.DirectionalLight(0xFFE6C8, 0.56);
+      champagneRim.position.set(140, 180, -240);
+      scene.add(champagneRim);
+
+      // Soft ambient pedestal shadow disc (no technical CAD grids!)
+      const shadowCanvas = document.createElement('canvas');
+      shadowCanvas.width = 256;
+      shadowCanvas.height = 256;
+      const sg = shadowCanvas.getContext('2d');
+      const rad = sg.createRadialGradient(128, 128, 12, 128, 128, 118);
+      rad.addColorStop(0, 'rgba(92, 46, 66, 0.22)');
+      rad.addColorStop(0.55, 'rgba(130, 74, 96, 0.09)');
+      rad.addColorStop(1, 'rgba(255, 251, 248, 0)');
+      sg.fillStyle = rad;
+      sg.fillRect(0, 0, 256, 256);
+
+      const shadowMat = new THREE.MeshBasicMaterial({
+        map: new THREE.CanvasTexture(shadowCanvas),
+        transparent: true,
+        depthWrite: false
+      });
+      const shadowDisc = new THREE.Mesh(new THREE.PlaneGeometry(240, 240), shadowMat);
+      shadowDisc.rotation.x = -Math.PI / 2;
+      shadowDisc.position.y = -0.5;
+      scene.add(shadowDisc);
+    }
+
+    // =========================================================================
+    // 5. HERO FLOATING 3D PURSE SPOTLIGHT
+    // =========================================================================
+    (function initHeroPurse() {
+      const mount = document.getElementById('heroPurseMount');
+      const fallback = document.getElementById('heroWebglFallback');
+
+      try {
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(38, Math.max(1, mount.clientWidth) / Math.max(1, mount.clientHeight), 1, 2000);
+        camera.position.set(60, 145, 255);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.setSize(mount.clientWidth, mount.clientHeight);
+        mount.appendChild(renderer.domElement);
+
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.target.set(0, 58, 0);
+        controls.enableDamping = true;
+        controls.enableZoom = false;
+        controls.autoRotate = true;
+        controls.autoRotateSpeed = 1.9;
+
+        addBoutiqueLighting(scene);
+
+        const heroBodyMat = new THREE.MeshStandardMaterial({
+          color: 0xE89BB5,
+          roughness: 0.30,
+          metalness: 0.14,
+          side: THREE.DoubleSide
+        });
+        const heroHardwareMat = new THREE.MeshStandardMaterial({
+          color: 0xD8B488,
+          roughness: 0.24,
+          metalness: 0.62,
+          side: THREE.DoubleSide
+        });
+
+        const heroCfg = {
+          shape: 'heart',
+          width: 158,
+          height: 98,
+          depth: 74,
+          lidHeight: 24,
+          texture: 'quilt',
+          texDepth: 2.2,
+          handle: 'lid_arch',
+          clasp: 'snap',
+          badge: 'shield',
+          monogram: 'CLT',
+          colorCss: '#E89BB5'
+        };
+
+        const body = createPurseBodyGroup(heroCfg, heroBodyMat, heroHardwareMat);
+        const lid = createPurseLidGroup(heroCfg, heroBodyMat, heroHardwareMat);
+        const backPt = getOffsetPoint(0.75, heroCfg, 0, 1.0);
+        const pivot = new THREE.Group();
+        pivot.position.set(0, heroCfg.height, backPt.z - 4.2);
+        lid.position.set(0, 0, -(backPt.z - 4.2));
+        pivot.rotation.x = -(14 * Math.PI) / 180;
+        pivot.add(lid);
+
+        scene.add(body, pivot);
+
+        // Quick 3-Color Dots in Hero
+        document.querySelectorAll('.hero-color-dot').forEach((dot) => {
+          dot.addEventListener('click', () => {
+            document.querySelectorAll('.hero-color-dot').forEach((d) => {
+              d.classList.remove('ring-2', 'ring-roseBerry', 'ring-offset-2', 'ring-offset-pearl', 'scale-105');
+              d.classList.add('ring-1', 'ring-champagne/60');
+            });
+            dot.classList.remove('ring-1', 'ring-champagne/60');
+            dot.classList.add('ring-2', 'ring-roseBerry', 'ring-offset-2', 'ring-offset-pearl', 'scale-105');
+            heroBodyMat.color.setHex(parseInt(dot.dataset.color, 16));
+            heroBodyMat.metalness = dot.dataset.label === 'Champagne Gold' ? 0.45 : 0.14;
+            document.getElementById('heroColorLabel').textContent = dot.dataset.label;
+          });
+        });
+
+        window.addEventListener('resize', () => {
+          if (!mount.clientWidth || !mount.clientHeight) return;
+          camera.aspect = mount.clientWidth / mount.clientHeight;
+          camera.updateProjectionMatrix();
+          renderer.setSize(mount.clientWidth, mount.clientHeight);
+        });
+
+        let heroVisible = true;
+        if ('IntersectionObserver' in window) {
+          new IntersectionObserver((entries) => {
+            heroVisible = entries[0].isIntersecting;
+          }).observe(mount);
+        }
+
+        function animateHero() {
+          requestAnimationFrame(animateHero);
+          if (!heroVisible) return;
+          controls.update();
+          renderer.render(scene, camera);
+        }
+        animateHero();
+      } catch (e) {
+        fallback.classList.remove('hidden');
+      }
+    })();
+
+    // =========================================================================
+    // 6. GUIDED BOUTIQUE PURSE CUSTOMIZER (4-STEP ATELIER + THREE.JS + STL)
+    // =========================================================================
+    const studioState = {
+      step: 1,
+      shape: 'heart',
+      size: 'everyday',
+      texture: 'quilt',
+      color: 'rose-quartz',
+      handle: 'lid_arch',
+      clasp: 'snap',
+      badge: 'shield',
+      monogram: 'CLT',
+      lidAngle: 22,
+      giftNote: '',
+      autoRotate: true
+    };
+
+    let studioScene, studioCamera, studioRenderer, studioControls;
+    let studioBodyGroup, studioLidPivot, studioBodyMat, studioHardwareMat;
+    let studioReady = false;
+
+    function getResolvedStudioConfig() {
+      const sz = APP_DATA.sizes.find((s) => s.id === studioState.size) || APP_DATA.sizes[1];
+      const tx = APP_DATA.textures.find((t) => t.id === studioState.texture) || APP_DATA.textures[0];
+      const col = APP_DATA.colors.find((c) => c.id === studioState.color) || APP_DATA.colors[0];
+      const hdl = APP_DATA.handles.find((h) => h.id === studioState.handle) || APP_DATA.handles[0];
+      const clp = APP_DATA.clasps.find((c) => c.id === studioState.clasp) || APP_DATA.clasps[0];
+      const shp = APP_DATA.silhouettes.find((s) => s.id === studioState.shape) || APP_DATA.silhouettes[0];
+
+      // Boutique Pricing ($68 - $96)
+      let price = 76 + sz.priceDelta + hdl.priceDelta + clp.priceDelta;
+      if (studioState.badge !== 'none' && studioState.monogram.trim()) price += 4;
+      price = Math.max(68, Math.min(96, price));
+
+      return {
+        shape: studioState.shape,
+        shapeName: shp.name,
+        sizeName: sz.name,
+        width: sz.width,
+        height: sz.height,
+        depth: sz.depth,
+        lidHeight: sz.lidHeight,
+        texture: studioState.texture,
+        textureName: tx.name,
+        texDepth: tx.depth,
+        colorName: col.name,
+        colorCss: col.hex,
+        threeHex: col.threeHex,
+        rough: col.rough,
+        metal: col.metal,
+        finish: col.finish,
+        handle: studioState.handle,
+        handleName: hdl.name,
+        clasp: studioState.clasp,
+        claspName: clp.name,
+        badge: studioState.badge,
+        monogram: studioState.monogram,
+        lidAngle: studioState.lidAngle,
+        price
+      };
+    }
+
+    function initStudio3D() {
+      const mount = document.getElementById('studioPurseMount');
+      const fallback = document.getElementById('studioWebglFallback');
+
+      try {
+        studioScene = new THREE.Scene();
+        studioCamera = new THREE.PerspectiveCamera(38, Math.max(1, mount.clientWidth) / Math.max(1, mount.clientHeight), 1, 2500);
+        studioCamera.position.set(78, 160, 290);
+
+        studioRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        studioRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        studioRenderer.setSize(mount.clientWidth, mount.clientHeight);
+        mount.appendChild(studioRenderer.domElement);
+
+        studioControls = new THREE.OrbitControls(studioCamera, studioRenderer.domElement);
+        studioControls.target.set(0, 62, 0);
+        studioControls.enableDamping = true;
+        studioControls.dampingFactor = 0.06;
+        studioControls.minDistance = 150;
+        studioControls.maxDistance = 460;
+        studioControls.autoRotate = studioState.autoRotate;
+        studioControls.autoRotateSpeed = 1.4;
+
+        addBoutiqueLighting(studioScene);
+
+        studioBodyMat = new THREE.MeshStandardMaterial({
+          color: 0xE89BB5,
+          roughness: 0.30,
+          metalness: 0.14,
+          side: THREE.DoubleSide
+        });
+        studioHardwareMat = new THREE.MeshStandardMaterial({
+          color: 0xD8B488,
+          roughness: 0.24,
+          metalness: 0.62,
+          side: THREE.DoubleSide
+        });
+
+        studioBodyGroup = new THREE.Group();
+        studioLidPivot = new THREE.Group();
+        studioScene.add(studioBodyGroup, studioLidPivot);
+        studioReady = true;
+
+        window.addEventListener('resize', () => {
+          if (!mount.clientWidth || !mount.clientHeight) return;
+          studioCamera.aspect = mount.clientWidth / mount.clientHeight;
+          studioCamera.updateProjectionMatrix();
+          studioRenderer.setSize(mount.clientWidth, mount.clientHeight);
+        });
+
+        let studioVisible = true;
+        if ('IntersectionObserver' in window) {
+          new IntersectionObserver((entries) => {
+            studioVisible = entries[0].isIntersecting;
+          }).observe(mount);
+        }
+
+        function animateStudio() {
+          requestAnimationFrame(animateStudio);
+          if (!studioVisible) return;
+          studioControls.update();
+          studioRenderer.render(studioScene, studioCamera);
+        }
+        animateStudio();
+      } catch (err) {
+        fallback.classList.remove('hidden');
+      }
+    }
+
+    function rebuildStudioPurse() {
+      const cfg = getResolvedStudioConfig();
+
+      // Update UI text readouts
+      document.getElementById('studioPriceDisplay').textContent = `$${cfg.price}`;
+      document.getElementById('studioStageTitle').textContent = `${cfg.shapeName} · ${cfg.colorName}`;
+      document.getElementById('studioStageDot').style.background = cfg.colorCss;
+      document.getElementById('selectedShadeName').textContent = `${cfg.colorName} (${cfg.finish})`;
+      document.getElementById('ownerDimReadout').textContent = `Dimensions: ${cfg.width} × ${cfg.depth} × ${cfg.height} mm (+${cfg.lidHeight} mm Lid)`;
+
+      const peekLabel = cfg.lidAngle <= 4 ? 'Closed' : cfg.lidAngle < 45 ? 'Slightly Open' : 'Open Wide';
+      document.getElementById('peekStatusLabel').textContent = peekLabel;
+
+      if (!studioReady) return;
+
+      studioBodyMat.color.setHex(cfg.threeHex);
+      studioBodyMat.roughness = cfg.rough;
+      studioBodyMat.metalness = cfg.metal;
+
+      disposeGroup(studioBodyGroup);
+      disposeGroup(studioLidPivot);
+
+      const body = createPurseBodyGroup(cfg, studioBodyMat, studioHardwareMat);
+      studioBodyGroup.add(body);
+
+      const lid = createPurseLidGroup(cfg, studioBodyMat, studioHardwareMat);
+      const backPt = getOffsetPoint(0.75, cfg, 0, 1.0);
+      const hingeZ = backPt.z - 4.2;
+
+      studioLidPivot.position.set(0, cfg.height, hingeZ);
+      lid.position.set(0, 0, -hingeZ);
+      studioLidPivot.rotation.x = -(cfg.lidAngle * Math.PI) / 180;
+      studioLidPivot.add(lid);
+    }
+
+    // Render Guided 4-Step Studio Controls
+    function renderStudioControls() {
+      // Step 1: Silhouettes
+      document.getElementById('silhouetteGrid').innerHTML = APP_DATA.silhouettes.map((s) => {
+        const active = studioState.shape === s.id;
+        return `
+          <button type="button" onclick="selectStudioField('shape','${s.id}')" class="p-3.5 rounded-2xl border text-left transition-all flex items-center gap-3 ${active ? 'bg-blush/85 border-roseBerry shadow-sm' : 'bg-white/80 border-champagne/35 hover:border-champagne'}">
+            <div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${active ? 'bg-roseBerry text-white' : 'bg-blush/60 text-roseBerry'}">
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="${s.icon}"/></svg>
+            </div>
+            <div class="min-w-0">
+              <div class="text-xs font-bold text-espresso truncate">${s.name}</div>
+              <div class="text-[11px] text-mauve truncate">${s.vibe}</div>
+            </div>
+          </button>
+        `;
+      }).join('');
+
+      // Step 2: Sizes
+      document.getElementById('sizeCards').innerHTML = APP_DATA.sizes.map((sz) => {
+        const active = studioState.size === sz.id;
+        return `
+          <button type="button" onclick="selectStudioField('size','${sz.id}')" class="w-full p-3.5 rounded-2xl border text-left transition-all flex items-center justify-between gap-2 ${active ? 'bg-blush/85 border-roseBerry shadow-sm' : 'bg-white/80 border-champagne/35 hover:border-champagne'}">
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="text-sm font-bold text-espresso">${sz.name}</span>
+                ${sz.badge ? `<span class="px-2 py-0.5 rounded-full bg-roseBerry text-white text-[10px] font-semibold">${sz.badge}</span>` : ''}
+              </div>
+              <div class="text-xs text-mauve mt-0.5">${sz.desc}</div>
+            </div>
+            <div class="w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${active ? 'border-roseBerry' : 'border-champagne/50'}">
+              ${active ? '<span class="w-2.5 h-2.5 rounded-full bg-roseBerry"></span>' : ''}
+            </div>
+          </button>
+        `;
+      }).join('');
+
+      // Step 2: Textures
+      document.getElementById('textureCards').innerHTML = APP_DATA.textures.map((t) => {
+        const active = studioState.texture === t.id;
+        return `
+          <button type="button" onclick="selectStudioField('texture','${t.id}')" class="p-3 rounded-2xl border text-left transition-all ${active ? 'bg-blush/85 border-roseBerry shadow-sm' : 'bg-white/80 border-champagne/35 hover:border-champagne'}">
+            <div class="text-xs font-bold text-espresso">${t.name}</div>
+            <div class="text-[11px] text-mauve mt-0.5">${t.vibe}</div>
+          </button>
+        `;
+      }).join('');
+
+      // Step 3: Luxe Color Swatches
+      document.getElementById('colorSwatches').innerHTML = APP_DATA.colors.map((c) => {
+        const active = studioState.color === c.id;
+        return `
+          <button type="button" onclick="selectStudioField('color','${c.id}')" class="p-2 rounded-2xl border transition-all flex flex-col items-center gap-1.5 ${active ? 'bg-blush/80 border-roseBerry shadow-sm' : 'bg-white/80 border-champagne/30 hover:border-champagne'}">
+            <span class="w-8 h-8 rounded-full border border-black/10 shadow-inner" style="background:${c.hex}"></span>
+            <span class="text-[10px] font-semibold text-espresso text-center leading-tight">${c.name.split(' ')[0]}</span>
+          </button>
+        `;
+      }).join('');
+
+      // Step 3: Handles
+      document.getElementById('handleCards').innerHTML = APP_DATA.handles.map((h) => {
+        const active = studioState.handle === h.id;
+        return `
+          <button type="button" onclick="selectStudioField('handle','${h.id}')" class="p-3 rounded-2xl border text-left transition-all ${active ? 'bg-blush/85 border-roseBerry shadow-sm' : 'bg-white/80 border-champagne/35 hover:border-champagne'}">
+            <div class="text-xs font-bold text-espresso">${h.name}</div>
+            <div class="text-[11px] text-mauve mt-0.5">${h.desc}</div>
+          </button>
+        `;
+      }).join('');
+
+      // Step 3: Clasps
+      document.getElementById('claspCards').innerHTML = APP_DATA.clasps.map((cl) => {
+        const active = studioState.clasp === cl.id;
+        return `
+          <button type="button" onclick="selectStudioField('clasp','${cl.id}')" class="p-3 rounded-2xl border text-left transition-all ${active ? 'bg-blush/85 border-roseBerry shadow-sm' : 'bg-white/80 border-champagne/35 hover:border-champagne'}">
+            <div class="flex items-center justify-between gap-1">
+              <span class="text-xs font-bold text-espresso">${cl.name}</span>
+            </div>
+            <div class="text-[11px] text-mauve mt-0.5">${cl.badge ? `<span class="text-roseBerry font-semibold">${cl.badge}</span> · ` : ''}${cl.desc}</div>
+          </button>
+        `;
+      }).join('');
+
+      // Step 4: Front Badge Style
+      document.getElementById('badgeCards').innerHTML = APP_DATA.badges.map((b) => {
+        const active = studioState.badge === b.id;
+        return `
+          <button type="button" onclick="selectStudioField('badge','${b.id}')" class="py-2.5 px-2 rounded-xl border text-center text-[11px] font-semibold transition-all ${active ? 'bg-roseBerry text-white border-roseBerry shadow-sm' : 'bg-white/85 text-espresso border-champagne/35 hover:border-champagne'}">
+            ${b.name}
+          </button>
+        `;
+      }).join('');
+    }
+
+    window.selectStudioField = function(field, value) {
+      studioState[field] = value;
+      renderStudioControls();
+      rebuildStudioPurse();
+    };
+
+    function setStudioStep(stepNum) {
+      studioState.step = Math.max(1, Math.min(4, stepNum));
+      document.querySelectorAll('.step-tab').forEach((t) => {
+        const active = parseInt(t.dataset.step, 10) === studioState.step;
+        t.className = active
+          ? 'step-tab py-2.5 px-1.5 rounded-xl text-[11px] sm:text-xs font-semibold transition-all bg-roseBerry text-white shadow-sm'
+          : 'step-tab py-2.5 px-1.5 rounded-xl text-[11px] sm:text-xs font-semibold transition-all text-mauve hover:text-espresso hover:bg-white/70';
+      });
+      document.querySelectorAll('.step-pane').forEach((p) => {
+        p.classList.toggle('hidden', parseInt(p.dataset.pane, 10) !== studioState.step);
+      });
+      document.getElementById('prevStepBtn').disabled = studioState.step === 1;
+      document.getElementById('nextStepBtn').style.visibility = studioState.step === 4 ? 'hidden' : 'visible';
+    }
+
+    document.querySelectorAll('.step-tab').forEach((t) => {
+      t.addEventListener('click', () => setStudioStep(parseInt(t.dataset.step, 10)));
+    });
+    document.getElementById('prevStepBtn').addEventListener('click', () => setStudioStep(studioState.step - 1));
+    document.getElementById('nextStepBtn').addEventListener('click', () => setStudioStep(studioState.step + 1));
+
+    // Monogram, Peek Inside, Gift Note inputs
+    document.getElementById('monogramInput').addEventListener('input', (e) => {
+      studioState.monogram = e.target.value;
+      rebuildStudioPurse();
+    });
+    document.getElementById('peekSlider').addEventListener('input', (e) => {
+      studioState.lidAngle = parseInt(e.target.value, 10);
+      rebuildStudioPurse();
+    });
+    document.getElementById('giftNoteInput').addEventListener('input', (e) => {
+      studioState.giftNote = e.target.value;
+    });
+
+    // Camera View Pills
+    document.querySelectorAll('.cam-pill').forEach((pill) => {
+      pill.addEventListener('click', () => {
+        if (!studioReady) return;
+        const v = pill.dataset.view;
+        studioControls.target.set(0, 60, 0);
+        if (v === 'front') studioCamera.position.set(0, 115, 290);
+        else if (v === 'side') studioCamera.position.set(285, 115, 25);
+        else if (v === 'top') studioCamera.position.set(0, 320, 65);
+        studioControls.update();
+      });
+    });
+
+    document.getElementById('studioSpinBtn').addEventListener('click', (e) => {
+      studioState.autoRotate = !studioState.autoRotate;
+      if (studioControls) studioControls.autoRotate = studioState.autoRotate;
+      e.target.className = studioState.autoRotate
+        ? 'px-3.5 py-1.5 rounded-full text-xs font-semibold bg-roseBerry text-white transition-all'
+        : 'px-3.5 py-1.5 rounded-full text-xs font-semibold text-mauve hover:text-espresso hover:bg-blush/70 transition-all';
+    });
+
+    // Discreet Owner STL Export Tools
+    function downloadStlGroup(group, filename) {
+      if (!studioReady || typeof THREE.STLExporter === 'undefined') {
+        showToast('3D export unavailable in this browser');
+        return;
+      }
+      try {
+        const exporter = new THREE.STLExporter();
+        const data = exporter.parse(group, { binary: true });
+        const blob = new Blob([data], { type: 'application/octet-stream' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = filename;
+        link.click();
+        showToast(`Downloaded ${filename}`);
+      } catch (err) {
+        showToast('Could not generate STL export');
+      }
+    }
+
+    document.getElementById('exportFullStlBtn').addEventListener('click', () => {
+      const cfg = getResolvedStudioConfig();
+      const wrap = new THREE.Group();
+      wrap.add(studioBodyGroup.clone(), studioLidPivot.clone());
+      downloadStlGroup(wrap, `maison704_${cfg.shape}_full.stl`);
+    });
+    document.getElementById('exportBodyStlBtn').addEventListener('click', () => {
+      const cfg = getResolvedStudioConfig();
+      downloadStlGroup(studioBodyGroup, `maison704_${cfg.shape}_body.stl`);
+    });
+    document.getElementById('exportLidStlBtn').addEventListener('click', () => {
+      const cfg = getResolvedStudioConfig();
+      const flippedLid = createPurseLidGroup(cfg, studioBodyMat, studioHardwareMat);
+      flippedLid.rotation.x = Math.PI;
+      flippedLid.position.set(0, cfg.lidHeight, 0);
+      flippedLid.updateMatrixWorld(true);
+      const wrap = new THREE.Group();
+      wrap.add(flippedLid);
+      downloadStlGroup(wrap, `maison704_${cfg.shape}_lid.stl`);
+    });
+
+    // =========================================================================
+    // 7. LOOKBOOK GALLERY — REAL PHOTO PLACEHOLDERS & LOCAL PHOTO PREVIEWER
+    // =========================================================================
+    let activeCategory = 'all';
+    const localPhotoPreviews = {}; // itemId -> objectURL
+
+    function renderLookbookFilters() {
+      const wrap = document.getElementById('lookbookFilters');
+      wrap.innerHTML = APP_DATA.categories.map((cat) => {
+        const active = activeCategory === cat.id;
+        return `
+          <button type="button" onclick="setLookbookCategory('${cat.id}')" class="px-4 py-2 rounded-full text-xs font-semibold transition-all ${active ? 'bg-roseBerry text-white shadow-sm' : 'bg-white/80 text-mauve border border-champagne/40 hover:border-roseBerry hover:text-espresso'}">
+            ${cat.label}
+          </button>
+        `;
+      }).join('');
+    }
+
+    window.setLookbookCategory = function(catId) {
+      activeCategory = catId;
+      renderLookbookFilters();
+      renderLookbookGrid();
+    };
+
+    function updateResetPhotoButton() {
+      const hasCustom = Object.keys(localPhotoPreviews).length > 0;
+      document.getElementById('resetPhotosBtn').classList.toggle('hidden', !hasCustom);
+    }
+
+    window.handleProductPhotoSelect = function(itemId, inputEl) {
+      const file = inputEl.files && inputEl.files[0];
+      if (!file) return;
+      if (localPhotoPreviews[itemId]) URL.revokeObjectURL(localPhotoPreviews[itemId]);
+      localPhotoPreviews[itemId] = URL.createObjectURL(file);
+      updateResetPhotoButton();
+      renderLookbookGrid();
+      const item = APP_DATA.catalog.find((i) => i.id === itemId);
+      showToast(`Previewing your photo on "${item ? item.name : 'Item'}"`);
+    };
+
+    document.getElementById('resetPhotosBtn').addEventListener('click', () => {
+      Object.keys(localPhotoPreviews).forEach((k) => {
+        URL.revokeObjectURL(localPhotoPreviews[k]);
+        delete localPhotoPreviews[k];
+      });
+      updateResetPhotoButton();
+      renderLookbookGrid();
+      showToast('Restored boutique placeholder frames');
+    });
+
+    function renderLookbookGrid() {
+      const grid = document.getElementById('lookbookGrid');
+      const items = activeCategory === 'all'
+        ? APP_DATA.catalog
+        : APP_DATA.catalog.filter((item) => item.category === activeCategory);
+
+      grid.innerHTML = items.map((item) => {
+        const imgSrc = localPhotoPreviews[item.id] || item.photoUrl;
+        return `
+          <article class="bg-white/88 rounded-[1.5rem] border border-champagne/35 overflow-hidden flex flex-col shadow-sm hover:shadow-xl hover:border-champagne transition-all group">
+            <!-- 4:5 Portrait Fashion Lookbook Frame -->
+            <div class="relative aspect-[4/5] editorial-frame overflow-hidden border-b border-champagne/20">
+              ${imgSrc
+                ? `<img src="${imgSrc}" alt="${item.name}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />`
+                : `
+                  <!-- Editorial Fashion Placeholder Frame -->
+                  <div class="absolute inset-3 border border-champagne/35 rounded-2xl pointer-events-none flex flex-col items-center justify-center p-5 text-center">
+                    <!-- Subtle Editorial Corner Marks -->
+                    <span class="absolute top-2 left-2 w-3 h-3 border-t-2 border-l-2 border-champagne/60 rounded-tl"></span>
+                    <span class="absolute top-2 right-2 w-3 h-3 border-t-2 border-r-2 border-champagne/60 rounded-tr"></span>
+                    <span class="absolute bottom-2 left-2 w-3 h-3 border-b-2 border-l-2 border-champagne/60 rounded-bl"></span>
+                    <span class="absolute bottom-2 right-2 w-3 h-3 border-b-2 border-r-2 border-champagne/60 rounded-br"></span>
+
+                    <div class="w-12 h-12 rounded-full bg-white/80 border border-champagne/40 flex items-center justify-center text-roseBerry mb-3 shadow-sm">
+                      <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                        <circle cx="12" cy="13" r="4" />
+                      </svg>
+                    </div>
+                    <div class="font-serif italic text-base text-espresso font-semibold">Photo Slot ${item.slot}</div>
+                    <div class="text-[11px] text-mauve mt-1 leading-snug max-w-[170px]">Replace with real product photo</div>
+                  </div>
+                `
+              }
+
+              <!-- Price Pill -->
+              <div class="absolute top-3 left-3 px-3 py-1 rounded-full bg-white/90 backdrop-blur-md border border-champagne/40 text-xs font-bold text-espresso shadow-sm">
+                $${item.price}
+              </div>
+
+              <!-- Clickable Local Photo Tester Pill -->
+              <label class="absolute top-3 right-3 px-3 py-1 rounded-full bg-white/92 hover:bg-roseBerry hover:text-white backdrop-blur-md border border-champagne/45 text-[11px] font-semibold text-espresso cursor-pointer transition-all shadow-sm flex items-center gap-1">
+                <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                  <circle cx="12" cy="13" r="4" />
+                </svg>
+                <span>Preview Photo</span>
+                <input type="file" accept="image/*" class="hidden" onchange="handleProductPhotoSelect('${item.id}', this)" />
+              </label>
+            </div>
+
+            <!-- Card Details -->
+            <div class="p-4 sm:p-5 flex-1 flex flex-col">
+              <div class="text-[11px] font-medium text-champagne">${item.finishTag}</div>
+              <h3 class="font-serif font-bold text-xl text-espresso mt-0.5 leading-snug group-hover:text-roseBerry transition-colors">${item.name}</h3>
+
+              <div class="mt-4 pt-3.5 border-t border-champagne/20 grid grid-cols-2 gap-2 mt-auto">
+                <button type="button" onclick="addCatalogItemToBag('${item.id}')" class="py-2.5 px-3 rounded-full bg-espresso hover:bg-roseBerry text-pearl text-xs font-semibold transition-all">
+                  Add to Bag
+                </button>
+                <button type="button" onclick="customizeCatalogItem('${item.id}')" class="py-2.5 px-3 rounded-full bg-blush/85 hover:bg-roseBerry hover:text-white text-roseBerry text-xs font-semibold transition-all">
+                  Customize &rarr;
+                </button>
+              </div>
+            </div>
+          </article>
+        `;
+      }).join('');
+    }
+
+    // Load Purse Preset into 3D Boutique Studio OR Non-Purse into Bespoke Form
+    window.customizeCatalogItem = function(itemId) {
+      const item = APP_DATA.catalog.find((i) => i.id === itemId);
+      if (!item) return;
+
+      if (item.isPurse && item.preset) {
+        studioState.shape = item.preset.shape;
+        studioState.size = item.preset.size;
+        studioState.texture = item.preset.texture;
+        studioState.color = item.preset.color;
+        studioState.handle = item.preset.handle;
+        studioState.clasp = item.preset.clasp;
+        studioState.badge = item.preset.badge;
+        studioState.monogram = item.preset.monogram;
+        document.getElementById('monogramInput').value = studioState.monogram;
+        renderStudioControls();
+        rebuildStudioPurse();
+        setStudioStep(1);
+        document.getElementById('purse-studio').scrollIntoView({ behavior: 'smooth' });
+        showToast(`Loaded "${item.name}" into the Purse Studio`);
+      } else {
+        document.getElementById('bespokeType').value = 'Vanity & Home Decor';
+        document.getElementById('bespokeVibe').value = `I'd love to customize "${item.name}" in my preferred shade!`;
+        document.getElementById('bespoke').scrollIntoView({ behavior: 'smooth' });
+        showToast(`Opened Bespoke Concierge for "${item.name}"`);
+      }
+    };
+
+    // =========================================================================
+    // 8. BESPOKE CONCIERGE FORM & INSPIRATION PHOTO PREVIEW
+    // =========================================================================
+    const bespokeFileInput = document.getElementById('bespokeFileInput');
+    const bespokeDropZone = document.getElementById('bespokeDropZone');
+
+    function handleBespokeFile(file) {
+      if (!file) return;
+      document.getElementById('bespokeFileLabel').textContent = `Attached: ${file.name}`;
+      if (file.type && file.type.startsWith('image/')) {
+        const url = URL.createObjectURL(file);
+        document.getElementById('bespokeThumbImg').src = url;
+        document.getElementById('bespokeThumbWrap').classList.remove('hidden');
+        document.getElementById('bespokeUploadIcon').classList.add('hidden');
+      } else {
+        document.getElementById('bespokeThumbWrap').classList.add('hidden');
+        document.getElementById('bespokeUploadIcon').classList.remove('hidden');
+      }
+      showToast(`Attached ${file.name}`);
+    }
+
+    bespokeFileInput.addEventListener('change', (e) => handleBespokeFile(e.target.files[0]));
+    bespokeDropZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      bespokeDropZone.classList.add('border-roseBerry', 'bg-blush/65');
+    });
+    bespokeDropZone.addEventListener('dragleave', () => {
+      bespokeDropZone.classList.remove('border-roseBerry', 'bg-blush/65');
+    });
+    bespokeDropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      bespokeDropZone.classList.remove('border-roseBerry', 'bg-blush/65');
+      handleBespokeFile(e.dataTransfer.files[0]);
+    });
+
+    const bespokeModal = document.getElementById('bespokeModal');
+    document.getElementById('bespokeForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const name = document.getElementById('bespokeName').value.trim() || 'lovely';
+      const type = document.getElementById('bespokeType').value;
+      document.getElementById('bespokeConfirmCopy').textContent =
+        `Thank you, ${name}! Our Charlotte atelier received your ${type} request and will reply within 24 hours with color match options and a personal quote.`;
+      bespokeModal.classList.remove('hidden');
+      bespokeModal.classList.add('flex');
+      e.target.reset();
+      document.getElementById('bespokeFileLabel').textContent = 'Upload an outfit photo, color swatch, or sketch';
+      document.getElementById('bespokeThumbWrap').classList.add('hidden');
+      document.getElementById('bespokeUploadIcon').classList.remove('hidden');
+    });
+    document.getElementById('closeBespokeModalBtn').addEventListener('click', () => {
+      bespokeModal.classList.add('hidden');
+      bespokeModal.classList.remove('flex');
+    });
+
+    // =========================================================================
+    // 9. SLIDE-OVER SHOPPING BAG & BOUTIQUE CHECKOUT
+    // =========================================================================
+    let bagItems = [];
+    let fulfillmentMode = 'pickup'; // 'pickup' | 'shipping'
+
+    function openBag() {
+      const overlay = document.getElementById('bagOverlay');
+      const drawer = document.getElementById('bagDrawer');
+      overlay.classList.remove('hidden');
+      requestAnimationFrame(() => {
+        overlay.classList.remove('opacity-0');
+        drawer.classList.remove('translate-x-full');
+      });
+    }
+
+    function closeBag() {
+      const overlay = document.getElementById('bagOverlay');
+      const drawer = document.getElementById('bagDrawer');
+      overlay.classList.add('opacity-0');
+      drawer.classList.add('translate-x-full');
+      setTimeout(() => overlay.classList.add('hidden'), 300);
+    }
+
+    document.getElementById('openBagBtn').addEventListener('click', openBag);
+    document.getElementById('mobileBagBtn').addEventListener('click', openBag);
+    document.getElementById('closeBagBtn').addEventListener('click', closeBag);
+    document.getElementById('bagOverlay').addEventListener('click', closeBag);
+
+    window.addCatalogItemToBag = function(id) {
+      const item = APP_DATA.catalog.find((i) => i.id === id);
+      if (!item) return;
+      const existing = bagItems.find((b) => b.key === item.id);
+      if (existing) existing.qty += 1;
+      else {
+        bagItems.push({
+          key: item.id,
+          name: item.name,
+          price: item.price,
+          qty: 1,
+          swatchHex: item.preset ? (APP_DATA.colors.find((c) => c.id === item.preset.color)?.hex || '#E89BB5') : '#D6B082',
+          details: item.finishTag
+        });
+      }
+      renderBag();
+      showToast(`Added "${item.name}" to your bag`);
+    };
+
+    document.getElementById('addCustomPurseBtn').addEventListener('click', () => {
+      const cfg = getResolvedStudioConfig();
+      const detailParts = [
+        `${cfg.sizeName} Size`,
+        cfg.textureName,
+        `${cfg.colorName} (${cfg.finish})`,
+        cfg.handleName,
+        cfg.claspName
+      ];
+      if (cfg.badge !== 'none') {
+        detailParts.push(cfg.monogram.trim() ? `Monogram "${cfg.monogram.trim().toUpperCase()}"` : 'Blank Medallion');
+      }
+      if (studioState.giftNote.trim()) {
+        detailParts.push(`Note: ${studioState.giftNote.trim()}`);
+      }
+
+      bagItems.push({
+        key: 'custom-' + Date.now(),
+        name: `Custom ${cfg.shapeName}`,
+        price: cfg.price,
+        qty: 1,
+        swatchHex: cfg.colorCss,
+        details: detailParts.join(' · ')
+      });
+      renderBag();
+      openBag();
+      showToast(`Added Custom ${cfg.shapeName} to your bag`);
+    });
+
+    window.changeBagQty = function(key, delta) {
+      const idx = bagItems.findIndex((b) => b.key === key);
+      if (idx === -1) return;
+      bagItems[idx].qty += delta;
+      if (bagItems[idx].qty <= 0) bagItems.splice(idx, 1);
+      renderBag();
+    };
+
+    function renderBag() {
+      const totalCount = bagItems.reduce((acc, i) => acc + i.qty, 0);
+      document.getElementById('headerBagCount').textContent = totalCount;
+
+      const mobileBadge = document.getElementById('mobileBagBadge');
+      mobileBadge.textContent = totalCount;
+      mobileBadge.classList.toggle('hidden', totalCount === 0);
+
+      const listEl = document.getElementById('bagItemsList');
+      if (bagItems.length === 0) {
+        listEl.innerHTML = `
+          <div class="text-center py-14 space-y-3">
+            <div class="w-14 h-14 mx-auto rounded-full bg-blush/70 border border-champagne/40 flex items-center justify-center text-roseBerry">
+              <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path d="M6 7h12l1 13H5L6 7z" /><path d="M9 7V6a3 3 0 0 1 6 0v1" />
+              </svg>
+            </div>
+            <div class="font-serif font-bold text-2xl text-espresso">Your Boutique Bag is Empty</div>
+            <p class="text-xs text-mauve max-w-[230px] mx-auto">Explore our Charlotte lookbook or design your custom handbag in the 3D Atelier.</p>
+          </div>
+        `;
+      } else {
+        listEl.innerHTML = bagItems.map((item) => `
+          <div class="p-4 rounded-2xl bg-white border border-champagne/35 shadow-sm space-y-2.5">
+            <div class="flex items-start justify-between gap-2">
+              <div class="flex items-center gap-2.5">
+                <span class="w-4 h-4 rounded-full border border-black/10 shrink-0" style="background:${item.swatchHex}"></span>
+                <h4 class="font-serif font-bold text-lg text-espresso leading-tight">${item.name}</h4>
+              </div>
+              <span class="font-semibold text-sm text-roseBerry">$${item.price * item.qty}</span>
+            </div>
+            <p class="text-xs text-mauve leading-relaxed">${item.details}</p>
+            <div class="flex items-center justify-between pt-1">
+              <div class="inline-flex items-center gap-2 bg-blush/50 rounded-full border border-champagne/35 px-1.5 py-0.5">
+                <button type="button" onclick="changeBagQty('${item.key}', -1)" class="w-6 h-6 rounded-full bg-white text-espresso hover:text-roseBerry font-bold text-xs">&minus;</button>
+                <span class="text-xs font-semibold text-espresso px-1">${item.qty}</span>
+                <button type="button" onclick="changeBagQty('${item.key}', 1)" class="w-6 h-6 rounded-full bg-white text-espresso hover:text-roseBerry font-bold text-xs">+</button>
+              </div>
+              <button type="button" onclick="changeBagQty('${item.key}', -999)" class="text-xs text-mauve hover:text-roseBerry underline underline-offset-2">Remove</button>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      const subtotal = bagItems.reduce((acc, i) => acc + i.price * i.qty, 0);
+      const qualifiesFreeShip = subtotal >= APP_DATA.brand.freeShippingThreshold;
+      const shippingCost = (subtotal === 0 || fulfillmentMode === 'pickup' || qualifiesFreeShip)
+        ? 0
+        : APP_DATA.brand.flatShippingRate;
+      const total = subtotal + shippingCost;
+
+      document.getElementById('bagSubtotal').textContent = `$${subtotal}`;
+      document.getElementById('bagShipping').textContent = shippingCost === 0 ? 'Free' : `$${shippingCost}`;
+      document.getElementById('bagTotal').textContent = `$${total}`;
+      document.getElementById('openCheckoutBtn').disabled = bagItems.length === 0;
+
+      const hintBar = document.getElementById('shippingHintBar');
+      if (fulfillmentMode === 'shipping' && subtotal > 0 && !qualifiesFreeShip) {
+        hintBar.textContent = `Add $${APP_DATA.brand.freeShippingThreshold - subtotal} more to unlock complimentary insured shipping!`;
+      } else if (fulfillmentMode === 'shipping' && qualifiesFreeShip) {
+        hintBar.textContent = 'Complimentary insured shipping unlocked on your order!';
+      } else {
+        hintBar.textContent = 'Complimentary Boutique Pickup in Charlotte · Free shipping over $120';
+      }
+    }
+
+    document.getElementById('optPickupBtn').addEventListener('click', () => {
+      fulfillmentMode = 'pickup';
+      document.getElementById('optPickupBtn').className = 'p-3 rounded-2xl border text-left transition-all bg-white border-roseBerry shadow-sm';
+      document.getElementById('optShipBtn').className = 'p-3 rounded-2xl border text-left transition-all bg-white/60 border-champagne/40 text-mauve hover:bg-white';
+      renderBag();
+    });
+    document.getElementById('optShipBtn').addEventListener('click', () => {
+      fulfillmentMode = 'shipping';
+      document.getElementById('optShipBtn').className = 'p-3 rounded-2xl border text-left transition-all bg-white border-roseBerry shadow-sm';
+      document.getElementById('optPickupBtn').className = 'p-3 rounded-2xl border text-left transition-all bg-white/60 border-champagne/40 text-mauve hover:bg-white';
+      renderBag();
+    });
+
+    // Checkout Modal Flow
+    const checkoutModal = document.getElementById('checkoutModal');
+    document.getElementById('openCheckoutBtn').addEventListener('click', () => {
+      document.getElementById('checkoutModalTotal').textContent = document.getElementById('bagTotal').textContent;
+      document.getElementById('checkoutFormState').classList.remove('hidden');
+      document.getElementById('checkoutConfirmState').classList.add('hidden');
+      checkoutModal.classList.remove('hidden');
+      checkoutModal.classList.add('flex');
+    });
+
+    function closeCheckoutModal() {
+      checkoutModal.classList.add('hidden');
+      checkoutModal.classList.remove('flex');
+    }
+    document.getElementById('closeCheckoutBtn').addEventListener('click', closeCheckoutModal);
+    document.getElementById('finishCheckoutBtn').addEventListener('click', () => {
+      closeCheckoutModal();
+      closeBag();
+    });
+
+    document.getElementById('checkoutForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const orderNum = `#M704-${Math.floor(1000 + Math.random() * 9000)}`;
+      document.getElementById('confirmOrderNum').textContent = orderNum;
+      document.getElementById('checkoutFormState').classList.add('hidden');
+      document.getElementById('checkoutConfirmState').classList.remove('hidden');
+      bagItems = [];
+      renderBag();
+      showToast(`Order ${orderNum} confirmed!`);
+    });
+
+    // =========================================================================
+    // 10. INITIALIZE APPLICATION ON LOAD
+    // =========================================================================
+    window.addEventListener('load', () => {
+      renderLookbookFilters();
+      renderLookbookGrid();
+      renderStudioControls();
+      initStudio3D();
+      rebuildStudioPurse();
+      renderBag();
+    });
+  </script>
+</body>
+</html>

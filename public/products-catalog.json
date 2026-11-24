@@ -1,0 +1,999 @@
+﻿{
+  "storeName": "3D Print Atelier",
+  "tagline": "Bespoke 3D-Printed Handbags, Sculptural Clutches & Signature Edition Prints",
+  "studioBaseUrl": "/purse-studio/index.html",
+  "archiveUrl": "./workshop-archive.html",
+  "imageBasePath": "images/products/",
+  "updatedAt": "2026-11-23",
+  "categories": [
+    {
+      "id": "all",
+      "label": "All Pieces"
+    },
+    {
+      "id": "signature-41",
+      "label": "Signature 4.1 Collection"
+    },
+    {
+      "id": "bags-crossbodies",
+      "label": "Bags & Crossbodies"
+    },
+    {
+      "id": "sculptural-clutches",
+      "label": "Sculptural Clutches"
+    },
+    {
+      "id": "erotic-label",
+      "label": "Erotic Label Originals"
+    },
+    {
+      "id": "custom-studio",
+      "label": "Custom Studio Editions"
+    }
+  ],
+  "products": [
+    {
+      "id": "carryall-tote",
+      "name": "Carryall Tote",
+      "inventoryRef": "Purse Studio v4.1.0 · carryall",
+      "category": "signature-41",
+      "categoryLabel": "Signature 4.1",
+      "badge": "New in 4.1",
+      "featured": true,
+      "image": "images/products/carryall-tote.png",
+      "photoStatus": "studio-preview",
+      "description": "An architectural open-top everyday carryall sculpted with a gently flared body and twin ring handles—ready to tailor in your dimensions, surface texture, and hardware finish.",
+      "dimensions": "210 × 100 × 170 mm",
+      "sizes": {
+        "mini": "158 × 75 × 128 mm",
+        "medium": "210 × 100 × 170 mm",
+        "large": "241 × 115 × 195 mm"
+      },
+      "studioPreset": "carryall",
+      "studioColors": {
+        "body": "#363d4d",
+        "lid": "#454e61",
+        "hw": "#e2bd70"
+      }
+    },
+    {
+      "id": "barrel-duffel",
+      "name": "Barrel Duffel",
+      "inventoryRef": "Purse Studio v4.1.0 · duffel",
+      "category": "signature-41",
+      "categoryLabel": "Signature 4.1",
+      "badge": "New in 4.1",
+      "featured": true,
+      "image": "images/products/barrel-duffel.png",
+      "photoStatus": "studio-preview",
+      "description": "A bold sculpted barrel silhouette finished with a fitted rigid top lid, signature clasp, and top-carry arch handle—built for statement nights out or curated everyday carry.",
+      "dimensions": "220 × 110 × 110 mm",
+      "sizes": {
+        "mini": "165 × 82 × 82 mm",
+        "medium": "220 × 110 × 110 mm",
+        "large": "253 × 126 × 126 mm"
+      },
+      "studioPreset": "duffel",
+      "studioColors": {
+        "body": "#9e2234",
+        "lid": "#b32a3e",
+        "hw": "#e9c77b"
+      }
+    },
+    {
+      "id": "envelope-clutch",
+      "name": "Envelope Clutch",
+      "inventoryRef": "Purse Studio v4.1.0 · envelope",
+      "category": "signature-41",
+      "categoryLabel": "Signature 4.1",
+      "badge": "New in 4.1",
+      "featured": true,
+      "image": "images/products/envelope-clutch.png",
+      "photoStatus": "studio-preview",
+      "description": "Crisp folded-envelope geometry with a sleek shallow profile and precision-fitted rigid lid. Designed for effortless handheld elegance with customizable magnetic or snap hardware.",
+      "dimensions": "190 × 95 × 32 mm",
+      "sizes": {
+        "mini": "142 × 71 × 24 mm",
+        "medium": "190 × 95 × 32 mm",
+        "large": "218 × 109 × 37 mm"
+      },
+      "studioPreset": "envelope",
+      "studioColors": {
+        "body": "#b89f8d",
+        "lid": "#c9b2a1",
+        "hw": "#e2bd72"
+      }
+    },
+    {
+      "id": "pill-clutch",
+      "name": "Pill Clutch",
+      "inventoryRef": "Purse Studio v4.1.0 · pill",
+      "category": "signature-41",
+      "categoryLabel": "Signature 4.1",
+      "badge": "New in 4.1",
+      "featured": true,
+      "image": "images/products/pill-clutch.png",
+      "photoStatus": "studio-preview",
+      "description": "Minimalist capsule-curved evening minaudière with smooth rounded ends and a tailored flush lid. Sleek in satin obsidian, metallic silk, or custom monogram relief.",
+      "dimensions": "180 × 85 × 36 mm",
+      "sizes": {
+        "mini": "135 × 64 × 27 mm",
+        "medium": "180 × 85 × 36 mm",
+        "large": "207 × 98 × 41 mm"
+      },
+      "studioPreset": "pill",
+      "studioColors": {
+        "body": "#343b4c",
+        "lid": "#434c61",
+        "hw": "#e6c072"
+      }
+    },
+    {
+      "id": "half-moon-clutch",
+      "name": "Half-Moon Clutch",
+      "inventoryRef": "Purse Studio v4.1.0 · halfmoon",
+      "category": "signature-41",
+      "categoryLabel": "Signature 4.1",
+      "badge": "New in 4.1",
+      "featured": true,
+      "image": "images/products/half-moon-clutch.png",
+      "photoStatus": "studio-preview",
+      "description": "A poised crescent silhouette pairing a sweeping curved belly with a clean straight spine and concealed rear hinge—refined, tactile, and tailored to fit evening essentials.",
+      "dimensions": "180 × 100 × 36 mm",
+      "sizes": {
+        "mini": "135 × 75 × 27 mm",
+        "medium": "180 × 100 × 36 mm",
+        "large": "207 × 115 × 41 mm"
+      },
+      "studioPreset": "halfmoon",
+      "studioColors": {
+        "body": "#1f5e57",
+        "lid": "#28736b",
+        "hw": "#e7c375"
+      }
+    },
+    {
+      "id": "art-deco-clutch",
+      "name": "Art Deco Clutch",
+      "inventoryRef": "Purse Studio v4.1.0 · artdeco",
+      "category": "signature-41",
+      "categoryLabel": "Signature 4.1",
+      "badge": "New in 4.1",
+      "featured": true,
+      "image": "images/products/art-deco-clutch.png",
+      "photoStatus": "studio-preview",
+      "description": "Inspired by 1920s architectural glamour, this faceted geometric clutch catches studio light across every chamfered edge and pairs dramatically with brushed brass hardware.",
+      "dimensions": "185 × 90 × 36 mm",
+      "sizes": {
+        "mini": "139 × 68 × 27 mm",
+        "medium": "185 × 90 × 36 mm",
+        "large": "213 × 103 × 41 mm"
+      },
+      "studioPreset": "artdeco",
+      "studioColors": {
+        "body": "#662038",
+        "lid": "#7d2945",
+        "hw": "#ebd088"
+      }
+    },
+    {
+      "id": "structured-tote",
+      "name": "Structured Tote",
+      "inventoryRef": "Purse Studio v4.1.0 · tote",
+      "category": "bags-crossbodies",
+      "categoryLabel": "Bags & Crossbodies",
+      "badge": "Bestseller",
+      "featured": true,
+      "image": "images/products/structured-tote.png",
+      "photoStatus": "studio-preview",
+      "description": "A crisp, boxy structured tote with hinged closure and customizable strap loops—equally at home as a sculpted tabletop vanity case or an architectural crossbody.",
+      "dimensions": "176 × 82 × 138 mm",
+      "sizes": {
+        "mini": "130 × 66 × 110 mm",
+        "medium": "176 × 82 × 138 mm",
+        "large": "210 × 98 × 164 mm"
+      },
+      "studioPreset": "tote",
+      "studioColors": {
+        "body": "#523b35",
+        "lid": "#664a42",
+        "hw": "#e6be72"
+      }
+    },
+    {
+      "id": "mini-backpack",
+      "name": "Mini Backpack",
+      "inventoryRef": "Purse Studio v4.1.0 · mini_backpack",
+      "category": "bags-crossbodies",
+      "categoryLabel": "Bags & Crossbodies",
+      "badge": "Statement Piece",
+      "featured": false,
+      "image": "images/products/mini-backpack.png",
+      "photoStatus": "studio-preview",
+      "description": "A rigid sculptural mini backpack with a tailored hinged crown lid and generous vertical interior cavity—ready for custom embossing, textures, and strap hardware.",
+      "dimensions": "150 × 84 × 164 mm",
+      "sizes": {
+        "mini": "112 × 68 × 126 mm",
+        "medium": "150 × 84 × 164 mm",
+        "large": "182 × 102 × 206 mm"
+      },
+      "studioPreset": "mini_backpack",
+      "studioColors": {
+        "body": "#353e54",
+        "lid": "#444f6b",
+        "hw": "#dce1ec"
+      }
+    },
+    {
+      "id": "saddle-bag",
+      "name": "Saddle Bag",
+      "inventoryRef": "Purse Studio v4.1.0 · saddle_bag",
+      "category": "bags-crossbodies",
+      "categoryLabel": "Bags & Crossbodies",
+      "badge": null,
+      "featured": false,
+      "image": "images/products/saddle-bag.png",
+      "photoStatus": "studio-preview",
+      "description": "An equestrian-inspired curved crossbody silhouette with soft rounded flanks and crisp front clasp—designed to showcase quilted, ribbed, or smooth satin filament finishes.",
+      "dimensions": "170 × 74 × 106 mm",
+      "sizes": {
+        "mini": "132 × 58 × 82 mm",
+        "medium": "170 × 74 × 106 mm",
+        "large": "204 × 90 × 128 mm"
+      },
+      "studioPreset": "saddle_bag",
+      "studioColors": {
+        "body": "#9c5238",
+        "lid": "#b36144",
+        "hw": "#e8c47a"
+      }
+    },
+    {
+      "id": "drum-crossbody",
+      "name": "Drum",
+      "inventoryRef": "Purse Studio v4.1.0 · cylinder",
+      "category": "bags-crossbodies",
+      "categoryLabel": "Bags & Crossbodies",
+      "badge": null,
+      "featured": false,
+      "image": "images/products/drum-crossbody.png",
+      "photoStatus": "studio-preview",
+      "description": "A timeless cylindrical hatbox crossbody with 360-degree curved poise, flush-seating lid, and optional side D-ring loops for chain or leather straps.",
+      "dimensions": "148 × 148 × 112 mm",
+      "sizes": {
+        "mini": "114 × 114 × 82 mm",
+        "medium": "148 × 148 × 112 mm",
+        "large": "180 × 180 × 136 mm"
+      },
+      "studioPreset": "cylinder",
+      "studioColors": {
+        "body": "#2a4d45",
+        "lid": "#366157",
+        "hw": "#e8c47a"
+      }
+    },
+    {
+      "id": "heart-clutch",
+      "name": "Heart",
+      "inventoryRef": "Purse Studio v4.1.0 · heart",
+      "category": "sculptural-clutches",
+      "categoryLabel": "Sculptural Clutch",
+      "badge": "Iconic",
+      "featured": true,
+      "image": "images/products/heart-clutch.png",
+      "photoStatus": "studio-preview",
+      "description": "Our signature sculptural heart hard-shell bag with adjustable notch depth and lobe fullness. Finished with gold-tone hardware loops and precision hinged closure.",
+      "dimensions": "156 × 76 × 108 mm",
+      "sizes": {
+        "mini": "122 × 62 × 88 mm",
+        "medium": "156 × 76 × 108 mm",
+        "large": "192 × 92 × 132 mm"
+      },
+      "studioPreset": "heart",
+      "studioColors": {
+        "body": "#c83a58",
+        "lid": "#dc4b6a",
+        "hw": "#f0cf85"
+      }
+    },
+    {
+      "id": "5-point-star-clutch",
+      "name": "5-Point Star",
+      "inventoryRef": "Purse Studio v4.1.0 · star5",
+      "category": "sculptural-clutches",
+      "categoryLabel": "Sculptural Clutch",
+      "badge": null,
+      "featured": false,
+      "image": "images/products/5-point-star-clutch.png",
+      "photoStatus": "studio-preview",
+      "description": "A showstopping five-point star statement bag with customizable point depth—crafted to turn heads in silk gold, chromatic dual-color, or velvet matte filament.",
+      "dimensions": "166 × 80 × 102 mm",
+      "sizes": {
+        "mini": "126 × 62 × 84 mm",
+        "medium": "166 × 80 × 102 mm",
+        "large": "198 × 94 × 122 mm"
+      },
+      "studioPreset": "star5",
+      "studioColors": {
+        "body": "#c8983a",
+        "lid": "#dbb052",
+        "hw": "#f7e5b0"
+      }
+    },
+    {
+      "id": "6-point-star-clutch",
+      "name": "6-Point Star",
+      "inventoryRef": "Purse Studio v4.1.0 · star6",
+      "category": "sculptural-clutches",
+      "categoryLabel": "Sculptural Clutch",
+      "badge": null,
+      "featured": false,
+      "image": "images/products/6-point-star-clutch.png",
+      "photoStatus": "studio-preview",
+      "description": "A symmetrical six-point celestial star silhouette with crisp radial facets and a precision-mated lid engineered for smooth opening and clean printability.",
+      "dimensions": "166 × 82 × 102 mm",
+      "sizes": {
+        "mini": "126 × 62 × 84 mm",
+        "medium": "166 × 82 × 102 mm",
+        "large": "198 × 96 × 122 mm"
+      },
+      "studioPreset": "star6",
+      "studioColors": {
+        "body": "#334978",
+        "lid": "#425d96",
+        "hw": "#ebd08c"
+      }
+    },
+    {
+      "id": "octagon-clutch",
+      "name": "Octagon",
+      "inventoryRef": "Purse Studio v4.1.0 · octagon",
+      "category": "sculptural-clutches",
+      "categoryLabel": "Sculptural Clutch",
+      "badge": null,
+      "featured": false,
+      "image": "images/products/octagon-clutch.png",
+      "photoStatus": "studio-preview",
+      "description": "Eight-sided gallery-inspired clutch balancing architectural precision with balanced interior space for phones, cards, and evening essentials.",
+      "dimensions": "162 × 78 × 104 mm",
+      "sizes": {
+        "mini": "126 × 62 × 84 mm",
+        "medium": "162 × 78 × 104 mm",
+        "large": "196 × 94 × 126 mm"
+      },
+      "studioPreset": "octagon",
+      "studioColors": {
+        "body": "#6c365c",
+        "lid": "#824370",
+        "hw": "#ebd086"
+      }
+    },
+    {
+      "id": "hexagon-clutch",
+      "name": "Hexagon",
+      "inventoryRef": "Purse Studio v4.1.0 · hex",
+      "category": "sculptural-clutches",
+      "categoryLabel": "Sculptural Clutch",
+      "badge": null,
+      "featured": false,
+      "image": "images/products/hexagon-clutch.png",
+      "photoStatus": "studio-preview",
+      "description": "Clean six-sided honeycomb geometry with crisp light-catching planes—an effortless canvas for custom emblems, monograms, or fluted surface relief.",
+      "dimensions": "164 × 80 × 106 mm",
+      "sizes": {
+        "mini": "126 × 62 × 84 mm",
+        "medium": "164 × 80 × 106 mm",
+        "large": "198 × 96 × 128 mm"
+      },
+      "studioPreset": "hex",
+      "studioColors": {
+        "body": "#2f5866",
+        "lid": "#3c6e80",
+        "hw": "#e6c278"
+      }
+    },
+    {
+      "id": "pentagon-clutch",
+      "name": "Pentagon",
+      "inventoryRef": "Purse Studio v4.1.0 · pentagon",
+      "category": "sculptural-clutches",
+      "categoryLabel": "Sculptural Clutch",
+      "badge": null,
+      "featured": false,
+      "image": "images/products/pentagon-clutch.png",
+      "photoStatus": "studio-preview",
+      "description": "A bold five-sided modernist form with crisp edges and tailored lid registration—distinctive, compact, and engineered for clean multi-color prints.",
+      "dimensions": "160 × 78 × 102 mm",
+      "sizes": {
+        "mini": "124 × 62 × 84 mm",
+        "medium": "160 × 78 × 102 mm",
+        "large": "194 × 94 × 124 mm"
+      },
+      "studioPreset": "pentagon",
+      "studioColors": {
+        "body": "#864040",
+        "lid": "#9e4e4e",
+        "hw": "#ebd084"
+      }
+    },
+    {
+      "id": "diamond-clutch",
+      "name": "Diamond",
+      "inventoryRef": "Purse Studio v4.1.0 · diamond",
+      "category": "sculptural-clutches",
+      "categoryLabel": "Sculptural Clutch",
+      "badge": null,
+      "featured": false,
+      "image": "images/products/diamond-clutch.png",
+      "photoStatus": "studio-preview",
+      "description": "Elongated jewel-cut diamond silhouette with razor-clean bevels and a gleaming metallic clasp—tailor its proportions and finish directly in 3D.",
+      "dimensions": "168 × 76 × 98 mm",
+      "sizes": {
+        "mini": "128 × 60 × 82 mm",
+        "medium": "168 × 76 × 98 mm",
+        "large": "202 × 92 × 118 mm"
+      },
+      "studioPreset": "diamond",
+      "studioColors": {
+        "body": "#3b4257",
+        "lid": "#4b546e",
+        "hw": "#edd08c"
+      }
+    },
+    {
+      "id": "triangle-clutch",
+      "name": "Triangle",
+      "inventoryRef": "Purse Studio v4.1.0 · triangle",
+      "category": "sculptural-clutches",
+      "categoryLabel": "Sculptural Clutch",
+      "badge": null,
+      "featured": false,
+      "image": "images/products/triangle-clutch.png",
+      "photoStatus": "studio-preview",
+      "description": "Avant-garde triangular prism silhouette inspired by runway sculpture—dramatic on a crossbody chain or held as a minimalist clutch.",
+      "dimensions": "166 × 82 × 104 mm",
+      "sizes": {
+        "mini": "128 × 64 × 84 mm",
+        "medium": "166 × 82 × 104 mm",
+        "large": "202 × 98 × 126 mm"
+      },
+      "studioPreset": "triangle",
+      "studioColors": {
+        "body": "#7c5c46",
+        "lid": "#946e54",
+        "hw": "#ebd086"
+      }
+    },
+    {
+      "id": "coffin-clutch",
+      "name": "Coffin",
+      "inventoryRef": "Purse Studio v4.1.0 · coffin",
+      "category": "sculptural-clutches",
+      "categoryLabel": "Sculptural Clutch",
+      "badge": "After-Dark",
+      "featured": false,
+      "image": "images/products/coffin-clutch.png",
+      "photoStatus": "studio-preview",
+      "description": "A cult-favorite gothic coffin silhouette with adjustable shoulder flare—striking in matte obsidian paired with crimson or brushed-silver accents.",
+      "dimensions": "148 × 74 × 126 mm",
+      "sizes": {
+        "mini": "116 × 58 × 102 mm",
+        "medium": "148 × 74 × 126 mm",
+        "large": "178 × 88 × 152 mm"
+      },
+      "studioPreset": "coffin",
+      "studioColors": {
+        "body": "#2f2d3d",
+        "lid": "#3f3d52",
+        "hw": "#d9324b"
+      }
+    },
+    {
+      "id": "teardrop-clutch",
+      "name": "Teardrop",
+      "inventoryRef": "Purse Studio v4.1.0 · teardrop",
+      "category": "sculptural-clutches",
+      "categoryLabel": "Sculptural Clutch",
+      "badge": null,
+      "featured": false,
+      "image": "images/products/teardrop-clutch.png",
+      "photoStatus": "studio-preview",
+      "description": "An organic fluid teardrop curve that tapers gracefully to a sculpted apex—effortlessly feminine and endlessly customizable in silk or pearlescent blends.",
+      "dimensions": "156 × 78 × 112 mm",
+      "sizes": {
+        "mini": "120 × 60 × 92 mm",
+        "medium": "156 × 78 × 112 mm",
+        "large": "188 × 94 × 136 mm"
+      },
+      "studioPreset": "teardrop",
+      "studioColors": {
+        "body": "#875470",
+        "lid": "#9e6584",
+        "hw": "#f0d698"
+      }
+    },
+    {
+      "id": "scallop-cloud-clutch",
+      "name": "Scallop / Cloud",
+      "inventoryRef": "Purse Studio v4.1.0 · scallop",
+      "category": "sculptural-clutches",
+      "categoryLabel": "Sculptural Clutch",
+      "badge": null,
+      "featured": false,
+      "image": "images/products/scallop-cloud-clutch.png",
+      "photoStatus": "studio-preview",
+      "description": "Soft fluted cloud scallops bring playful couture charm to a structured hard-shell clutch—ideal in blush rose, ivory pearl, or pastel satin.",
+      "dimensions": "162 × 78 × 102 mm",
+      "sizes": {
+        "mini": "126 × 62 × 84 mm",
+        "medium": "162 × 78 × 102 mm",
+        "large": "196 × 94 × 124 mm"
+      },
+      "studioPreset": "scallop",
+      "studioColors": {
+        "body": "#b87f88",
+        "lid": "#cc939c",
+        "hw": "#f0d89c"
+      }
+    },
+    {
+      "id": "erotic-label-purse",
+      "name": "Erotic Label Purse",
+      "inventoryRef": "My Projects / Erotic Label · Purse (variant 2)",
+      "category": "erotic-label",
+      "categoryLabel": "Erotic Label",
+      "badge": "Signature Bag",
+      "featured": true,
+      "image": "images/products/erotic-label-purse.png",
+      "photoStatus": "studio-preview",
+      "description": "Our signature sculpted crimson-and-gold Erotic Label statement purse featuring high-relief sculpted lips and centerpiece emblem—crafted as a multi-color showpiece.",
+      "dimensions": "Multi-color · 3 plates",
+      "studioPreset": "heart",
+      "studioColors": {
+        "body": "#c81d25",
+        "lid": "#dc2626",
+        "hw": "#e8c44a"
+      }
+    },
+    {
+      "id": "silk-bag-erotic-label",
+      "name": "Silk Bag",
+      "inventoryRef": "designs/silk-bag · v02 Erotic Label Engraved",
+      "category": "erotic-label",
+      "categoryLabel": "Erotic Label",
+      "badge": "Signature Bag",
+      "featured": true,
+      "image": "images/products/silk-bag-erotic-label.png",
+      "photoStatus": "studio-preview",
+      "description": "Draped like liquid fabric frozen in motion, this sculptural handbag features debossed EROTIC LABEL lettering sweeping cleanly across the integrated top handle.",
+      "dimensions": "Single-body sculptural print",
+      "studioPreset": "carryall",
+      "studioColors": {
+        "body": "#127494",
+        "lid": "#1686ab",
+        "hw": "#e2bd70"
+      }
+    },
+    {
+      "id": "erotic-label-ashtray-cup",
+      "name": "Erotic Label Ashtray Cup",
+      "inventoryRef": "designs/erotic-label-ashtray-cup · v02 Side Logo",
+      "sku": "ASH-001",
+      "category": "erotic-label",
+      "categoryLabel": "Erotic Label",
+      "badge": "SKU ASH-001 · Printed",
+      "featured": true,
+      "image": "images/products/erotic-label-ashtray-cup.png",
+      "photoStatus": "studio-preview",
+      "description": "Two-piece lidded cupholder ashtray wrapped in our multi-color Erotic Label lattice pattern with a raised sculptural pink lips medallion and matching funnel lid.",
+      "dimensions": "2-piece · Cup + Funnel Lid",
+      "studioPreset": "cylinder",
+      "studioColors": {
+        "body": "#d94662",
+        "lid": "#e05570",
+        "hw": "#d4af37"
+      }
+    },
+    {
+      "id": "erotic-label-ashtray",
+      "name": "Ashtray",
+      "inventoryRef": "My Projects / Erotic Label · eroticlabelashtray3",
+      "category": "erotic-label",
+      "categoryLabel": "Erotic Label",
+      "badge": "Erotic Label",
+      "featured": false,
+      "image": "images/products/erotic-label-ashtray.png",
+      "photoStatus": "studio-preview",
+      "description": "Bold square tabletop ashtray with four notched rests, embossed perimeter EROTIC LABEL branding, and a raised two-tone lattice center emblem.",
+      "dimensions": "Square · Multi-color PLA/PETG",
+      "studioPreset": "tote",
+      "studioColors": {
+        "body": "#b53624",
+        "lid": "#c9402c",
+        "hw": "#f1f5f9"
+      }
+    },
+    {
+      "id": "herb-grinder",
+      "name": "Herb Grinder",
+      "inventoryRef": "designs/herb-grinder · Logo Center Fixed 150%",
+      "sku": "GR-001",
+      "category": "erotic-label",
+      "categoryLabel": "Erotic Label",
+      "badge": "SKU GR-001 · 7 In Stock",
+      "featured": true,
+      "image": "images/products/herb-grinder.png",
+      "photoStatus": "studio-preview",
+      "description": "Heavy-duty octagonal two-tone herb grinder crowned with a crisp high-contrast Erotic Label lips silhouette inlaid flush into the lid.",
+      "dimensions": "Octagonal · 150% Edition",
+      "studioPreset": "octagon",
+      "studioColors": {
+        "body": "#c97a3d",
+        "lid": "#d9894c",
+        "hw": "#18181b"
+      }
+    },
+    {
+      "id": "lips-floating-shelf",
+      "name": "Lips Floating Shelf",
+      "inventoryRef": "My Projects / Erotic Label · Ellogo Lips Floating Shelf",
+      "category": "erotic-label",
+      "categoryLabel": "Erotic Label",
+      "badge": "Wall Sculpt",
+      "featured": false,
+      "image": "images/products/lips-floating-shelf.png",
+      "photoStatus": "studio-preview",
+      "description": "Wall-mounted sculptural floating shelf merging our signature 3D lips relief with a sleek concealed display ledge—available in closed or open-top editions.",
+      "dimensions": "Wall-mount · Single Plate",
+      "studioPreset": "envelope",
+      "studioColors": {
+        "body": "#b95c41",
+        "lid": "#cc6c50",
+        "hw": "#e5c174"
+      }
+    },
+    {
+      "id": "rolling-tray",
+      "name": "Rolling Tray",
+      "inventoryRef": "My Projects / Erotic Label · elROLLING+TRAY+V1",
+      "category": "erotic-label",
+      "categoryLabel": "Erotic Label",
+      "badge": "Erotic Label",
+      "featured": false,
+      "image": "images/products/rolling-tray.png",
+      "photoStatus": "studio-preview",
+      "description": "Compartmentalized studio rolling tray with dedicated grinder dock, paper slot, tool rests, and full-bleed crimson-and-noir Erotic Label deck artwork.",
+      "dimensions": "Multi-zone Tray · Multi-color",
+      "studioPreset": "envelope",
+      "studioColors": {
+        "body": "#cbd5e1",
+        "lid": "#e2e8f0",
+        "hw": "#dc2626"
+      }
+    },
+    {
+      "id": "keychains-and-charms",
+      "name": "Keychains and Charms",
+      "inventoryRef": "My Projects / Erotic Label · erotickeychain & NFC",
+      "category": "erotic-label",
+      "categoryLabel": "Erotic Label",
+      "badge": "Bag Charm",
+      "featured": false,
+      "image": "images/products/keychains-and-charms.png",
+      "photoStatus": "studio-preview",
+      "description": "Sculpted crimson lips keychains and purse charms embossed with EROTIC LABEL lettering—also available in an NFC tap-enabled smart charm edition.",
+      "dimensions": "Charm / NFC Keychain",
+      "studioPreset": "heart",
+      "studioColors": {
+        "body": "#c81d25",
+        "lid": "#dc2626",
+        "hw": "#e5c174"
+      }
+    },
+    {
+      "id": "tactical-grip-lighter-case",
+      "name": "Tactical Grip Lighter Case",
+      "inventoryRef": "My Projects / Erotic Label · Tactical_Grip_Lighter_Caseerotic",
+      "category": "erotic-label",
+      "categoryLabel": "Erotic Label",
+      "badge": "Pocket Accessory",
+      "featured": false,
+      "image": "images/products/tactical-grip-lighter-case.png",
+      "photoStatus": "studio-preview",
+      "description": "Ergonomic knuckle-grip sculpted lighter sleeve with organic relief detailing—printed in obsidian matte for bold tactile grip and everyday carry.",
+      "dimensions": "Standard Lighter Sleeve",
+      "studioPreset": "coffin",
+      "studioColors": {
+        "body": "#2a2d36",
+        "lid": "#383c47",
+        "hw": "#d9b166"
+      }
+    },
+    {
+      "id": "elglock-bic-sleeve",
+      "name": "ELGlock BIC Sleeve",
+      "inventoryRef": "designs/elglock-bic-sleeve · v02",
+      "category": "erotic-label",
+      "categoryLabel": "Erotic Label",
+      "badge": "Active Design",
+      "featured": false,
+      "image": "images/products/elglock-bic-sleeve.png",
+      "photoStatus": "studio-preview",
+      "description": "Novelty pistol-frame BIC lighter sleeve customized for the workshop catalog with crisp trigger-guard geometry and snug slip-fit cavity.",
+      "dimensions": "Full-size BIC Fit",
+      "studioPreset": "coffin",
+      "studioColors": {
+        "body": "#d96b27",
+        "lid": "#ea7a34",
+        "hw": "#1f232c"
+      }
+    },
+    {
+      "id": "lightbox",
+      "name": "Lightbox",
+      "inventoryRef": "My Projects / Erotic Label · erlightbox",
+      "category": "erotic-label",
+      "categoryLabel": "Erotic Label",
+      "badge": "LED Decor",
+      "featured": false,
+      "image": "images/products/lightbox.png",
+      "photoStatus": "studio-preview",
+      "description": "Illuminated boutique tabletop or wall lightbox housing an intricate gold-on-obsidian Erotic Label stencil faceplate designed for warm LED backlighting.",
+      "dimensions": "2-part Shell + Diffuser Face",
+      "studioPreset": "tote",
+      "studioColors": {
+        "body": "#26282e",
+        "lid": "#353840",
+        "hw": "#d4a63a"
+      }
+    },
+    {
+      "id": "wall-logo",
+      "name": "Wall Logo",
+      "inventoryRef": "My Projects / Erotic Label · ellogowall",
+      "category": "erotic-label",
+      "categoryLabel": "Erotic Label",
+      "badge": "Statement Sign",
+      "featured": false,
+      "image": "images/products/wall-logo.png",
+      "photoStatus": "studio-preview",
+      "description": "Large-format sculpted 3D wall emblem pairing ruby-red lips, metallic gold centerpiece, and crisp white dimensional EROTIC LABEL typography.",
+      "dimensions": "Multi-color Wall Emblem",
+      "studioPreset": "heart",
+      "studioColors": {
+        "body": "#d91c1c",
+        "lid": "#ef233c",
+        "hw": "#eab308"
+      }
+    },
+    {
+      "id": "cashapp-pay-wand",
+      "name": "CashApp Pay Wand",
+      "inventoryRef": "My Projects / Erotic Label · dallarsignhairpin",
+      "category": "erotic-label",
+      "categoryLabel": "Erotic Label",
+      "badge": "Event Piece",
+      "featured": false,
+      "image": "images/products/cashapp-pay-wand.png",
+      "photoStatus": "studio-preview",
+      "description": "Sculpted dollar-sign pay wand and hairpin designed for instant club, boutique, or pop-up tipping with optional embedded NFC tag.",
+      "dimensions": "Single-plate Accessory",
+      "studioPreset": "diamond",
+      "studioColors": {
+        "body": "#22a06b",
+        "lid": "#2ebd7f",
+        "hw": "#e5c174"
+      }
+    },
+    {
+      "id": "ritual-tray",
+      "name": "Ritual Tray",
+      "inventoryRef": "My Projects / Modified · Ritual_Tray_Smooth_Sides",
+      "sku": "CS-003",
+      "category": "custom-studio",
+      "categoryLabel": "Custom Studio",
+      "badge": "SKU CS-003 · 4 In Stock",
+      "featured": true,
+      "image": "images/products/ritual-tray.png",
+      "photoStatus": "studio-preview",
+      "description": "Three-plate modular vanity and ritual organizer printed with ironed satin surfaces and velvety smooth walls for jewelry, keepsakes, or tabletop styling.",
+      "dimensions": "3-plate Modular Set",
+      "studioPreset": "artdeco",
+      "studioColors": {
+        "body": "#3c3b4a",
+        "lid": "#4e4c60",
+        "hw": "#e2bd70"
+      }
+    },
+    {
+      "id": "blank-book-cover",
+      "name": "Blank Book Cover",
+      "inventoryRef": "My Projects / Modified · blank-book-cover-line-width-fixed",
+      "category": "custom-studio",
+      "categoryLabel": "Custom Studio",
+      "badge": "Book Clutch Base",
+      "featured": false,
+      "image": "images/products/blank-book-cover.png",
+      "photoStatus": "studio-preview",
+      "description": "Precision-tuned 3D-printable hinged hardbound book cover shell—ready to personalize with embossed artwork, titles, or monogram medallions.",
+      "dimensions": "3 plates · Hinged Shell",
+      "studioPreset": "envelope",
+      "studioColors": {
+        "body": "#4b3834",
+        "lid": "#5e4641",
+        "hw": "#e2bd70"
+      }
+    },
+    {
+      "id": "canvas-frame",
+      "name": "Canvas Frame",
+      "inventoryRef": "My Projects / Original Designs · Canvas Draft",
+      "category": "custom-studio",
+      "categoryLabel": "Original Design",
+      "badge": "Original",
+      "featured": false,
+      "image": "images/products/canvas-frame.png",
+      "photoStatus": "studio-preview",
+      "description": "Original workshop-engineered gallery frame designed for clean snap-fit presentation of custom 3D artwork, HueForge panels, or small prints.",
+      "dimensions": "Custom Gallery Frame",
+      "studioPreset": "tote",
+      "studioColors": {
+        "body": "#353b48",
+        "lid": "#454d5e",
+        "hw": "#e5c174"
+      }
+    },
+    {
+      "id": "dollar-sign-model",
+      "name": "Dollar Sign Model",
+      "inventoryRef": "My Projects / Original Designs · dollar sign",
+      "category": "custom-studio",
+      "categoryLabel": "Original Design",
+      "badge": "Original",
+      "featured": false,
+      "image": "images/products/dollar-sign-model.png",
+      "photoStatus": "studio-preview",
+      "description": "Original chunky sculpted dollar-sign desk sculpture and bag-emblem centerpiece, ideal in mirror silk gold or emerald metallic filament.",
+      "dimensions": "Desk Sculpture / Emblem",
+      "studioPreset": "diamond",
+      "studioColors": {
+        "body": "#c8983a",
+        "lid": "#dbb052",
+        "hw": "#f5e1a8"
+      }
+    },
+    {
+      "id": "cash-app-keychain",
+      "name": "Cash App Keychain",
+      "inventoryRef": "My Projects / Customized · smallcashappkeychain",
+      "category": "custom-studio",
+      "categoryLabel": "Custom Studio",
+      "badge": "NFC Ready",
+      "featured": false,
+      "image": "images/products/cash-app-keychain.png",
+      "photoStatus": "studio-preview",
+      "description": "Compact multi-color Cash App badge keychain designed for instant QR/tap sharing—lightweight, crisp, and ideal as a boutique bag tag.",
+      "dimensions": "Compact Bag Keychain",
+      "studioPreset": "pill",
+      "studioColors": {
+        "body": "#16a34a",
+        "lid": "#22c55e",
+        "hw": "#f8fafc"
+      }
+    },
+    {
+      "id": "mm-hairpin",
+      "name": "MM Hairpin",
+      "inventoryRef": "My Projects / Customized · mmhairpin",
+      "category": "custom-studio",
+      "categoryLabel": "Custom Studio",
+      "badge": "Hair Accessory",
+      "featured": false,
+      "image": "images/products/mm-hairpin.png",
+      "photoStatus": "studio-preview",
+      "description": "Custom monogram sculptural hairpin crafted for lightweight all-day hold with crisp raised emblem detail and smooth rounded prongs.",
+      "dimensions": "Single-plate Accessory",
+      "studioPreset": "teardrop",
+      "studioColors": {
+        "body": "#6c365c",
+        "lid": "#824370",
+        "hw": "#e5c47c"
+      }
+    },
+    {
+      "id": "lithophanes",
+      "name": "Lithophanes",
+      "inventoryRef": "My Projects / Customized · Custom Photo Lithophanes",
+      "category": "custom-studio",
+      "categoryLabel": "Custom Studio",
+      "badge": "Bespoke Gift",
+      "featured": false,
+      "image": "images/products/lithophanes.png",
+      "photoStatus": "studio-preview",
+      "description": "Custom backlit photographic lithophanes sculpted directly from your favorite portraits—glowing with rich tonal depth when illuminated from behind.",
+      "dimensions": "Bespoke Photo Panel",
+      "studioPreset": "envelope",
+      "studioColors": {
+        "body": "#d6ccc2",
+        "lid": "#e3d5ca",
+        "hw": "#e5c174"
+      }
+    },
+    {
+      "id": "grinch-fishing-grip",
+      "name": "Grinch Fishing Grip",
+      "inventoryRef": "My Projects / Modified · Grinch_bottom_fitfix_revised",
+      "category": "custom-studio",
+      "categoryLabel": "Custom Studio",
+      "badge": "Custom Mod",
+      "featured": false,
+      "image": "images/products/grinch-fishing-grip.png",
+      "photoStatus": "studio-preview",
+      "description": "Precision-fitted two-plate sculpted character rod grip engineered with custom clamshell alignment and M4 hardware pockets.",
+      "dimensions": "2-plate Clamshell Grip",
+      "studioPreset": "cylinder",
+      "studioColors": {
+        "body": "#3f7d3a",
+        "lid": "#4e9648",
+        "hw": "#e5c174"
+      }
+    },
+    {
+      "id": "lulabu-duck",
+      "name": "Lulabu Duck",
+      "inventoryRef": "My Projects / Customized · lulabuduck1",
+      "category": "custom-studio",
+      "categoryLabel": "Custom Studio",
+      "badge": "Collectible",
+      "featured": false,
+      "image": "images/products/lulabu-duck.png",
+      "photoStatus": "studio-preview",
+      "description": "Playful mashup collectible figurine printed in crisp multi-detail relief—fun as a dashboard mascot, shelf companion, or gift topper.",
+      "dimensions": "Single-plate Figurine",
+      "studioPreset": "scallop",
+      "studioColors": {
+        "body": "#c8983a",
+        "lid": "#dbb052",
+        "hw": "#f5e1a8"
+      }
+    },
+    {
+      "id": "reebok-pump-shoes",
+      "name": "Reebok Pump Shoes",
+      "inventoryRef": "My Projects / Customized · all white pumps",
+      "category": "custom-studio",
+      "categoryLabel": "Custom Studio",
+      "badge": "Sneaker Mini",
+      "featured": false,
+      "image": "images/products/reebok-pump-shoes.png",
+      "photoStatus": "studio-preview",
+      "description": "Crisp all-white miniature sneaker sculpture capturing classic retro high-top paneling—ready to display as desk art or customize as a bag charm.",
+      "dimensions": "Miniature Collectible",
+      "studioPreset": "mini_backpack",
+      "studioColors": {
+        "body": "#d4d8e0",
+        "lid": "#e2e6ed",
+        "hw": "#d9b166"
+      }
+    },
+    {
+      "id": "ice-cube",
+      "name": "Ice Cube",
+      "inventoryRef": "My Projects / Customized · icecube",
+      "category": "custom-studio",
+      "categoryLabel": "Custom Studio",
+      "badge": "Sculpture",
+      "featured": false,
+      "image": "images/products/ice-cube.png",
+      "photoStatus": "studio-preview",
+      "description": "Sculpted stylized cube bust with sharp geometric facets—eye-catching in translucent PETG, silk silver, or matte obsidian filament.",
+      "dimensions": "Single-plate Bust",
+      "studioPreset": "octagon",
+      "studioColors": {
+        "body": "#3b4257",
+        "lid": "#4b546e",
+        "hw": "#dce1ec"
+      }
+    }
+  ]
+}
