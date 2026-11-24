@@ -9,6 +9,7 @@ import {
   SlidersHorizontal,
   Sparkles,
   Type,
+  Wand2,
 } from 'lucide-react';
 import { CATALOG_ITEMS, PURSE_SILHOUETTES } from '../config/storefrontConfig';
 import { buildPurseStudioUrl } from '../services/catalogLoader';
@@ -29,6 +30,10 @@ interface BoutiqueCatalogProps {
     quickOverride?: { primaryHex: string; accentHex: string; engraving: string }
   ) => void;
   onOpenPatternStudio?: (item?: CatalogItem) => void;
+  onPersonalizeItem?: (
+    item: CatalogItem,
+    quickOverride: { primaryHex: string; accentHex: string; engraving: string }
+  ) => void;
   onToast: (msg: string) => void;
 }
 
@@ -57,6 +62,7 @@ export const BoutiqueCatalog: React.FC<BoutiqueCatalogProps> = ({
   onCategoryChange,
   onQuickAddCatalog,
   onOpenPatternStudio,
+  onPersonalizeItem,
   onToast,
 }) => {
   const [localPhotos, setLocalPhotos] = useState<Record<string, string>>({});
@@ -594,14 +600,24 @@ export const BoutiqueCatalog: React.FC<BoutiqueCatalogProps> = ({
                         <span>Add</span>
                       </button>
                     </div>
+                    {onPersonalizeItem && (
+                      <button
+                        type="button"
+                        onClick={() => onPersonalizeItem(item, ov)}
+                        className="w-full min-h-[38px] px-3 py-1.5 rounded-full bg-[#5EEAD4]/14 hover:bg-[#5EEAD4]/24 border border-[#5EEAD4]/45 hover:border-[#5EEAD4] text-[#5EEAD4] hover:text-white text-[11px] font-bold inline-flex items-center justify-center gap-1.5 whitespace-nowrap transition-colors"
+                      >
+                        <Wand2 className="w-3.5 h-3.5" />
+                        <span>Add Photo / Logo / Text</span>
+                      </button>
+                    )}
                     {onOpenPatternStudio && (
                       <button
                         type="button"
                         onClick={() => onOpenPatternStudio(item)}
-                        className="w-full min-h-[36px] px-3 py-1.5 rounded-full bg-[#5EEAD4]/10 hover:bg-[#5EEAD4]/20 border border-[#5EEAD4]/35 hover:border-[#5EEAD4] text-[#5EEAD4] hover:text-white text-[11px] font-semibold inline-flex items-center justify-center gap-1.5 whitespace-nowrap transition-colors"
+                        className="w-full min-h-[32px] px-3 py-1 rounded-full bg-white/5 hover:bg-white/12 border border-white/12 hover:border-white/25 text-slate-300 hover:text-white text-[10.5px] font-semibold inline-flex items-center justify-center gap-1.5 whitespace-nowrap transition-colors"
                       >
-                        <Layers className="w-3.5 h-3.5" />
-                        <span>Add Custom Logo / Pattern</span>
+                        <Layers className="w-3 h-3 text-[#FDE68A]" />
+                        <span>Pro SVG Pattern Studio</span>
                       </button>
                     )}
                   </div>

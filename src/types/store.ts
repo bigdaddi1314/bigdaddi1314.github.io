@@ -96,8 +96,29 @@ export interface CatalogItem {
   pursePreset?: Partial<PurseConfig>;
 }
 
+export type PrintReliefStyle = 'emboss' | 'deboss' | 'flush';
+
+export interface ItemPersonalization {
+  customText: string;
+  textFont: 'editorial' | 'modern' | 'script' | 'mono';
+  textSize: number;
+  textYOffset: number;
+  reliefStyle: PrintReliefStyle;
+  artworkColorHex: string;
+  secondaryColorHex?: string;
+  sourceFileName?: string;
+  vectorMode?: 'logo' | 'photo' | 'stamp';
+  scalePct: number;
+  rotationDeg: number;
+  offsetXPct: number;
+  offsetYPct: number;
+  customSvg?: string;
+  previewDataUrl?: string;
+}
+
 export interface BagItem {
   key: string;
+  productId?: string;
   name: string;
   kind: 'purse' | 'accessory' | 'catalog';
   price: number;
@@ -105,6 +126,8 @@ export interface BagItem {
   primaryHex: string;
   secondaryHex: string;
   details: string;
+  photoUrl?: string;
+  personalization?: ItemPersonalization;
 }
 
 export interface SavedDesignRecord {

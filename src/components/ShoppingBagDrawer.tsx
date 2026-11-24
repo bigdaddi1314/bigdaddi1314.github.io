@@ -7,6 +7,7 @@ import {
   ShoppingBag,
   Trash2,
   Truck,
+  Wand2,
   X,
 } from 'lucide-react';
 import { STOREFRONT_CONFIG } from '../config/storefrontConfig';
@@ -21,6 +22,7 @@ interface ShoppingBagDrawerProps {
   onClose: () => void;
   onUpdateQty: (key: string, delta: number) => void;
   onRemoveItem: (key: string) => void;
+  onPersonalizeItem?: (item: BagItem) => void;
   onClearBag: () => void;
   onPlaceOrder: (payload: {
     customerName: string;
@@ -43,6 +45,7 @@ export const ShoppingBagDrawer: React.FC<ShoppingBagDrawerProps> = ({
   onClose,
   onUpdateQty,
   onRemoveItem,
+  onPersonalizeItem,
   onClearBag,
   onPlaceOrder,
   onSignInPrompt,
@@ -238,19 +241,34 @@ export const ShoppingBagDrawer: React.FC<ShoppingBagDrawerProps> = ({
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex items-start gap-3">
-                        <div
-                          className="w-11 h-11 rounded-xl border border-white shadow-sm shrink-0"
-                          style={{
-                            background: `linear-gradient(135deg, ${item.primaryHex} 0%, ${item.secondaryHex} 100%)`,
-                          }}
-                        />
-                        <div>
+                        {item.personalization?.previewDataUrl ? (
+                          <div className="w-12 h-12 rounded-xl border border-[#009CA6]/40 bg-[#0B1117] p-1 shadow-sm shrink-0 flex items-center justify-center overflow-hidden">
+                            <img
+                              src={item.personalization.previewDataUrl}
+                              alt="Custom print vector preview"
+                              className="w-full h-full object-contain"
+                            />
+                          </div>
+                        ) : (
+                          <div
+                            className="w-11 h-11 rounded-xl border border-white shadow-sm shrink-0"
+                            style={{
+                              background: `linear-gradient(135deg, ${item.primaryHex} 0%, ${item.secondaryHex} 100%)`,
+                            }}
+                          />
+                        )}
+                        <div className="min-w-0">
                           <h4 className="text-sm font-semibold text-[#0B1117] leading-snug">
                             {item.name}
                           </h4>
                           <p className="text-[11px] text-[#475569] mt-0.5 leading-relaxed">
                             {item.details}
                           </p>
+                          {item.personalization?.customSvg && (
+                            <span className="mt-1 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#E6F7F8] text-[#0085CA] text-[10px] font-bold">
+                              ✓ Print-Ready SVG Attached
+                            </span>
+                          )}
                         </div>
                       </div>
                       <span className="text-sm font-semibold text-[#0B1117] tabular-nums shrink-0">
@@ -258,7 +276,7 @@ export const ShoppingBagDrawer: React.FC<ShoppingBagDrawerProps> = ({
                       </span>
                     </div>
 
-                    <div className="flex items-center justify-between pt-1 border-t border-[#E2E8F0]">
+                    <div className="flex flex-wrap items-center justify-between gap-2 pt-1.5 border-t border-[#E2E8F0]">
                       <div className="inline-flex items-center gap-1 rounded-full bg-white border border-[#DCE4EC] p-0.5">
                         <button
                           type="button"
@@ -281,14 +299,28 @@ export const ShoppingBagDrawer: React.FC<ShoppingBagDrawerProps> = ({
                         </button>
                       </div>
 
-                      <button
-                        type="button"
-                        onClick={() => onRemoveItem(item.key)}
-                        className="text-xs font-medium text-[#475569] hover:text-[#0B1117] inline-flex items-center gap-1"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                        <span>Remove</span>
-                      </button>
+                      <div className="flex items-center gap-2">
+                        {onPersonalizeItem && (
+                          <button
+                            type="button"
+                            onClick={() => onPersonalizeItem(item)}
+                            className="px-2.5 py-1 rounded-full bg-[#E6F7F8] hover:bg-[#CCF0F3] text-[#00738C] text-[11px] font-bold inline-flex items-center gap-1 transition-colors"
+                          >
+                            <Wand2 className="w-3 h-3" />
+                            <span>
+                              {item.personalization ? 'Edit Photo / Text' : 'Add Photo / Text'}
+                            </span>
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => onRemoveItem(item.key)}
+                          className="text-xs font-medium text-[#475569] hover:text-[#0B1117] inline-flex items-center gap-1"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                          <span>Remove</span>
+                        </button>
+                      </div>
                     </div>
                   </div>
                 ))}

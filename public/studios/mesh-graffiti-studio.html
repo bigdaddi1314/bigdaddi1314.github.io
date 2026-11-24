@@ -268,12 +268,17 @@ svg#model{width:100%;height:100%;max-height:620px;position:relative;z-index:1;ov
       </h2>
       <div class="copy">Upload a custom SVG/image or choose a vector preset to stamp or tile across the print surface.</div>
 
-      <input id="imageFile" class="hidden" type="file" accept="image/png,image/jpeg,image/svg+xml,.svg">
+      <input id="imageFile" class="hidden" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml,.svg,.png,.jpg,.jpeg,.webp">
       <button class="drop" id="imageDrop" style="width:100%">
         <div class="drop-icon">▧</div>
-        <strong id="imageTitle">Upload custom SVG / PNG</strong>
-        <p id="imageCopy">Or choose a starter vector below</p>
+        <strong id="imageTitle">Upload photo, PNG, JPG, or SVG</strong>
+        <p id="imageCopy">PNG/JPG photos auto-convert to 3D vector SVG</p>
       </button>
+
+      <div class="toggle-row" style="margin-top:8px">
+        <span class="label">Auto-convert PNG/JPG → 3D Vector SVG</span>
+        <button type="button" class="toggle on" id="autoVectorizeToggle" aria-label="Auto convert PNG or JPG to vector SVG"></button>
+      </div>
 
       <div class="field">
         <div class="field-row">
@@ -1669,12 +1674,139 @@ svg#model{width:100%;height:100%;max-height:620px;position:relative;z-index:1;ov
       var probe = new Image();
       probe.onload = function(){
         imgAspect = probe.naturalWidth > 0 && probe.naturalHeight > 0 ? probe.naturalWidth / probe.naturalHeight : 1;
+        var autoVec = document.getElementById("autoVectorizeToggle");
+        if(autoVec && autoVec.classList.contains("on")){
+          var traced = traceRasterImageToSvg(probe);
+          if(traced && traced.markup){
+            imgSvgMarkup = traced.markup;
+            imgSvgViewBox = traced.viewBox;
+            document.getElementById("imageCopy").textContent = "Photo auto-converted to 3D vector SVG! Ready for Pattern-Only SVG export.";
+            say("Converted " + f.name + " to 3D-printable vector SVG!");
+          }
+        }
         placeLogoPattern();
       };
       probe.onerror = function(){ imgAspect = 1; placeLogoPattern(); };
       probe.src = imgData;
     };
     r.readAsDataURL(f);
+  }
+
+  // Client-side Marching Squares raster (PNG/JPG/WEBP) -> clean closed SVG vector paths
+  function traceRasterImageToSvg(imgEl){
+    try{
+      var natW = imgEl.naturalWidth || 160, natH = imgEl.naturalHeight || 160;
+      var aspect = natW / natH;
+      var maxDim = 150;
+      var w = aspect >= 1 ? maxDim : Math.max(24, Math.round(maxDim * aspect));
+      var h = aspect >= 1 ? Math.max(24, Math.round(maxDim / aspect)) : maxDim;
+      var cvs = document.createElement("canvas");
+      cvs.width = w; cvs.height = h;
+      var ctx = cvs.getContext("2d", { willReadFrequently: true });
+      if(!ctx) return null;
+      ctx.drawImage(imgEl, 0, 0, w, h);
+      var rgba = ctx.getImageData(0, 0, w, h).data;
+      var luma = new Uint8Array(w * h);
+      var alphaCount = 0;
+      for(var i = 0; i < w * h; i++){
+        var p = i * 4;
+        if(rgba[p + 3] < 200) alphaCount++;
+        luma[i] = Math.round(0.299 * rgba[p] + 0.587 * rgba[p + 1] + 0.114 * rgba[p + 2]);
+      }
+      var hasAlpha = alphaCount > (w * h * 0.04);
+
+      // Estimate corner background brightness
+      var cornerSum = 0, cornerN = 0;
+      for(var cx = 0; cx < w; cx += Math.max(1, Math.floor(w / 8))){
+        cornerSum += luma[cx] + luma[(h - 1) * w + cx]; cornerN += 2;
+      }
+      var bgLuma = cornerN ? (cornerSum / cornerN) : 255;
+      var darkBg = !hasAlpha && bgLuma < 115;
+
+      // Otsu threshold
+      var hist = new Uint32Array(256), sumAll = 0;
+      for(var hi = 0; hi < luma.length; hi++){ hist[luma[hi]]++; sumAll += luma[hi]; }
+      var sumB = 0, wB = 0, maxVar = -1, thresh = 128, tot = luma.length;
+      for(var t = 0; t < 256; t++){
+        wB += hist[t]; if(!wB) continue;
+        var wF = tot - wB; if(!wF) break;
+        sumB += t * hist[t];
+        var mB = sumB / wB, mF = (sumAll - sumB) / wF;
+        var v = wB * wF * (mB - mF) * (mB - mF);
+        if(v > maxVar){ maxVar = v; thresh = t; }
+      }
+
+      var grid = new Uint8Array(w * h);
+      for(var gi = 0; gi < w * h; gi++){
+        if(hasAlpha) grid[gi] = rgba[gi * 4 + 3] >= 120 ? 1 : 0;
+        else grid[gi] = darkBg ? (luma[gi] >= thresh ? 1 : 0) : (luma[gi] <= thresh ? 1 : 0);
+      }
+
+      // Marching squares on padded grid
+      var pw = w + 2, ph = h + 2;
+      var pad = new Uint8Array(pw * ph);
+      for(var py = 0; py < h; py++) for(var px = 0; px < w; px++) pad[(py + 1) * pw + (px + 1)] = grid[py * w + px];
+      var adj = Object.create(null);
+      function addS(x1, y1, x2, y2){
+        var k1 = x1 + "," + y1;
+        if(!adj[k1]) adj[k1] = [];
+        adj[k1].push({ k: x2 + "," + y2, x: x2 * 0.5 - 1, y: y2 * 0.5 - 1 });
+      }
+      for(var my = 0; my < ph - 1; my++){
+        for(var mx = 0; mx < pw - 1; mx++){
+          var c = (pad[my*pw+mx]<<3)|(pad[my*pw+mx+1]<<2)|(pad[(my+1)*pw+mx+1]<<1)|pad[(my+1)*pw+mx];
+          if(c === 0 || c === 15) continue;
+          var tx=2*mx+1, ty=2*my, rx=2*mx+2, ry=2*my+1, bx=2*mx+1, by=2*my+2, lx=2*mx, ly=2*my+1;
+          if(c===1) addS(lx,ly,bx,by);
+          else if(c===2) addS(bx,by,rx,ry);
+          else if(c===3) addS(lx,ly,rx,ry);
+          else if(c===4) addS(rx,ry,tx,ty);
+          else if(c===5){ addS(lx,ly,tx,ty); addS(rx,ry,bx,by); }
+          else if(c===6) addS(bx,by,tx,ty);
+          else if(c===7) addS(lx,ly,tx,ty);
+          else if(c===8) addS(tx,ty,lx,ly);
+          else if(c===9) addS(tx,ty,bx,by);
+          else if(c===10){ addS(tx,ty,rx,ry); addS(bx,by,lx,ly); }
+          else if(c===11) addS(tx,ty,rx,ry);
+          else if(c===12) addS(rx,ry,lx,ly);
+          else if(c===13) addS(rx,ry,bx,by);
+          else if(c===14) addS(bx,by,lx,ly);
+        }
+      }
+      var pathParts = [];
+      Object.keys(adj).forEach(function(sk){
+        var list = adj[sk];
+        while(list && list.length){
+          var first = list.pop();
+          var sp = sk.split(",");
+          var pts = [{ x: Number(sp[0]) * 0.5 - 1, y: Number(sp[1]) * 0.5 - 1 }, { x: first.x, y: first.y }];
+          var cur = first.k, guard = 0;
+          while(cur !== sk && guard++ < 50000){
+            var nxt = adj[cur];
+            if(!nxt || !nxt.length) break;
+            var e = nxt.pop();
+            pts.push({ x: e.x, y: e.y });
+            cur = e.k;
+          }
+          if(pts.length < 5) continue;
+          pts.pop();
+          // Decimate every 2nd point on long contours for compact smooth SVG
+          var step = pts.length > 40 ? 2 : 1;
+          var sub = [];
+          for(var pi = 0; pi < pts.length; pi += step) sub.push(pts[pi]);
+          if(sub.length < 3) continue;
+          var d = "M" + sub.map(function(pt){ return pt.x.toFixed(1) + " " + pt.y.toFixed(1); }).join("L") + "Z";
+          pathParts.push(d);
+        }
+      });
+      if(!pathParts.length) return null;
+      return {
+        markup: '<path d="' + pathParts.join(" ") + '" fill-rule="evenodd"/>',
+        viewBox: { x: 0, y: 0, w: w, h: h }
+      };
+    }catch(_){
+      return null;
+    }
   }
 
   imgInput.onchange = function(){

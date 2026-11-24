@@ -24,6 +24,7 @@ import type {
   AccessoryConfig,
   BagItem,
   CatalogItem,
+  ItemPersonalization,
   ProductCategory,
   PurseConfig,
 } from './types/store';
@@ -32,6 +33,10 @@ import { BoutiqueCatalog } from './components/BoutiqueCatalog';
 import { CustomRequestSection } from './components/CustomRequestSection';
 import { MonogramPatternStudioView } from './components/MonogramPatternStudioView';
 import { OfflineIndicator, PWAInstallButton } from './components/PWAInstallControl';
+import {
+  ProductPersonalizerModal,
+  type PersonalizerTarget,
+} from './components/ProductPersonalizerModal';
 import { Purse3DViewport } from './components/Purse3DViewport';
 import { PurseDesignStudio } from './components/PurseDesignStudio';
 import { ShoppingBagDrawer } from './components/ShoppingBagDrawer';
@@ -83,6 +88,9 @@ export function App() {
   // Boutique Bag state (localStorage, 100% static)
   const [bagItems, setBagItems] = useState<BagItem[]>(readStoredBag);
   const [isBagOpen, setIsBagOpen] = useState(false);
+
+  // Universal Photo -> SVG & Text Product Personalizer modal (works before OR at checkout)
+  const [personalizerTarget, setPersonalizerTarget] = useState<PersonalizerTarget | null>(null);
 
   // Custom Request prefill state
   const [requestPrefillCategory, setRequestPrefillCategory] = useState<string | undefined>();
@@ -313,15 +321,92 @@ export function App() {
 
     addItemToBag({
       key,
+      productId: item.id,
       name: item.name,
       kind: item.isPurse ? 'purse' : 'accessory',
       price: item.price,
       primaryHex,
       secondaryHex,
+      photoUrl: item.photoUrl,
       details: engraving
         ? `Two-Tone ${primaryHex} + ${secondaryHex} · Engraved "${engraving}"`
         : `${item.dimensions || item.categoryLabel || 'Custom 3D Print'} · ${primaryHex} + ${secondaryHex}`,
     });
+  };
+
+  // Open Photo -> SVG & Text Personalizer from ANY product card (before checkout)
+  const handleOpenProductPersonalizer = (
+    item: CatalogItem,
+    quickOverride: { primaryHex: string; accentHex: string; engraving: string }
+  ) => {
+    setPersonalizerTarget({
+      productId: item.id,
+      name: item.name,
+      price: item.price,
+      photoUrl: item.photoUrl,
+      primaryHex: quickOverride.primaryHex || item.defaultPrimaryHex,
+      secondaryHex: quickOverride.accentHex || item.defaultAccentHex,
+      dimensions: item.dimensions,
+    });
+  };
+
+  // Open Photo -> SVG & Text Personalizer from ANY item already inside the Boutique Bag (at checkout)
+  const handlePersonalizeBagItem = (bagItem: BagItem) => {
+    const matchedCatalog = catalogItems.find(
+      (c) => c.id === bagItem.productId || c.name === bagItem.name
+    );
+    setIsBagOpen(false);
+    setPersonalizerTarget({
+      productId: bagItem.productId || matchedCatalog?.id || bagItem.key,
+      name: bagItem.name,
+      price: bagItem.price,
+      photoUrl: bagItem.photoUrl || matchedCatalog?.photoUrl,
+      primaryHex: bagItem.primaryHex,
+      secondaryHex: bagItem.secondaryHex,
+      dimensions: matchedCatalog?.dimensions,
+      existingBagKey: bagItem.key,
+      initialPersonalization: bagItem.personalization,
+    });
+  };
+
+  // Save converted SVG + custom text personalization into Boutique Bag
+  const handleSavePersonalization = (
+    target: PersonalizerTarget,
+    personalization: ItemPersonalization,
+    summaryDetails: string
+  ) => {
+    if (target.existingBagKey) {
+      setBagItems((prev) =>
+        prev.map((b) =>
+          b.key === target.existingBagKey
+            ? {
+                ...b,
+                details: summaryDetails,
+                personalization,
+              }
+            : b
+        )
+      );
+      setPersonalizerTarget(null);
+      setIsBagOpen(true);
+      showToast(`Saved print personalization on ${target.name}`);
+      return;
+    }
+
+    const customKey = `pers_${target.productId}_${Date.now().toString(36)}`;
+    addItemToBag({
+      key: customKey,
+      productId: target.productId,
+      name: `${target.name} (Personalized)`,
+      kind: 'catalog',
+      price: target.price,
+      primaryHex: target.primaryHex,
+      secondaryHex: personalization.artworkColorHex || target.secondaryHex,
+      photoUrl: target.photoUrl,
+      details: summaryDetails,
+      personalization,
+    });
+    setPersonalizerTarget(null);
   };
 
   const handleAddAccessoryToBag = (cfg: AccessoryConfig, price: number) => {
@@ -805,6 +890,7 @@ export function App() {
           onOpenAccessoryCustomizer={handleOpenAccessoryCustomizer}
           onQuickAddCatalog={handleQuickAddCatalog}
           onOpenPatternStudio={(item) => openPatternStudio(item)}
+          onPersonalizeItem={handleOpenProductPersonalizer}
           onToast={showToast}
         />
 
@@ -1016,9 +1102,18 @@ export function App() {
         onClose={() => setIsBagOpen(false)}
         onUpdateQty={handleUpdateQty}
         onRemoveItem={handleRemoveBagItem}
+        onPersonalizeItem={handlePersonalizeBagItem}
         onClearBag={() => setBagItems([])}
         onPlaceOrder={handlePlaceOrder}
         onSignInPrompt={() => {}}
+      />
+
+      {/* Universal Customer Photo -> SVG & Custom Text Personalizer */}
+      <ProductPersonalizerModal
+        target={personalizerTarget}
+        onClose={() => setPersonalizerTarget(null)}
+        onSavePersonalization={handleSavePersonalization}
+        onToast={showToast}
       />
 
       {/* Toast Feedback Banner */}

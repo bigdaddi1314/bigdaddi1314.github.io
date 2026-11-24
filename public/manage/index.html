@@ -847,12 +847,24 @@ tr:hover td{background:rgba(255,255,255,.025)}
       var d = entry.raw;
       var dateStr = d.createdAt ? new Date(d.createdAt).toLocaleString() : 'Just now';
       if(entry._type === 'order'){
-        var itemsHtml = (d.items || []).map(function(it){
+        var itemsHtml = (d.items || []).map(function(it, idx){
+          var pers = it.personalization;
+          var svgBlock = '';
+          if(pers && pers.customSvg){
+            svgBlock = '<div style="margin-top:6px;display:flex;align-items:center;gap:8px;padding:6px;border-radius:8px;background:#070a13;border:1px solid rgba(94,234,212,.3)">' +
+              (pers.previewDataUrl ? '<img src="' + esc(pers.previewDataUrl) + '" alt="Customer SVG" style="width:48px;height:48px;object-fit:contain;border-radius:6px;background:#0e1422;padding:3px">' : '') +
+              '<div style="flex:1;min-width:0;font-size:11px">' +
+                '<div style="color:var(--teal);font-weight:700">✓ Converted Print-Ready SVG</div>' +
+                '<div class="item-sub">' + esc(pers.sourceFileName || 'Vector graphic') + ' · ' + esc(pers.reliefStyle || 'emboss') + '</div>' +
+              '</div>' +
+              '<button type="button" class="btn sm teal" data-dl-svg="' + esc(d.orderNumber) + ':' + idx + '">↓ SVG</button>' +
+            '</div>';
+          }
           return '<div class="order-item-row">' +
-            '<div><span class="swatch-dot" style="background:' + esc(it.primaryHex || '#0085CA') + '"></span> ' +
+            '<div style="flex:1;min-width:0"><span class="swatch-dot" style="background:' + esc(it.primaryHex || '#0085CA') + '"></span> ' +
             '<span class="swatch-dot" style="background:' + esc(it.secondaryHex || '#009CA6') + '"></span> ' +
             '<strong>' + esc(it.qty || 1) + '× ' + esc(it.name) + '</strong>' +
-            '<div class="item-sub">' + esc(it.details || '') + '</div></div>' +
+            '<div class="item-sub">' + esc(it.details || '') + '</div>' + svgBlock + '</div>' +
             '<strong style="color:var(--gold2)">$' + ((Number(it.price) || 0) * (Number(it.qty) || 1)).toFixed(0) + '</strong>' +
           '</div>';
         }).join('');
@@ -1137,6 +1149,16 @@ tr:hover td{background:rgba(255,255,255,.025)}
   document.getElementById('ordersList').addEventListener('click', function(e){
     var btn = e.target.closest('button');
     if(!btn) return;
+    if(btn.dataset.dlSvg){
+      var sp = btn.dataset.dlSvg.split(':');
+      var ord = state.orders.find(function(x){ return x.orderNumber === sp[0]; });
+      var item = ord && ord.items && ord.items[Number(sp[1])];
+      if(item && item.personalization && item.personalization.customSvg){
+        downloadFile(sp[0] + '-' + (item.productId || 'custom') + '.svg', item.personalization.customSvg, 'image/svg+xml;charset=utf-8');
+        toast('Downloaded customer slicer-ready SVG');
+      }
+      return;
+    }
     if(btn.dataset.promote){
       var parts = btn.dataset.promote.split(':');
       var list = parts[0] === 'order' ? state.orders : state.requests;
