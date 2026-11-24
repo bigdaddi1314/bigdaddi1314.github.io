@@ -72,6 +72,8 @@ export const BoutiqueCatalog: React.FC<BoutiqueCatalogProps> = ({
   const [livePreviewText, setLivePreviewText] = useState<string>('');
   const [activeThemeId, setActiveThemeId] = useState<string>('');
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [visibleLimit, setVisibleLimit] = useState<number>(8);
+  const [showPreviewBar, setShowPreviewBar] = useState<boolean>(false);
 
   const hasWorkshopCategories = useMemo(
     () => catalogItems.some((item) => Boolean(item.workshopCategory)),
@@ -124,6 +126,16 @@ export const BoutiqueCatalog: React.FC<BoutiqueCatalogProps> = ({
       return hay.includes(q);
     });
   }, [activeCategory, catalogItems, searchQuery]);
+
+  const displayedItems = useMemo(
+    () => visibleItems.slice(0, visibleLimit),
+    [visibleItems, visibleLimit]
+  );
+
+  const handleSelectCategory = (cat: ProductCategory) => {
+    setVisibleLimit(8);
+    onCategoryChange(cat);
+  };
 
   const getOverride = (item: CatalogItem) =>
     quickOverrides[item.id] ?? {
@@ -215,37 +227,42 @@ export const BoutiqueCatalog: React.FC<BoutiqueCatalogProps> = ({
   };
 
   return (
-    <section id="collection" className="py-16 lg:py-24">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+    <section id="collection" className="py-12 lg:py-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
         {/* Header & Category Filter Strip */}
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-5">
           <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
-            <div className="space-y-2.5 max-w-2xl">
+            <div className="space-y-2 max-w-2xl">
               <p className="text-xs font-semibold tracking-[0.2em] text-[#FDE68A] uppercase">
-                Workshop Inventory Showcase · {catalogItems.length} Curated 3D Print Pieces
+                Curated Collection · {catalogItems.length} Custom 3D-Printed Pieces
               </p>
               <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-semibold text-white leading-tight text-balance drop-shadow-sm">
-                Personalized Pieces for{' '}
-                <span className="italic sunset-text-gradient">Every Moment of Your Day.</span>
+                Purses, Lifestyle &amp;{' '}
+                <span className="italic sunset-text-gradient">Custom Statements.</span>
               </h2>
-              <p className="text-sm sm:text-base text-slate-200/90">
-                Browse all {catalogItems.length} Purse Studio silhouettes, Erotic Label originals, and custom 3D print designs. Click <strong className="text-white">Customize</strong> on any piece to launch that exact style in our 3D Purse Studio.
+              <p className="text-sm text-slate-200/90">
+                Filter by category to jump straight to purses, smoke &amp; ritual gear, LED signs, keychains, or decor—and tap <strong className="text-[#5EEAD4]">Add Photo / Logo / Text</strong> on any piece to preview your own image on the print.
               </p>
             </div>
 
             <div className="self-start lg:self-end flex flex-wrap items-center gap-2.5">
-              <a
-                href="/purse-studio/index.html?from=gallery"
-                className="min-h-[44px] px-5 py-2.5 rounded-full bg-gradient-to-r from-[#F5B96B] to-[#E59A45] hover:from-[#FDE68A] hover:to-[#F5B96B] text-[#0B101C] text-xs font-bold inline-flex items-center gap-2 whitespace-nowrap transition-all shadow-lg"
+              <button
+                type="button"
+                onClick={() => setShowPreviewBar((v) => !v)}
+                className={`min-h-[42px] px-4 py-2 rounded-full border text-xs font-semibold inline-flex items-center gap-1.5 whitespace-nowrap transition-all backdrop-blur-md ${
+                  showPreviewBar
+                    ? 'bg-[#F5B96B]/20 border-[#F5B96B] text-[#FDE68A]'
+                    : 'bg-[#0B101C]/75 border-white/18 text-slate-200 hover:border-[#F5B96B] hover:text-white'
+                }`}
               >
-                <Sparkles className="w-3.5 h-3.5" />
-                <span>Open Full 3D Purse Studio</span>
-              </a>
+                <Palette className="w-3.5 h-3.5 text-[#5EEAD4]" />
+                <span>{showPreviewBar ? 'Hide Quick Preview' : 'Live Name & Color Preview'}</span>
+              </button>
               {onOpenPatternStudio && (
                 <button
                   type="button"
                   onClick={() => onOpenPatternStudio()}
-                  className="min-h-[44px] px-4 py-2.5 rounded-full bg-[#0B101C]/75 hover:bg-[#5EEAD4]/18 border border-[#5EEAD4]/45 hover:border-[#5EEAD4] text-[#5EEAD4] hover:text-white text-xs font-bold inline-flex items-center gap-2 whitespace-nowrap transition-all backdrop-blur-md"
+                  className="min-h-[42px] px-4 py-2 rounded-full bg-[#0B101C]/75 hover:bg-[#5EEAD4]/18 border border-[#5EEAD4]/45 hover:border-[#5EEAD4] text-[#5EEAD4] hover:text-white text-xs font-bold inline-flex items-center gap-2 whitespace-nowrap transition-all backdrop-blur-md"
                 >
                   <Layers className="w-3.5 h-3.5" />
                   <span>Monogram &amp; Pattern Studio</span>
@@ -268,7 +285,7 @@ export const BoutiqueCatalog: React.FC<BoutiqueCatalogProps> = ({
                     type="button"
                     role="tab"
                     aria-selected={isActive}
-                    onClick={() => onCategoryChange(tab.id)}
+                    onClick={() => handleSelectCategory(tab.id)}
                     className={`min-h-[40px] px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap shrink-0 transition-all backdrop-blur-md ${
                       isActive
                         ? 'bg-gradient-to-r from-[#F5B96B] to-[#E59A45] text-[#0B101C] font-bold shadow-md'
@@ -287,8 +304,11 @@ export const BoutiqueCatalog: React.FC<BoutiqueCatalogProps> = ({
               <input
                 type="search"
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search Carryall, Duffel, Clutch..."
+                onChange={(e) => {
+                  setVisibleLimit(8);
+                  setSearchQuery(e.target.value);
+                }}
+                placeholder="Search Grinder, Lightbox, Clutch..."
                 aria-label="Search product gallery"
                 className="w-full min-h-[40px] pl-10 pr-3.5 py-2 rounded-full bg-[#0B101C]/70 backdrop-blur-md border border-white/18 focus:border-[#F5B96B] focus:outline-none text-xs text-white placeholder:text-slate-400"
               />
@@ -296,7 +316,8 @@ export const BoutiqueCatalog: React.FC<BoutiqueCatalogProps> = ({
           </div>
         </div>
 
-        {/* Live Showcase Engraving & Queen City Color Theme Preview Bar */}
+        {/* Collapsible Live Showcase Engraving & Queen City Color Theme Preview Bar */}
+        {showPreviewBar && (
         <div className="glass-panel rounded-3xl p-5 sm:p-6">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-center">
             <div className="lg:col-span-5 space-y-1.5">
@@ -364,18 +385,19 @@ export const BoutiqueCatalog: React.FC<BoutiqueCatalogProps> = ({
             </div>
           </div>
         </div>
+        )}
 
         {/* Result summary */}
         <div className="flex items-center justify-between text-xs text-slate-200">
           <span>
-            Showing <strong className="text-[#FDE68A]">{visibleItems.length}</strong> of{' '}
-            <strong className="text-white">{catalogItems.length}</strong> pieces
+            Showing <strong className="text-[#FDE68A]">{displayedItems.length}</strong> of{' '}
+            <strong className="text-white">{visibleItems.length}</strong> pieces
           </span>
           {(activeCategory !== 'all' || searchQuery) && (
             <button
               type="button"
               onClick={() => {
-                onCategoryChange('all');
+                handleSelectCategory('all');
                 setSearchQuery('');
               }}
               className="font-semibold text-[#FDE68A] hover:text-white"
@@ -397,7 +419,7 @@ export const BoutiqueCatalog: React.FC<BoutiqueCatalogProps> = ({
             <button
               type="button"
               onClick={() => {
-                onCategoryChange('all');
+                handleSelectCategory('all');
                 setSearchQuery('');
               }}
               className="min-h-[42px] px-5 py-2 rounded-full bg-[#F5B96B] text-[#0B101C] text-xs font-bold"
@@ -406,8 +428,9 @@ export const BoutiqueCatalog: React.FC<BoutiqueCatalogProps> = ({
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {visibleItems.map((item) => {
+          <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+            {displayedItems.map((item) => {
               const ov = getOverride(item);
               const activePhoto = localPhotos[item.id] || item.photoUrl;
               const silhouette = item.pursePreset?.shape
@@ -625,6 +648,40 @@ export const BoutiqueCatalog: React.FC<BoutiqueCatalogProps> = ({
               );
             })}
           </div>
+
+          {/* Anti-Doom-Scroll Pagination Bar */}
+          {visibleItems.length > displayedItems.length ? (
+            <div className="pt-4 flex flex-wrap items-center justify-center gap-3">
+              <button
+                type="button"
+                onClick={() => setVisibleLimit((n) => n + 8)}
+                className="min-h-[44px] px-6 py-2.5 rounded-full bg-gradient-to-r from-[#F5B96B] to-[#E59A45] hover:from-[#FDE68A] hover:to-[#F5B96B] text-[#0B101C] text-xs font-bold shadow-lg transition-all"
+              >
+                Load 8 More Pieces ({visibleItems.length - displayedItems.length} remaining)
+              </button>
+              <button
+                type="button"
+                onClick={() => setVisibleLimit(visibleItems.length)}
+                className="min-h-[44px] px-5 py-2.5 rounded-full bg-white/10 hover:bg-white/18 border border-white/20 text-white text-xs font-semibold transition-colors"
+              >
+                View All {visibleItems.length}
+              </button>
+            </div>
+          ) : visibleItems.length > 8 ? (
+            <div className="pt-2 flex justify-center">
+              <button
+                type="button"
+                onClick={() => {
+                  setVisibleLimit(8);
+                  document.getElementById('collection')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }}
+                className="min-h-[38px] px-4 py-1.5 rounded-full bg-white/8 hover:bg-white/16 border border-white/15 text-slate-300 hover:text-white text-xs font-semibold transition-colors"
+              >
+                Collapse Back to Top 8
+              </button>
+            </div>
+          ) : null}
+          </>
         )}
       </div>
     </section>

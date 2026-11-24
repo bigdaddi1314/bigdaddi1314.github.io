@@ -2,12 +2,18 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ArrowRight,
   Compass,
+  Film,
+  Flame,
   Home,
+  KeyRound,
   Layers,
   Lock,
+  MessageSquarePlus,
   ShoppingBag,
   Sparkles,
   Store,
+  Wand2,
+  Zap,
 } from 'lucide-react';
 import {
   CATALOG_ITEMS,
@@ -31,6 +37,7 @@ import type {
 import { AccessoryCustomizerDrawer } from './components/AccessoryCustomizerDrawer';
 import { BoutiqueCatalog } from './components/BoutiqueCatalog';
 import { CustomRequestSection } from './components/CustomRequestSection';
+import { MadeInAtelierGallery } from './components/MadeInAtelierGallery';
 import { MonogramPatternStudioView } from './components/MonogramPatternStudioView';
 import { OfflineIndicator, PWAInstallButton } from './components/PWAInstallControl';
 import {
@@ -73,6 +80,7 @@ export function App() {
   // Active storefront view ('shop' vs embedded 'pattern-studio')
   const [activeView, setActiveView] = useState<'shop' | 'pattern-studio'>(readInitialView);
   const [patternStudioItemName, setPatternStudioItemName] = useState<string | null>(null);
+  const [atelierTab, setAtelierTab] = useState<'purse' | 'bespoke' | 'timelapse'>('purse');
 
   // Navigation & catalog state (populated from /products-catalog.json)
   const [activeCategory, setActiveCategory] = useState<ProductCategory>('all');
@@ -190,12 +198,36 @@ export function App() {
   }, []);
 
   const scrollToSection = (id: string) => {
+    let targetId = id;
+    if (id === 'purse-studio') {
+      setAtelierTab('purse');
+      targetId = 'atelier-hub';
+    } else if (id === 'bespoke') {
+      setAtelierTab('bespoke');
+      targetId = 'atelier-hub';
+    } else if (id === 'timelapse') {
+      setAtelierTab('timelapse');
+      targetId = 'atelier-hub';
+    }
     if (activeView !== 'shop') {
-      returnToShop(id);
+      returnToShop(targetId);
       return;
     }
-    const el = document.getElementById(id);
-    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    window.requestAnimationFrame(() => {
+      const el = document.getElementById(targetId) || document.getElementById(id);
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  };
+
+  const handleQuickPersonalizeById = (productIdMatch: string) => {
+    const match =
+      catalogItems.find((c) => c.id === productIdMatch) || catalogItems[0];
+    if (!match) return;
+    handleOpenProductPersonalizer(match, {
+      primaryHex: match.defaultPrimaryHex,
+      accentHex: match.defaultAccentHex,
+      engraving: match.defaultEngraving || '',
+    });
   };
 
   // Bag mutations
@@ -625,90 +657,91 @@ export function App() {
         {/* 1. IMMERSIVE CHARLOTTE SUNSET SKYLINE HERO                   */}
         {/* ============================================================ */}
         <section className="relative overflow-hidden border-b border-white/12">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-20 lg:py-24">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
-              {/* Left Editorial Headline & CTAs over open Sunset Skyline */}
-              <div className="lg:col-span-6 space-y-6">
-                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#090D18]/60 backdrop-blur-md border border-[#F5B96B]/35">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 lg:py-16">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-7 lg:gap-9 items-center">
+              {/* Left Editorial Headline & Multi-Category CTAs */}
+              <div className="lg:col-span-6 space-y-5">
+                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#090D18]/65 backdrop-blur-md border border-[#F5B96B]/35">
                   <span className="w-2 h-2 rounded-full bg-[#F5B96B] shadow-[0_0_10px_#F5B96B]" />
                   <p className="text-[11px] font-semibold tracking-[0.2em] text-[#FDE68A] uppercase">
-                    {STOREFRONT_CONFIG.hero.kicker}
+                    Charlotte 3D Atelier · Custom Made to Order
                   </p>
                 </div>
 
-                <h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl font-semibold text-white leading-[1.04] tracking-tight text-balance drop-shadow-[0_6px_28px_rgba(0,0,0,0.65)]">
-                  {STOREFRONT_CONFIG.hero.headline}{' '}
+                <h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl font-semibold text-white leading-[1.03] tracking-tight text-balance drop-shadow-[0_6px_28px_rgba(0,0,0,0.65)]">
+                  Custom 3D Prints,{' '}
                   <span className="italic sunset-text-gradient">
-                    {STOREFRONT_CONFIG.hero.headlineItalic}
+                    Styled Your Way.
                   </span>
                 </h1>
 
                 <p className="text-sm sm:text-base text-slate-100/95 leading-relaxed max-w-xl drop-shadow-[0_2px_12px_rgba(0,0,0,0.65)]">
-                  {STOREFRONT_CONFIG.hero.description}
+                  From sculpted multi-color purses to custom herb grinders, LED lightboxes, 3D wall logos, lighter sleeves, and keychains—upload any phone photo or name and preview it live on your print before you buy.
                 </p>
 
-                <div className="flex flex-wrap items-center gap-3 pt-1">
-                  <a
-                    href="/purse-studio/index.html?preset=carryall&from=gallery"
-                    className="min-h-[50px] px-7 py-3 rounded-full bg-gradient-to-r from-[#F5B96B] via-[#EFA452] to-[#E08A3C] hover:from-[#FDE68A] hover:to-[#F5B96B] text-[#0B101C] text-sm font-bold inline-flex items-center gap-2 transition-all shadow-[0_12px_32px_rgba(245,158,11,0.35)] hover:-translate-y-0.5"
+                <div className="flex flex-wrap items-center gap-3 pt-0.5">
+                  <button
+                    type="button"
+                    onClick={() => handleQuickPersonalizeById('carryall-tote')}
+                    className="cta-shimmer min-h-[48px] px-6 py-3 rounded-full bg-gradient-to-r from-[#F5B96B] via-[#EFA452] to-[#E08A3C] hover:from-[#FDE68A] hover:to-[#F5B96B] text-[#0B101C] text-sm font-bold inline-flex items-center gap-2 transition-all shadow-[0_12px_32px_rgba(245,158,11,0.35)] hover:-translate-y-0.5"
                   >
-                    <span>{STOREFRONT_CONFIG.hero.primaryCta}</span>
-                    <ArrowRight className="w-4 h-4" />
-                  </a>
+                    <Wand2 className="w-4 h-4" />
+                    <span>Upload Photo / Personalize Any Item</span>
+                  </button>
                   <button
                     type="button"
                     onClick={() => scrollToSection('collection')}
-                    className="min-h-[50px] px-6 py-3 rounded-full bg-[#0B101C]/65 hover:bg-[#0B101C]/85 backdrop-blur-md border border-white/25 hover:border-[#F5B96B] text-white text-sm font-semibold transition-all"
+                    className="min-h-[48px] px-5 py-3 rounded-full bg-[#0B101C]/70 hover:bg-[#0B101C]/90 backdrop-blur-md border border-white/25 hover:border-[#5EEAD4] text-white text-sm font-semibold inline-flex items-center gap-1.5 transition-all"
                   >
-                    Explore All {catalogItems.length} Pieces
+                    <span>Shop {catalogItems.length} Pieces</span>
+                    <ArrowRight className="w-4 h-4 text-[#5EEAD4]" />
                   </button>
                 </div>
 
-                {/* Grounded Boutique Value Metrics in Translucent Glass Strip */}
-                <div className="grid grid-cols-3 gap-4 p-4 rounded-2xl bg-[#090D18]/58 backdrop-blur-md border border-white/15 max-w-lg">
-                  <div>
-                    <p className="font-serif text-xl sm:text-2xl font-semibold text-[#FDE68A]">
-                      {catalogItems.length} Pieces
-                    </p>
-                    <p className="text-[11px] text-slate-300 mt-0.5">
-                      Workshop &amp; Studio Catalog
-                    </p>
-                  </div>
-                  <div>
-                    <p className="font-serif text-xl sm:text-2xl font-semibold text-[#7DD3FC]">
-                      21 Silhouettes
-                    </p>
-                    <p className="text-[11px] text-slate-300 mt-0.5">
-                      Parametric 3D Purse Studio
-                    </p>
-                  </div>
-                  <div>
-                    <p className="font-serif text-xl sm:text-2xl font-semibold text-[#5EEAD4]">
-                      Charlotte
-                    </p>
-                    <p className="text-[11px] text-slate-300 mt-0.5">
-                      Online &amp; Partner Boutique
-                    </p>
-                  </div>
+                {/* Quick-Jump Multi-Category Lane Pills (No Doom Scrolling) */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
+                  {[
+                    { label: 'Purses & Bags', sub: '21 Silhouettes', cat: 'signature-41' as ProductCategory, icon: ShoppingBag, color: 'text-[#FDE68A]' },
+                    { label: 'Smoke & Ritual', sub: 'Grinders & Trays', cat: 'erotic-label' as ProductCategory, icon: Flame, color: 'text-[#FB7185]' },
+                    { label: 'LED & Business', sub: 'Signs & Sleeves', cat: 'custom-studio' as ProductCategory, icon: Zap, color: 'text-[#7DD3FC]' },
+                    { label: 'Clutches', sub: 'Statement Shapes', cat: 'sculptural-clutches' as ProductCategory, icon: Sparkles, color: 'text-[#5EEAD4]' },
+                  ].map((lane) => {
+                    const Icon = lane.icon;
+                    return (
+                      <button
+                        key={lane.label}
+                        type="button"
+                        onClick={() => {
+                          setActiveCategory(lane.cat);
+                          scrollToSection('collection');
+                        }}
+                        className="text-left p-3 rounded-2xl bg-[#090D18]/65 hover:bg-[#0D1426]/90 backdrop-blur-md border border-white/14 hover:border-[#F5B96B]/60 transition-all hover:-translate-y-0.5"
+                      >
+                        <Icon className={`w-4 h-4 ${lane.color}`} />
+                        <p className="text-xs font-bold text-white mt-1.5 leading-tight">{lane.label}</p>
+                        <p className="text-[10px] text-slate-400 mt-0.5">{lane.sub}</p>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 
               {/* Right Visual Stage: Editorial Capsule + Frosted Glass Live 3D Purse Spotlight */}
               <div className="lg:col-span-6 grid grid-cols-1 sm:grid-cols-12 gap-4 items-stretch">
                 {/* Editorial Illustration Panel */}
-                <div className="sm:col-span-7 relative rounded-3xl overflow-hidden border border-white/20 bg-[#0B101C]/60 min-h-[340px] sm:min-h-[430px] shadow-[0_24px_60px_rgba(0,0,0,0.55)]">
+                <div className="sm:col-span-7 relative rounded-3xl overflow-hidden border border-white/20 bg-[#0B101C]/60 min-h-[300px] sm:min-h-[390px] shadow-[0_24px_60px_rgba(0,0,0,0.55)]">
                   <img
                     src={STOREFRONT_CONFIG.hero.illustrationUrl}
                     alt={STOREFRONT_CONFIG.hero.illustrationAlt}
                     referrerPolicy="no-referrer"
                     className="w-full h-full object-cover object-top"
                   />
-                  <div className="absolute inset-x-0 bottom-0 p-5 bg-gradient-to-t from-[#090D18]/92 via-[#090D18]/45 to-transparent text-white">
+                  <div className="absolute inset-x-0 bottom-0 p-5 bg-gradient-to-t from-[#090D18]/94 via-[#090D18]/50 to-transparent text-white">
                     <p className="text-[10px] font-semibold tracking-[0.2em] uppercase text-[#FDE68A]">
-                      Queen City Sunset Capsule
+                      Queen City Custom 3D Boutique
                     </p>
                     <p className="font-serif text-lg font-semibold leading-snug">
-                      Electric Blue · Hornets Teal · Sunset Gold
+                      Purses · Grinders · LED Signs · Custom Logos
                     </p>
                   </div>
                 </div>
@@ -729,7 +762,7 @@ export function App() {
                     </span>
                   </div>
 
-                  <div className="my-2 h-[220px] sm:h-[240px] rounded-2xl bg-[#0D1322]/90 border border-white/12 overflow-hidden">
+                  <div className="my-2 h-[200px] sm:h-[220px] rounded-2xl bg-[#0D1322]/90 border border-white/12 overflow-hidden">
                     <Purse3DViewport
                       config={purseConfig}
                       cameraPreset="hero"
@@ -778,7 +811,7 @@ export function App() {
 
                     <a
                       href={STUDIO_URL}
-                      className="w-full min-h-[40px] rounded-full bg-white/12 hover:bg-[#F5B96B] hover:text-[#0B101C] text-white border border-white/20 text-xs font-semibold inline-flex items-center justify-center gap-1.5 transition-colors"
+                      className="w-full min-h-[38px] rounded-full bg-white/12 hover:bg-[#F5B96B] hover:text-[#0B101C] text-white border border-white/20 text-xs font-semibold inline-flex items-center justify-center gap-1.5 transition-colors"
                     >
                       <Sparkles className="w-3.5 h-3.5 text-[#FDE68A]" />
                       <span>Open Full 3D Purse Studio</span>
@@ -791,96 +824,18 @@ export function App() {
         </section>
 
         {/* ============================================================ */}
-        {/* 2. ILLUSTRATED COLLECTION STORIES STRIP                      */}
+        {/* 2. AUTO-SCROLLING GALLERY OF PRODUCTS MADE IN OUR ATELIER    */}
         {/* ============================================================ */}
-        <section className="py-16 lg:py-20 border-b border-white/10">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
-            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-              <div>
-                <p className="text-xs font-semibold tracking-[0.2em] text-[#FDE68A] uppercase">
-                  Three Signature Worlds
-                </p>
-                <h2 className="font-serif text-3xl sm:text-4xl font-semibold text-white mt-1 drop-shadow-sm">
-                  Tailored From Boutique Nights to Quiet Rituals
-                </h2>
-              </div>
-              <button
-                type="button"
-                onClick={() => {
-                  setActiveCategory('all');
-                  scrollToSection('collection');
-                }}
-                className="text-xs font-semibold text-[#FDE68A] hover:text-white inline-flex items-center gap-1.5 self-start sm:self-auto"
-              >
-                <span>View All {catalogItems.length} Pieces</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </button>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {STOREFRONT_CONFIG.illustratedStories.map((story) => (
-                <button
-                  key={story.id}
-                  type="button"
-                  onClick={() => {
-                    if (story.actionTarget === 'purse-studio') {
-                      window.location.href = STUDIO_URL;
-                    } else if (story.category === 'charms') {
-                      setActiveCategory('erotic-label');
-                      scrollToSection('collection');
-                    } else {
-                      setActiveCategory('custom-studio');
-                      scrollToSection('collection');
-                    }
-                  }}
-                  className="group text-left glass-card rounded-3xl overflow-hidden flex flex-col justify-between transition-all hover:-translate-y-1"
-                >
-                  <div>
-                    <div className="aspect-[4/3] bg-[#0B101C] overflow-hidden">
-                      <img
-                        src={story.imageUrl}
-                        alt={story.title}
-                        referrerPolicy="no-referrer"
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                      />
-                    </div>
-                    <div className="p-6 space-y-2">
-                      <p className="text-[11px] font-semibold tracking-[0.18em] text-[#5EEAD4] uppercase">
-                        {story.kicker}
-                      </p>
-                      <h3 className="font-serif text-2xl font-semibold text-white">
-                        {story.title}
-                      </h3>
-                      <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-                        {story.description}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="px-6 pb-6 pt-1">
-                    <span className="text-xs font-semibold text-[#FDE68A] group-hover:text-white inline-flex items-center gap-1.5 transition-colors">
-                      <span>{story.ctaLabel}</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
-                    </span>
-                  </div>
-                </button>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ============================================================ */}
-        {/* 3. CINEMATIC 3D-PRINTING TIME-LAPSE SHOWCASE                 */}
-        {/* ============================================================ */}
-        <TimeLapseShowcase
-          title={STOREFRONT_CONFIG.timeLapse.title}
-          description={STOREFRONT_CONFIG.timeLapse.description}
-          videoUrl={STOREFRONT_CONFIG.timeLapse.videoUrl}
-          brandName={STOREFRONT_CONFIG.brand.name}
-          onToast={showToast}
+        <MadeInAtelierGallery
+          onSelectCategory={(cat) => {
+            setActiveCategory(cat);
+            scrollToSection('collection');
+          }}
+          onQuickPersonalize={handleQuickPersonalizeById}
         />
 
         {/* ============================================================ */}
-        {/* 4. CURATED 45-ITEM BOUTIQUE & WORKSHOP CATALOG               */}
+        {/* 3. COMPACT CURATED BOUTIQUE & WORKSHOP CATALOG (8 AT A TIME) */}
         {/* ============================================================ */}
         <BoutiqueCatalog
           catalogItems={catalogItems}
@@ -895,76 +850,151 @@ export function App() {
         />
 
         {/* ============================================================ */}
-        {/* 5. GUIDED FULL-SPECTRUM MULTI-COLOR 3D PURSE STUDIO          */}
+        {/* 4. UNIFIED INTERACTIVE CHARLOTTE ATELIER HUB (TABBED)        */}
         {/* ============================================================ */}
-        <PurseDesignStudio
-          config={purseConfig}
-          onChange={setPurseConfig}
-          onAddToBag={handleAddPurseToBag}
-          onSaveDesign={handleSavePurseDesign}
-          onOpenPatternStudio={(label) => openPatternStudio(label)}
-          onToast={showToast}
-          isSaving={false}
-        />
+        <section id="atelier-hub" className="py-12 lg:py-16 border-t border-white/10">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+              <div className="space-y-1.5">
+                <p className="text-xs font-semibold tracking-[0.2em] text-[#5EEAD4] uppercase">
+                  Interactive Charlotte Atelier
+                </p>
+                <h2 className="font-serif text-3xl sm:text-4xl font-semibold text-white">
+                  Design, Watch &amp; <span className="italic sunset-text-gradient">Request One-of-One.</span>
+                </h2>
+              </div>
+
+              <div
+                role="tablist"
+                aria-label="Interactive atelier workspace switcher"
+                className="inline-flex flex-wrap items-center gap-1.5 p-1.5 rounded-2xl bg-[#090D18]/80 backdrop-blur-md border border-white/15"
+              >
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={atelierTab === 'purse'}
+                  onClick={() => setAtelierTab('purse')}
+                  className={`min-h-[40px] px-4 py-2 rounded-xl text-xs font-bold inline-flex items-center gap-1.5 transition-all ${
+                    atelierTab === 'purse'
+                      ? 'bg-gradient-to-r from-[#F5B96B] to-[#E59A45] text-[#0B101C] shadow-md'
+                      : 'text-slate-200 hover:text-white hover:bg-white/8'
+                  }`}
+                >
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>3D Purse Customizer</span>
+                </button>
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={atelierTab === 'bespoke'}
+                  onClick={() => setAtelierTab('bespoke')}
+                  className={`min-h-[40px] px-4 py-2 rounded-xl text-xs font-bold inline-flex items-center gap-1.5 transition-all ${
+                    atelierTab === 'bespoke'
+                      ? 'bg-gradient-to-r from-[#5EEAD4] to-[#38BDF8] text-[#0B101C] shadow-md'
+                      : 'text-slate-200 hover:text-white hover:bg-white/8'
+                  }`}
+                >
+                  <MessageSquarePlus className="w-3.5 h-3.5" />
+                  <span>Custom Request</span>
+                </button>
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={atelierTab === 'timelapse'}
+                  onClick={() => setAtelierTab('timelapse')}
+                  className={`min-h-[40px] px-4 py-2 rounded-xl text-xs font-bold inline-flex items-center gap-1.5 transition-all ${
+                    atelierTab === 'timelapse'
+                      ? 'bg-white text-[#0B101C] shadow-md'
+                      : 'text-slate-200 hover:text-white hover:bg-white/8'
+                  }`}
+                >
+                  <Film className="w-3.5 h-3.5" />
+                  <span>Watch It Print</span>
+                </button>
+              </div>
+            </div>
+
+            {atelierTab === 'purse' && (
+              <div className="[&_section]:py-0 [&_section>div]:px-0">
+                <PurseDesignStudio
+                  config={purseConfig}
+                  onChange={setPurseConfig}
+                  onAddToBag={handleAddPurseToBag}
+                  onSaveDesign={handleSavePurseDesign}
+                  onOpenPatternStudio={(label) => openPatternStudio(label)}
+                  onToast={showToast}
+                  isSaving={false}
+                />
+              </div>
+            )}
+
+            {atelierTab === 'bespoke' && (
+              <div className="[&_section]:py-0 [&_section>div]:px-0">
+                <CustomRequestSection
+                  prefillCategory={requestPrefillCategory}
+                  prefillNotes={requestPrefillNotes}
+                  onSubmitToCloud={handleSubmitBespokeLocal}
+                  onToast={showToast}
+                />
+              </div>
+            )}
+
+            {atelierTab === 'timelapse' && (
+              <div className="[&_section]:py-0 [&_section>div]:px-0">
+                <TimeLapseShowcase
+                  title={STOREFRONT_CONFIG.timeLapse.title}
+                  description={STOREFRONT_CONFIG.timeLapse.description}
+                  videoUrl={STOREFRONT_CONFIG.timeLapse.videoUrl}
+                  brandName={STOREFRONT_CONFIG.brand.name}
+                  onToast={showToast}
+                />
+              </div>
+            )}
+          </div>
+        </section>
 
         {/* ============================================================ */}
-        {/* 6. CUSTOM DESIGN REQUESTS (STATIC CONCEPT BRIEF + EMAIL)     */}
+        {/* 5. COMPACT CHARLOTTE CRAFT & STUDIO PILLARS                  */}
         {/* ============================================================ */}
-        <CustomRequestSection
-          prefillCategory={requestPrefillCategory}
-          prefillNotes={requestPrefillNotes}
-          onSubmitToCloud={handleSubmitBespokeLocal}
-          onToast={showToast}
-        />
-
-        {/* ============================================================ */}
-        {/* 7. CHARLOTTE PARTNER BOUTIQUE STORY & PILLARS                */}
-        {/* ============================================================ */}
-        <section className="py-16 lg:py-24 border-t border-white/10">
+        <section className="py-12 lg:py-16 border-t border-white/10">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="glass-panel rounded-3xl p-8 sm:p-12 space-y-12">
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-                <div className="lg:col-span-5 space-y-3">
+            <div className="glass-panel rounded-3xl p-6 sm:p-8 space-y-6">
+              <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+                <div>
                   <p className="text-xs font-semibold tracking-[0.2em] text-[#FDE68A] uppercase">
                     {STOREFRONT_CONFIG.story.kicker}
                   </p>
-                  <h2 className="font-serif text-3xl sm:text-4xl font-semibold text-white leading-tight">
+                  <h2 className="font-serif text-2xl sm:text-3xl font-semibold text-white mt-1">
                     {STOREFRONT_CONFIG.story.headline}
                   </h2>
                 </div>
-                <div className="lg:col-span-7 space-y-4 text-sm sm:text-base text-slate-200 leading-relaxed">
-                  {STOREFRONT_CONFIG.story.paragraphs.map((para, i) => (
-                    <p key={i}>{para}</p>
-                  ))}
-                  <div className="pt-2">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setRequestPrefillCategory('Outfit Color-Match / Event & Group Set');
-                        setRequestPrefillNotes(
-                          `I found ${STOREFRONT_CONFIG.brand.name} through the boutique and want to customize a color-matched piece...`
-                        );
-                        scrollToSection('bespoke');
-                      }}
-                      className="text-xs font-semibold text-[#FDE68A] hover:text-white inline-flex items-center gap-1.5"
-                    >
-                      <span>Request an Outfit Color-Match Consultation</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setRequestPrefillCategory('Outfit Color-Match / Event & Group Set');
+                    setRequestPrefillNotes(
+                      `I found ${STOREFRONT_CONFIG.brand.name} through the boutique and want to customize a color-matched piece...`
+                    );
+                    scrollToSection('bespoke');
+                  }}
+                  className="text-xs font-semibold text-[#FDE68A] hover:text-white inline-flex items-center gap-1.5 self-start md:self-auto"
+                >
+                  <KeyRound className="w-3.5 h-3.5 text-[#5EEAD4]" />
+                  <span>Request a Custom Group / Brand Order</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 {STOREFRONT_CONFIG.story.pillars.map((pillar, idx) => (
                   <div
                     key={pillar.title}
-                    className="p-6 rounded-2xl bg-white/6 border border-white/12 space-y-2"
+                    className="p-5 rounded-2xl bg-white/6 border border-white/12 space-y-1.5"
                   >
                     <span className="text-xs font-semibold text-[#F5B96B] tabular-nums">
                       0{idx + 1}
                     </span>
-                    <h3 className="font-serif text-xl font-semibold text-white">
+                    <h3 className="font-serif text-lg font-semibold text-white">
                       {pillar.title}
                     </h3>
                     <p className="text-xs text-slate-300 leading-relaxed">{pillar.body}</p>
