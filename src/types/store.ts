@@ -98,6 +98,25 @@ export interface CatalogItem {
 
 export type PrintReliefStyle = 'emboss' | 'deboss' | 'flush';
 
+export const PATTERN_HANDOFF_KEY = 'm704_pattern_handoff';
+
+export interface PatternHandoffPayload {
+  svgData: string;
+  previewDataUrl: string;
+  productId: string;
+  productName: string;
+  productPrice?: number;
+  photoUrl?: string;
+  primaryHex?: string;
+  secondaryHex?: string;
+  bagItemId?: string;
+  reliefMode: PrintReliefStyle;
+  filamentColor: string;
+  sourceFileName?: string;
+  customText?: string;
+  returnToCheckout: boolean;
+}
+
 export interface ItemPersonalization {
   customText: string;
   textFont: 'editorial' | 'modern' | 'script' | 'mono';
@@ -108,6 +127,8 @@ export interface ItemPersonalization {
   secondaryColorHex?: string;
   sourceFileName?: string;
   vectorMode?: 'logo' | 'photo' | 'stamp';
+  patternMode?: string;
+  isFullPattern?: boolean;
   scalePct: number;
   rotationDeg: number;
   offsetXPct: number;

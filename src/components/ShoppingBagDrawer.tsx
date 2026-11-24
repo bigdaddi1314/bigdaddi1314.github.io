@@ -266,7 +266,9 @@ export const ShoppingBagDrawer: React.FC<ShoppingBagDrawerProps> = ({
                           </p>
                           {item.personalization?.customSvg && (
                             <span className="mt-1 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#E6F7F8] text-[#0085CA] text-[10px] font-bold">
-                              ✓ Print-Ready SVG Attached
+                              {item.personalization.isFullPattern
+                                ? `✓ Full Monogram Pattern SVG (${(item.personalization.patternMode || 'brick').toUpperCase()})`
+                                : '✓ Print-Ready SVG Attached'}
                             </span>
                           )}
                         </div>

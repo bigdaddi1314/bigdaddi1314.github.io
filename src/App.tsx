@@ -26,13 +26,16 @@ import {
 } from './config/storefrontConfig';
 import { loadWorkshopCatalog } from './services/catalogLoader';
 import { recordBoutiqueOrder, recordCustomRequest } from './services/managementStore';
-import type {
-  AccessoryConfig,
-  BagItem,
-  CatalogItem,
-  ItemPersonalization,
-  ProductCategory,
-  PurseConfig,
+import {
+  PATTERN_HANDOFF_KEY,
+  type AccessoryConfig,
+  type BagItem,
+  type CatalogItem,
+  type ItemPersonalization,
+  type PatternHandoffPayload,
+  type PrintReliefStyle,
+  type ProductCategory,
+  type PurseConfig,
 } from './types/store';
 import { AccessoryCustomizerDrawer } from './components/AccessoryCustomizerDrawer';
 import { BoutiqueCatalog } from './components/BoutiqueCatalog';
@@ -76,10 +79,27 @@ function readStoredBag(): BagItem[] {
   }
 }
 
+function readStoredPatternHandoff(): PatternHandoffPayload | null {
+  try {
+    const raw = sessionStorage.getItem(PATTERN_HANDOFF_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as PatternHandoffPayload;
+    if (parsed && typeof parsed.svgData === 'string' && parsed.svgData.trim()) {
+      return parsed;
+    }
+  } catch {
+    // Ignore storage read errors
+  }
+  return null;
+}
+
 export function App() {
   // Active storefront view ('shop' vs embedded 'pattern-studio')
   const [activeView, setActiveView] = useState<'shop' | 'pattern-studio'>(readInitialView);
-  const [patternStudioItemName, setPatternStudioItemName] = useState<string | null>(null);
+  const [patternHandoff, setPatternHandoff] = useState<PatternHandoffPayload | null>(readStoredPatternHandoff);
+  const [patternStudioItemName, setPatternStudioItemName] = useState<string | null>(
+    () => readStoredPatternHandoff()?.productName ?? null
+  );
   const [atelierTab, setAtelierTab] = useState<'purse' | 'bespoke' | 'timelapse'>('purse');
 
   // Navigation & catalog state (populated from /products-catalog.json)
@@ -441,6 +461,142 @@ export function App() {
     setPersonalizerTarget(null);
   };
 
+  // Seamless handoff from ProductPersonalizerModal -> Monogram & Pattern Studio (zero re-upload)
+  const handleExpandToPatternStudio = useCallback(
+    (payload: PatternHandoffPayload) => {
+      try {
+        sessionStorage.setItem(PATTERN_HANDOFF_KEY, JSON.stringify(payload));
+      } catch {
+        // Ignore storage quota errors
+      }
+      setPersonalizerTarget(null);
+      setPatternHandoff(payload);
+      setPatternStudioItemName(payload.productName);
+      setActiveView('pattern-studio');
+      try {
+        const nextUrl = new URL(window.location.href);
+        nextUrl.searchParams.set('studio', 'monogram');
+        nextUrl.hash = '';
+        window.history.pushState({ view: 'pattern-studio' }, '', nextUrl.toString());
+      } catch {
+        // Ignore history push errors
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      showToast(`Loaded your artwork for ${payload.productName} into Brick / LV Monogram Studio`);
+    },
+    [showToast]
+  );
+
+  // Receive slicer-ready Pattern-Only SVG back from Monogram & Pattern Studio and attach to order/bag
+  const handleApplyPatternToOrder = useCallback(
+    (result: {
+      svgData: string;
+      previewDataUrl: string;
+      patternMode: string;
+      reliefMode: PrintReliefStyle;
+      filamentColor: string;
+      handoff: PatternHandoffPayload | null;
+    }) => {
+      const handoff = result.handoff || patternHandoff;
+      const patternLabelMap: Record<string, string> = {
+        brick: 'Brick / LV Monogram',
+        grid: 'Grid Repeat',
+        radial: 'Radial Sunburst',
+        spiral: 'Golden Spiral',
+        scatter: 'Random Scatter',
+        single: 'Single Stamp',
+      };
+      const patternLabel = patternLabelMap[result.patternMode] || 'Custom Monogram Pattern';
+      const reliefLabel =
+        result.reliefMode === 'deboss'
+          ? 'Engraved Deboss (-0.6mm)'
+          : result.reliefMode === 'flush'
+            ? 'Flush Color Inlay'
+            : 'Raised Emboss (+0.8mm)';
+      const summaryDetails = `Full ${patternLabel} · ${reliefLabel} · ${result.filamentColor}`;
+
+      const personalization: ItemPersonalization = {
+        customText: handoff?.customText || '',
+        textFont: 'editorial',
+        textSize: 28,
+        textYOffset: 30,
+        reliefStyle: result.reliefMode,
+        artworkColorHex: result.filamentColor,
+        sourceFileName: handoff?.sourceFileName || `monogram-${result.patternMode}.svg`,
+        patternMode: result.patternMode,
+        isFullPattern: true,
+        scalePct: 75,
+        rotationDeg: 0,
+        offsetXPct: 0,
+        offsetYPct: 0,
+        customSvg: result.svgData,
+        previewDataUrl: result.previewDataUrl,
+      };
+
+      const matchedBagItem = handoff?.bagItemId
+        ? bagItems.find((b) => b.key === handoff.bagItemId)
+        : undefined;
+
+      if (matchedBagItem) {
+        setBagItems((prev) =>
+          prev.map((b) =>
+            b.key === matchedBagItem.key
+              ? {
+                  ...b,
+                  secondaryHex: result.filamentColor || b.secondaryHex,
+                  details: summaryDetails,
+                  personalization,
+                }
+              : b
+          )
+        );
+        showToast(`Attached ${patternLabel} SVG to ${matchedBagItem.name} in your bag!`);
+      } else {
+        const matchedCatalog = handoff?.productId
+          ? catalogItems.find((c) => c.id === handoff.productId)
+          : undefined;
+        const productName =
+          handoff?.productName ||
+          patternStudioItemName ||
+          matchedCatalog?.name ||
+          'Custom Monogram 3D Piece';
+        const productId = handoff?.productId || matchedCatalog?.id || 'custom-monogram';
+        const price = handoff?.productPrice ?? matchedCatalog?.price ?? 78;
+        const primaryHex = handoff?.primaryHex || matchedCatalog?.defaultPrimaryHex || '#0085CA';
+        const photoUrl = handoff?.photoUrl || matchedCatalog?.photoUrl;
+        const customKey = `pat_${productId}_${Date.now().toString(36)}`;
+
+        setBagItems((prev) => [
+          ...prev,
+          {
+            key: customKey,
+            productId,
+            name: `${productName} (Monogram Pattern)`,
+            kind: matchedCatalog?.isPurse ? 'purse' : 'catalog',
+            price,
+            qty: 1,
+            primaryHex,
+            secondaryHex: result.filamentColor || '#F5B96B',
+            photoUrl,
+            details: summaryDetails,
+            personalization,
+          },
+        ]);
+        showToast(`Added ${productName} with ${patternLabel} SVG to your Boutique Bag!`);
+      }
+
+      try {
+        sessionStorage.removeItem(PATTERN_HANDOFF_KEY);
+      } catch {
+        // Ignore storage errors
+      }
+      setPatternHandoff(null);
+      returnToShop();
+      setIsBagOpen(true);
+    },
+    [bagItems, catalogItems, patternHandoff, patternStudioItemName, returnToShop, showToast]
+  );
+
   const handleAddAccessoryToBag = (cfg: AccessoryConfig, price: number) => {
     const key = `acc_${cfg.productId}_${cfg.colorMode}_${cfg.primaryHex}_${cfg.accentHex}_${cfg.engravingText}_${cfg.engravingFont}`;
     addItemToBag({
@@ -648,8 +804,11 @@ export function App() {
         {activeView === 'pattern-studio' ? (
           <MonogramPatternStudioView
             selectedProductName={patternStudioItemName}
+            handoff={patternHandoff}
             purseStudioUrl={STUDIO_URL}
             onBackToShop={() => returnToShop()}
+            onApplyPatternToOrder={handleApplyPatternToOrder}
+            onToast={showToast}
           />
         ) : (
         <>
@@ -1143,6 +1302,7 @@ export function App() {
         target={personalizerTarget}
         onClose={() => setPersonalizerTarget(null)}
         onSavePersonalization={handleSavePersonalization}
+        onExpandToPatternStudio={handleExpandToPatternStudio}
         onToast={showToast}
       />
 

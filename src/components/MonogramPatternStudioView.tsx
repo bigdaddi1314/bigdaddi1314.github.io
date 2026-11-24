@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ArrowLeft,
+  Check,
   ChevronDown,
   ChevronUp,
   ExternalLink,
@@ -9,22 +10,251 @@ import {
   Sparkles,
   Upload,
 } from 'lucide-react';
+import {
+  PATTERN_HANDOFF_KEY,
+  type PatternHandoffPayload,
+  type PrintReliefStyle,
+} from '../types/store';
 
 export const MONOGRAM_STUDIO_SRC = '/studios/mesh-graffiti-studio.html';
 
+export interface AppliedPatternResult {
+  svgData: string;
+  previewDataUrl: string;
+  patternMode: string;
+  reliefMode: PrintReliefStyle;
+  filamentColor: string;
+  handoff: PatternHandoffPayload | null;
+}
+
 interface MonogramPatternStudioViewProps {
   selectedProductName?: string | null;
+  handoff?: PatternHandoffPayload | null;
   purseStudioUrl: string;
   onBackToShop: () => void;
+  onApplyPatternToOrder?: (result: AppliedPatternResult) => void;
+  onToast?: (msg: string) => void;
+}
+
+function readSessionHandoff(): PatternHandoffPayload | null {
+  try {
+    const raw = sessionStorage.getItem(PATTERN_HANDOFF_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as PatternHandoffPayload;
+    if (parsed && typeof parsed.svgData === 'string' && parsed.svgData.trim()) {
+      return parsed;
+    }
+  } catch {
+    // Ignore storage read errors
+  }
+  return null;
+}
+
+function normalizeReliefMode(raw?: string): PrintReliefStyle {
+  if (raw === 'deboss' || raw === 'flush' || raw === 'emboss') return raw;
+  return 'emboss';
 }
 
 export const MonogramPatternStudioView: React.FC<MonogramPatternStudioViewProps> = ({
   selectedProductName,
+  handoff: handoffProp,
   purseStudioUrl,
   onBackToShop,
+  onApplyPatternToOrder,
+  onToast,
 }) => {
+  const iframeRef = useRef<HTMLIFrameElement | null>(null);
+  const sentHandoffSigRef = useRef<string | null>(null);
+  const pendingExportRef = useRef<{
+    requestId: string;
+    timer: number;
+  } | null>(null);
+
   const [iframeLoaded, setIframeLoaded] = useState(false);
   const [showGuide, setShowGuide] = useState(true);
+  const [isApplying, setIsApplying] = useState(false);
+  const [handoffApplied, setHandoffApplied] = useState(false);
+  const [activeHandoff, setActiveHandoff] = useState<PatternHandoffPayload | null>(
+    () => handoffProp ?? readSessionHandoff()
+  );
+
+  useEffect(() => {
+    if (handoffProp) {
+      setActiveHandoff(handoffProp);
+      sentHandoffSigRef.current = null;
+      setHandoffApplied(false);
+    } else {
+      const stored = readSessionHandoff();
+      if (stored) setActiveHandoff(stored);
+    }
+  }, [handoffProp]);
+
+  const sendHandoffToIframe = useCallback(
+    (payload: PatternHandoffPayload | null) => {
+      if (!payload || !iframeRef.current?.contentWindow) return;
+      const sig = `${payload.productId}|${payload.bagItemId || ''}|${payload.svgData.length}|${payload.filamentColor}`;
+      if (sentHandoffSigRef.current === sig) return;
+      sentHandoffSigRef.current = sig;
+      try {
+        iframeRef.current.contentWindow.postMessage(
+          {
+            type: 'M704_APPLY_HANDOFF',
+            payload,
+          },
+          window.location.origin
+        );
+      } catch {
+        // Fallback: iframe also reads sessionStorage on startup
+      }
+    },
+    []
+  );
+
+  const finalizeApply = useCallback(
+    (
+      svgData: string,
+      meta: { patternMode?: string; relief?: string; color?: string }
+    ) => {
+      setIsApplying(false);
+      if (pendingExportRef.current) {
+        window.clearTimeout(pendingExportRef.current.timer);
+        pendingExportRef.current = null;
+      }
+      if (!svgData) {
+        onToast?.('Add or unhide a monogram pattern layer first before applying to your order.');
+        return;
+      }
+      const previewDataUrl =
+        'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgData);
+      const reliefMode = normalizeReliefMode(meta.relief || activeHandoff?.reliefMode);
+      const filamentColor = meta.color || activeHandoff?.filamentColor || '#F5B96B';
+      const patternMode = meta.patternMode || 'brick';
+
+      if (onApplyPatternToOrder) {
+        onApplyPatternToOrder({
+          svgData,
+          previewDataUrl,
+          patternMode,
+          reliefMode,
+          filamentColor,
+          handoff: activeHandoff,
+        });
+      }
+    },
+    [activeHandoff, onApplyPatternToOrder, onToast]
+  );
+
+  // Listen for postMessage events from the isolated Mesh Graffiti Studio iframe
+  useEffect(() => {
+    const onMessage = (event: MessageEvent) => {
+      if (event.origin !== window.location.origin) return;
+      const data = event.data as Record<string, unknown> | null;
+      if (!data || typeof data.type !== 'string') return;
+
+      if (data.type === 'M704_STUDIO_READY') {
+        setIframeLoaded(true);
+        const payload = activeHandoff || readSessionHandoff();
+        if (payload) {
+          sendHandoffToIframe(payload);
+        }
+      } else if (data.type === 'M704_HANDOFF_APPLIED') {
+        if (data.ok) {
+          setHandoffApplied(true);
+        }
+      } else if (data.type === 'M704_PATTERN_SVG_RESULT') {
+        const reqId = typeof data.requestId === 'string' ? data.requestId : '';
+        if (pendingExportRef.current && pendingExportRef.current.requestId !== reqId) {
+          return;
+        }
+        if (data.ok && typeof data.svg === 'string' && data.svg.trim()) {
+          finalizeApply(data.svg, {
+            patternMode: typeof data.patternMode === 'string' ? data.patternMode : 'brick',
+            relief: typeof data.relief === 'string' ? data.relief : undefined,
+            color: typeof data.color === 'string' ? data.color : undefined,
+          });
+        } else {
+          setIsApplying(false);
+          if (pendingExportRef.current) {
+            window.clearTimeout(pendingExportRef.current.timer);
+            pendingExportRef.current = null;
+          }
+          onToast?.(
+            typeof data.error === 'string'
+              ? data.error
+              : 'Could not extract pattern SVG — add at least one visible pattern layer.'
+          );
+        }
+      }
+    };
+
+    window.addEventListener('message', onMessage);
+    return () => {
+      window.removeEventListener('message', onMessage);
+      if (pendingExportRef.current) {
+        window.clearTimeout(pendingExportRef.current.timer);
+        pendingExportRef.current = null;
+      }
+    };
+  }, [activeHandoff, finalizeApply, onToast, sendHandoffToIframe]);
+
+  const handleIframeLoad = () => {
+    setIframeLoaded(true);
+    const payload = activeHandoff || readSessionHandoff();
+    if (payload) {
+      sendHandoffToIframe(payload);
+    }
+  };
+
+  const handleApplyPatternClick = () => {
+    const win = iframeRef.current?.contentWindow;
+    if (!win) {
+      onToast?.('Studio is still loading — please wait a second and try again.');
+      return;
+    }
+
+    const requestId = `pat_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 6)}`;
+    setIsApplying(true);
+
+    const timer = window.setTimeout(() => {
+      // Same-origin fallback if postMessage reply timed out
+      try {
+        const dbg = (
+          win as unknown as {
+            __meshGraffitiDebug?: {
+              buildPatternOnlySvgString?: () => string | null;
+              getState?: () => { patternMode?: string };
+            };
+          }
+        ).__meshGraffitiDebug;
+        const svg = dbg?.buildPatternOnlySvgString?.();
+        const st = dbg?.getState?.();
+        if (svg) {
+          finalizeApply(svg, { patternMode: st?.patternMode || 'brick' });
+          return;
+        }
+      } catch {
+        // Ignore fallback failure
+      }
+      setIsApplying(false);
+      pendingExportRef.current = null;
+      onToast?.('Could not read the pattern SVG from the studio. Try clicking again.');
+    }, 1800);
+
+    pendingExportRef.current = { requestId, timer };
+    try {
+      win.postMessage(
+        {
+          type: 'M704_EXPORT_PATTERN_SVG',
+          requestId,
+        },
+        window.location.origin
+      );
+    } catch {
+      // Handled by fallback timeout above
+    }
+  };
+
+  const displayProductName = activeHandoff?.productName || selectedProductName;
 
   return (
     <section
@@ -55,9 +285,15 @@ export const MonogramPatternStudioView: React.FC<MonogramPatternStudioViewProps>
                     <Layers className="w-3 h-3" />
                     <span>Surface &amp; Monogram Engine</span>
                   </span>
-                  {selectedProductName && (
+                  {displayProductName && (
                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-[#F5B96B]/16 border border-[#F5B96B]/40 text-[10px] font-semibold text-[#FDE68A] max-w-[260px] truncate">
-                      Styling: {selectedProductName}
+                      Styling: {displayProductName}
+                    </span>
+                  )}
+                  {handoffApplied && (
+                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/18 border border-emerald-400/45 text-[10px] font-bold text-emerald-300">
+                      <Check className="w-3 h-3" />
+                      <span>Your Artwork Loaded in Brick / LV</span>
                     </span>
                   )}
                 </div>
@@ -67,8 +303,25 @@ export const MonogramPatternStudioView: React.FC<MonogramPatternStudioViewProps>
               </div>
             </div>
 
-            {/* Right: Quick Guide Toggle + Purse Studio + Fullscreen Tab */}
+            {/* Right: Apply Pattern to Order + Quick Guide + Purse Studio + Fullscreen Tab */}
             <div className="flex flex-wrap items-center gap-2 shrink-0">
+              {onApplyPatternToOrder && (
+                <button
+                  type="button"
+                  id="applyPatternToOrderBtn"
+                  disabled={!iframeLoaded || isApplying}
+                  onClick={handleApplyPatternClick}
+                  className="min-h-[38px] px-4 py-1.5 rounded-full bg-gradient-to-r from-[#F5B96B] to-[#E59A45] hover:from-[#FDE68A] hover:to-[#F5B96B] disabled:opacity-55 text-[#0B101C] text-xs font-bold inline-flex items-center gap-1.5 shadow-[0_8px_24px_rgba(245,185,107,0.3)] transition-all whitespace-nowrap"
+                >
+                  <Check className="w-4 h-4 stroke-[2.5]" />
+                  <span>
+                    {isApplying
+                      ? 'Attaching Slicer SVG…'
+                      : 'Apply Pattern to My Order ✓'}
+                  </span>
+                </button>
+              )}
+
               <button
                 type="button"
                 onClick={() => setShowGuide((prev) => !prev)}
@@ -116,7 +369,7 @@ export const MonogramPatternStudioView: React.FC<MonogramPatternStudioViewProps>
                   <strong className="text-white inline-flex items-center gap-1">
                     <Upload className="w-3 h-3 text-[#FDE68A]" /> Upload Your Logo
                   </strong>{' '}
-                  (SVG, PNG, JPG) or test the 6 built-in luxury monograms (Crown, Star, Hex, Bolt, Heart, Crest).
+                  (SVG, PNG, JPG) or refine the artwork sent straight from your product preview.
                 </p>
               </div>
 
@@ -134,7 +387,8 @@ export const MonogramPatternStudioView: React.FC<MonogramPatternStudioViewProps>
                   3
                 </span>
                 <p className="text-slate-200/95 leading-snug">
-                  <strong className="text-white">Orbit 360° &amp; Export:</strong> Drag to inspect from every angle, drop in any <code className="text-[#FDE68A]">.3MF</code>/<code className="text-[#FDE68A]">.STL</code>/<code className="text-[#FDE68A]">.OBJ</code>, then export a slicer-ready <strong className="text-white">Pattern-Only SVG</strong>.
+                  <strong className="text-white">Attach to Order or Export:</strong> Click{' '}
+                  <strong className="text-[#FDE68A]">Apply Pattern to My Order ✓</strong> to attach the slicer-ready Pattern-Only SVG straight to your bag.
                 </p>
               </div>
             </div>
@@ -152,10 +406,11 @@ export const MonogramPatternStudioView: React.FC<MonogramPatternStudioViewProps>
             </div>
           )}
           <iframe
+            ref={iframeRef}
             id="monogramStudioFrame"
             src={MONOGRAM_STUDIO_SRC}
             title="Monogram & Pattern Studio — Mesh Graffiti 3D Surface Engine"
-            onLoad={() => setIframeLoaded(true)}
+            onLoad={handleIframeLoad}
             allow="fullscreen"
             allowFullScreen
             className="w-full h-full min-h-[720px] border-0 block bg-[#111411]"

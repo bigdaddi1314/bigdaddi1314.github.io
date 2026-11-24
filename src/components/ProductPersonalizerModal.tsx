@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 import {
+  ArrowRight,
   Check,
   Download,
   Eye,
@@ -13,9 +14,11 @@ import {
   Wand2,
   X,
 } from 'lucide-react';
-import type {
-  ItemPersonalization,
-  PrintReliefStyle,
+import {
+  PATTERN_HANDOFF_KEY,
+  type ItemPersonalization,
+  type PatternHandoffPayload,
+  type PrintReliefStyle,
 } from '../types/store';
 import {
   prepareNativeSvg,
@@ -44,6 +47,7 @@ interface ProductPersonalizerModalProps {
     personalization: ItemPersonalization,
     summaryDetails: string
   ) => void;
+  onExpandToPatternStudio?: (payload: PatternHandoffPayload) => void;
   onToast: (msg: string) => void;
 }
 
@@ -92,6 +96,7 @@ export const ProductPersonalizerModal: React.FC<ProductPersonalizerModalProps> =
   target,
   onClose,
   onSavePersonalization,
+  onExpandToPatternStudio,
   onToast,
 }) => {
   const filterUid = useId().replace(/:/g, '');
@@ -402,6 +407,49 @@ export const ProductPersonalizerModal: React.FC<ProductPersonalizerModalProps> =
     onSavePersonalization(target, personalization, summaryParts.join(' · '));
   };
 
+  const handleExpandToPatternStudio = () => {
+    if (!target) return;
+    // Prefer the shopper's uploaded/vectorized SVG (or combined artwork+text SVG),
+    // falling back to the built-in Crown emblem so they can also launch directly with a preset.
+    const fallbackPreset = QUICK_ICONS[0];
+    const svgData =
+      combinedExportSvg ||
+      vectorResult?.svgString ||
+      prepareNativeSvg(fallbackPreset.svg, artworkColorHex, 60).svgString;
+
+    const previewDataUrl =
+      'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgData);
+
+    const payload: PatternHandoffPayload = {
+      svgData,
+      previewDataUrl,
+      productId: target.productId,
+      productName: target.name,
+      productPrice: target.price,
+      photoUrl: target.photoUrl,
+      primaryHex: target.primaryHex,
+      secondaryHex: target.secondaryHex,
+      bagItemId: target.existingBagKey,
+      reliefMode: reliefStyle,
+      filamentColor: artworkColorHex,
+      sourceFileName: sourceFileName || (vectorResult ? 'Custom Logo.svg' : `${fallbackPreset.label} Emblem.svg`),
+      customText: customText.trim() || undefined,
+      returnToCheckout: Boolean(target.existingBagKey),
+    };
+
+    try {
+      sessionStorage.setItem(PATTERN_HANDOFF_KEY, JSON.stringify(payload));
+    } catch {
+      // Ignore storage quota issues; payload is also passed in memory
+    }
+
+    if (onExpandToPatternStudio) {
+      onExpandToPatternStudio(payload);
+    } else {
+      window.location.href = '/?studio=monogram';
+    }
+  };
+
   if (!target) return null;
 
   const activeFilterAttr =
@@ -652,6 +700,30 @@ export const ProductPersonalizerModal: React.FC<ProductPersonalizerModalProps> =
               <Eye className="w-3.5 h-3.5 inline mr-1 text-[#FDE68A]" />
               What you see above is your exact converted 3D vector relief preview. Our Charlotte atelier prints this exact vector directly onto your {target.name}.
             </p>
+
+            {/* Seamless Handoff to Full Monogram & Pattern Studio (zero re-upload) */}
+            <div className="p-3.5 rounded-2xl bg-gradient-to-r from-[#5EEAD4]/10 via-[#0085CA]/10 to-[#F5B96B]/10 border border-[#5EEAD4]/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="min-w-0">
+                <p className="text-xs font-bold text-white flex items-center gap-1.5">
+                  <Layers className="w-3.5 h-3.5 text-[#5EEAD4] shrink-0" />
+                  <span>Want an all-over luxury monogram pattern?</span>
+                </p>
+                <p className="text-[11px] text-slate-300 mt-0.5 leading-snug">
+                  {vectorResult
+                    ? 'Send your converted SVG straight into Brick / LV tiling — no re-upload needed.'
+                    : 'Launch the 3D Monogram Studio with your text or our built-in Crown emblem.'}
+                </p>
+              </div>
+              <button
+                type="button"
+                id="expandToMonogramPatternBtn"
+                onClick={handleExpandToPatternStudio}
+                className="min-h-[38px] px-4 py-2 rounded-full bg-[#5EEAD4]/18 hover:bg-[#5EEAD4] border border-[#5EEAD4]/55 text-[#5EEAD4] hover:text-[#070A13] text-[11px] font-bold inline-flex items-center justify-center gap-1.5 transition-all whitespace-nowrap shrink-0"
+              >
+                <span>Expand to Full Monogram Pattern</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
           </div>
 
           {/* RIGHT: Everyday Shopper Controls */}
