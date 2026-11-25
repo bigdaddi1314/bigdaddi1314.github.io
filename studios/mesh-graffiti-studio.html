@@ -2911,6 +2911,106 @@ svg#model{width:100%;height:100%;max-height:620px;position:relative;z-index:1;ov
     say("Slicer-ready pattern SVG downloaded!");
   };
 
+  // Boutique Handoff Bridge (sessionStorage "m704_pattern_handoff" + postMessage)
+  var lastAppliedHandoffKey = null;
+
+  function applyBoutiqueHandoff(payload){
+    if(!payload || typeof payload !== "object" || !payload.svgData) return false;
+    var key = (payload.productId || "") + "|" + (payload.bagItemId || "") + "|" + payload.svgData.length + "|" + (payload.filamentColor || "");
+    if(lastAppliedHandoffKey === key) return true;
+
+    var parsed = parseUploadedSvgMarkup(payload.svgData);
+    if(!parsed) return false;
+
+    lastAppliedHandoffKey = key;
+
+    // 1. Inject shopper's SVG cleanly into active custom logo layer (zero re-upload)
+    imgSvgMarkup = parsed.markup;
+    imgSvgViewBox = parsed.viewBox;
+    imgAspect = parsed.aspect || 1;
+    imgData = payload.previewDataUrl || ("data:image/svg+xml;charset=utf-8," + encodeURIComponent(payload.svgData));
+    imgName = (payload.sourceFileName || payload.productName || "Custom Logo").replace(/\.[^.]+$/, "");
+
+    // 2. Apply filament color & 3D relief mode
+    if(payload.filamentColor && /^#[0-9a-fA-F]{6}$/.test(payload.filamentColor)){
+      color = payload.filamentColor;
+      syncColorSwatches(color);
+    }
+    var reliefSel = document.getElementById("reliefMode");
+    if(reliefSel && payload.reliefMode){
+      var mappedRelief = (payload.reliefMode === "deboss" || payload.reliefMode === "flush" || payload.reliefMode === "emboss")
+        ? payload.reliefMode
+        : "emboss";
+      reliefSel.value = mappedRelief;
+    }
+
+    // 3. Switch directly to Brick / LV (Half-Drop Monogram) layout
+    patternMode = "brick";
+    document.querySelectorAll(".pmode").forEach(function(b){
+      b.classList.toggle("active", b.dataset.pmode === "brick");
+    });
+
+    // 4. Update left-panel upload card UI so shopper sees their artwork is active
+    document.querySelectorAll(".preset-card").forEach(function(c){ c.classList.remove("active"); });
+    var presetNameEl = document.getElementById("activePresetName");
+    if(presetNameEl) presetNameEl.textContent = "Shopper Artwork";
+    var imgTitleEl = document.getElementById("imageTitle");
+    if(imgTitleEl) imgTitleEl.textContent = payload.sourceFileName || (payload.productName ? payload.productName + " Logo" : "Shopper Artwork");
+    var imgCopyEl = document.getElementById("imageCopy");
+    if(imgCopyEl) imgCopyEl.textContent = "Loaded automatically in Brick / LV Monogram mode. Adjust spacing, angle, or relief below.";
+
+    // 5. Clear default starter preset layers so the shopper's artwork is the sole hero pattern
+    while(items.length){
+      var old = items.pop();
+      if(old && old.node && old.node.parentNode) old.node.parentNode.removeChild(old.node);
+    }
+    active = null;
+
+    setMode("image");
+    placeLogoPattern();
+    setMode("orbit");
+    say("Loaded your artwork into Brick / LV Monogram pattern!");
+
+    if(window.parent && window.parent !== window){
+      try{
+        window.parent.postMessage({
+          type: "M704_HANDOFF_APPLIED",
+          ok: true,
+          patternMode: patternMode,
+          imgName: imgName
+        }, window.location.origin);
+      }catch(_){}
+    }
+    return true;
+  }
+
+  window.addEventListener("message", function(event){
+    if(event.origin !== window.location.origin) return;
+    var msg = event.data;
+    if(!msg || typeof msg !== "object") return;
+
+    if(msg.type === "M704_APPLY_HANDOFF" && msg.payload){
+      applyBoutiqueHandoff(msg.payload);
+    } else if(msg.type === "M704_EXPORT_PATTERN_SVG"){
+      var svgString = buildPatternOnlySvgString();
+      var currentRelief = (active && active.cfg && active.cfg.relief) || (document.getElementById("reliefMode") && document.getElementById("reliefMode").value) || "emboss";
+      var currentColor = (active && active.color) || color || "#F5B96B";
+      var currentMode = (active && active.cfg && active.cfg.pmode) || patternMode || "brick";
+      try{
+        event.source.postMessage({
+          type: "M704_PATTERN_SVG_RESULT",
+          requestId: msg.requestId || "",
+          ok: !!svgString,
+          svg: svgString || null,
+          patternMode: currentMode,
+          relief: currentRelief,
+          color: currentColor,
+          error: svgString ? null : "Add or unhide at least one pattern layer first."
+        }, event.origin);
+      }catch(_){}
+    }
+  });
+
   // Expose lightweight debug handle for automated verification without polluting UI
   window.__meshGraffitiDebug = {
     getState: function(){
@@ -2919,6 +3019,8 @@ svg#model{width:100%;height:100%;max-height:620px;position:relative;z-index:1;ov
         activePane: activePane,
         patternMode: patternMode,
         activePreset: activePreset,
+        imgName: imgName,
+        hasCustomSvg: !!imgSvgMarkup,
         camYawDeg: Math.round((camYaw * 180 / Math.PI) % 360),
         camPitchDeg: Math.round((camPitch * 180 / Math.PI) % 360),
         layerCount: items.length,
@@ -2928,7 +3030,8 @@ svg#model{width:100%;height:100%;max-height:620px;position:relative;z-index:1;ov
         surfaceBounds: surfaceBounds
       };
     },
-    buildPatternOnlySvgString: buildPatternOnlySvgString
+    buildPatternOnlySvgString: buildPatternOnlySvgString,
+    applyBoutiqueHandoff: applyBoutiqueHandoff
   };
 
   // Initialize default 3D mesh, open Logo & Pattern controls, and enable 360° orbit
@@ -2936,7 +3039,28 @@ svg#model{width:100%;height:100%;max-height:620px;position:relative;z-index:1;ov
   setActiveMeshGeometry(defaultMesh.verts, defaultMesh.tris, "Orbit case");
   setMode("image");
   setMode("orbit");
-  placeLogoPattern();
+
+  // Check sessionStorage for seamless ProductPersonalizerModal handoff before falling back to starter preset
+  var appliedFromSession = false;
+  try{
+    var rawHandoff = sessionStorage.getItem("m704_pattern_handoff");
+    if(rawHandoff){
+      var parsedHandoff = JSON.parse(rawHandoff);
+      if(parsedHandoff && parsedHandoff.svgData){
+        appliedFromSession = applyBoutiqueHandoff(parsedHandoff);
+      }
+    }
+  }catch(_){}
+
+  if(!appliedFromSession){
+    placeLogoPattern();
+  }
+
+  if(window.parent && window.parent !== window){
+    try{
+      window.parent.postMessage({ type: "M704_STUDIO_READY" }, window.location.origin);
+    }catch(_){}
+  }
 })();
 </script>
 </body>
